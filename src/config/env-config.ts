@@ -4,7 +4,7 @@ import { z } from 'zod';
 const EnvSchema = z.object({
   PORT: z.preprocess(
     (value) => parseInt((value as string).toString(), 10),
-    z.number().min(0)
+    z.number().min(0),
   ),
   GITHUB_APP_ID: z.string().min(1),
   GITHUB_PRIVATE_KEY_PATH: z.string().min(1),
