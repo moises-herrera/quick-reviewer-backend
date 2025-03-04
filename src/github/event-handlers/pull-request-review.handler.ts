@@ -1,15 +1,17 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { prisma } from 'src/database/db-connection';
 import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
 import { CodeReviewData } from '../interfaces/code-review-data';
+import { CodeReviewService } from '../services/code-review.service';
 
 type EventPayload = EmitterWebhookEvent<'pull_request_review'>['payload'];
 
 type PullRequestReviewEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestReviewHandler extends EventHandler<EventPayload> {
+  private readonly codeReviewService = new CodeReviewService();
+
   constructor(event: PullRequestReviewEvent) {
     super(event);
   }
@@ -29,11 +31,9 @@ export class PullRequestReviewHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request_review.submitted'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.codeReview.create({
-        data: {
-          ...mapCodeReviewToCreation(payload.review as CodeReviewData),
-          pullRequestId: payload.pull_request.id,
-        },
+      await this.codeReviewService.saveCodeReview({
+        ...mapCodeReviewToCreation(payload as unknown as CodeReviewData),
+        pullRequestId: payload.pull_request.id as unknown as bigint,
       });
     } catch (error) {
       console.error('Error creating pull request review:', error);

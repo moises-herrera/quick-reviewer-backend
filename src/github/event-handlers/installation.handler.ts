@@ -1,11 +1,11 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { prisma } from 'src/database/db-connection';
 import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
-import { PullRequestService } from '../services/pull-request.service';
+import { PullRequestHistoryService } from '../services/pull-request-history.service';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
+import { AccountService } from '../services/account.service';
 
 type InstallationEvent = GitHubWebHookEvent<
   EmitterWebhookEvent<'installation'>['payload']
@@ -14,7 +14,8 @@ type InstallationEvent = GitHubWebHookEvent<
 export class InstallationHandler extends EventHandler<
   EmitterWebhookEvent<'installation'>['payload']
 > {
-  private readonly pullRequestService = new PullRequestService(this.octokit);
+  private readonly accountService = new AccountService();
+  private readonly pullRequestHistoryService = new PullRequestHistoryService(this.octokit);
 
   constructor(event: InstallationEvent) {
     super(event);
@@ -45,19 +46,13 @@ export class InstallationHandler extends EventHandler<
         payload.repositories || [],
       );
 
-      const account = await prisma.account.create({
-        data: {
-          ...mapAccountToCreation(payload.installation.account as AccountData),
-          repositories: {
-            createMany: {
-              data: repositoriesMapped,
-            },
-          },
-        },
+      const account = await this.accountService.saveAccount({
+        ...mapAccountToCreation(payload.installation.account as AccountData),
+        repositories: repositoriesMapped,
       });
 
       const pullRequestsPromises = repositoriesMapped.map(({ name }) => {
-        return this.pullRequestService.savePullRequestsHistoryByRepository({
+        return this.pullRequestHistoryService.savePullRequestsHistoryByRepository({
           owner: account.name,
           name,
         });
@@ -75,11 +70,7 @@ export class InstallationHandler extends EventHandler<
     if (!payload.installation.account) return;
 
     try {
-      await prisma.account.delete({
-        where: {
-          id: payload.installation.account?.id,
-        },
-      });
+      await this.accountService.deleteAccount(payload.installation.account.id);
     } catch (error) {
       console.error('Error deleting account:', error);
     }

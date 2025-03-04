@@ -1,13 +1,16 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { prisma } from 'src/database/db-connection';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
+import { RepositoryService } from '../services/repository.service';
+import { Repository } from '@prisma/client';
 
 type EventPayload = EmitterWebhookEvent<'repository'>['payload'];
 
 type RepositoryEvent = GitHubWebHookEvent<EventPayload>;
 
 export class RepositoryHandler extends EventHandler<EventPayload> {
+  private readonly repositoryService = new RepositoryService();
+
   constructor(event: RepositoryEvent) {
     super(event);
   }
@@ -35,13 +38,11 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.created'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.repository.create({
-        data: {
-          id: payload.repository.id,
-          name: payload.repository.name,
-          ownerId: payload.repository.owner.id,
-        },
-      });
+      await this.repositoryService.saveRepository({
+        id: payload.repository.id as unknown as bigint,
+        name: payload.repository.name,
+        ownerId: payload.repository.owner.id as unknown as bigint,
+      } as unknown as Repository);
     } catch (error) {
       console.error('Error creating repository:', error);
     }
@@ -51,11 +52,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.deleted'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.repository.delete({
-        where: {
-          id: payload.repository.id,
-        },
-      });
+      await this.repositoryService.deleteRepository(payload.repository.id);
     } catch (error) {
       console.error('Error deleting repository:', error);
     }
@@ -65,14 +62,10 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.renamed'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.repository.update({
-        where: {
-          id: payload.repository.id,
-        },
-        data: {
-          name: payload.repository.name,
-        },
-      });
+      await this.repositoryService.renameRepository(
+        payload.repository.id,
+        payload.repository.name,
+      );
     } catch (error) {
       console.error('Error editing repository:', error);
     }

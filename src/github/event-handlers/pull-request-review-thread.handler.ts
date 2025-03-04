@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { EventHandler } from '../interfaces/event-handler';
-import { prisma } from 'src/database/db-connection';
+import { CodeReviewCommentService } from '../services/code-review-comment.service';
 
 type EventPayload =
   EmitterWebhookEvent<'pull_request_review_thread'>['payload'];
@@ -9,6 +9,8 @@ type EventPayload =
 type PullRequestReviewThreadEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestReviewThreadHandler extends EventHandler<EventPayload> {
+  private readonly codeReviewCommentService = new CodeReviewCommentService();
+
   constructor(event: PullRequestReviewThreadEvent) {
     super(event);
   }
@@ -31,30 +33,22 @@ export class PullRequestReviewThreadHandler extends EventHandler<EventPayload> {
   private async handlePullRequestReviewThreadResolved(
     payload: EmitterWebhookEvent<'pull_request_review_thread.resolved'>['payload'],
   ): Promise<void> {
-    await prisma.codeReviewComment.updateMany({
-      where: {
-        id: {
-          in: payload.thread.comments.map(({ id }) => id),
-        },
-      },
-      data: {
+    await this.codeReviewCommentService.updateCodeReviewComments(
+      payload.thread.comments.map(({ id }) => id),
+      {
         resolvedAt: new Date(),
       },
-    });
+    );
   }
 
   private async handlePullRequestReviewThreadUnresolved(
     payload: EmitterWebhookEvent<'pull_request_review_thread.unresolved'>['payload'],
   ): Promise<void> {
-    await prisma.codeReviewComment.updateMany({
-      where: {
-        id: {
-          in: payload.thread.comments.map(({ id }) => id),
-        },
-      },
-      data: {
+    await this.codeReviewCommentService.updateCodeReviewComments(
+      payload.thread.comments.map(({ id }) => id),
+      {
         resolvedAt: null,
       },
-    });
+    );
   }
 }

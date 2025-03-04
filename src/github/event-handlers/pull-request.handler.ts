@@ -1,14 +1,16 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { prisma } from 'src/database/db-connection';
 import { mapPullRequestToCreation } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
+import { PullRequestService } from '../services/pull-request.service';
 
 type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
 
 type PullRequestEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestHandler extends EventHandler<EventPayload> {
+  private readonly pullRequestService = new PullRequestService();
+
   constructor(event: PullRequestEvent) {
     super(event);
   }
@@ -40,9 +42,9 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.opened'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.pullRequest.create({
-        data: mapPullRequestToCreation(payload),
-      });
+      await this.pullRequestService.savePullRequest(
+        mapPullRequestToCreation(payload),
+      );
     } catch (error) {
       console.error('Error creating pull request:', error);
     }
@@ -52,14 +54,9 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.closed'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.pullRequest.update({
-        where: {
-          id: payload.pull_request.id,
-        },
-        data: {
-          state: payload.pull_request.state,
-          closedAt: new Date(payload.pull_request.closed_at || Date.now()),
-        },
+      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
+        state: payload.pull_request.state,
+        closedAt: new Date(payload.pull_request.closed_at || Date.now()),
       });
     } catch (error) {
       console.error('Error closing pull request:', error);
@@ -70,14 +67,9 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.reopened'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.pullRequest.update({
-        where: {
-          id: payload.pull_request.id,
-        },
-        data: {
-          state: payload.pull_request.state,
-          closedAt: null,
-        },
+      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
+        state: payload.pull_request.state,
+        closedAt: null,
       });
     } catch (error) {
       console.error('Error reopening pull request:', error);
@@ -88,15 +80,12 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.synchronize'>['payload'],
   ): Promise<void> {
     try {
-      await prisma.pullRequest.update({
-        where: {
-          id: payload.pull_request.id,
-        },
-        data: {
-          additions: payload.pull_request.additions,
-          deletions: payload.pull_request.deletions,
-          changedFiles: payload.pull_request.changed_files,
-        },
+      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
+        state: payload.pull_request.state,
+        updatedAt: new Date(payload.pull_request.updated_at || Date.now()),
+        additions: payload.pull_request.additions,
+        deletions: payload.pull_request.deletions,
+        changedFiles: payload.pull_request.changed_files,
       });
     } catch (error) {
       console.error('Error synchronizing pull request:', error);

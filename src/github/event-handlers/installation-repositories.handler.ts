@@ -1,13 +1,16 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { prisma } from 'src/database/db-connection';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
+import { RepositoryService } from '../services/repository.service';
+import { Repository } from '@prisma/client';
 
 type EventPayload = EmitterWebhookEvent<'installation_repositories'>['payload'];
 
 type InstallationRepositoriesEvent = GitHubWebHookEvent<EventPayload>;
 
 export class InstallationRepositoriesHandler extends EventHandler<EventPayload> {
+  private readonly repositoryService = new RepositoryService();
+
   constructor(event: InstallationRepositoriesEvent) {
     super(event);
   }
@@ -30,45 +33,26 @@ export class InstallationRepositoriesHandler extends EventHandler<EventPayload> 
   private async addRepositories(
     payload: EmitterWebhookEvent<'installation_repositories.added'>['payload'],
   ): Promise<void> {
-    if (payload.repositories_added.length) {
-      const repositoriesMapped =
-        payload.repositories_added?.map((data) => ({
-          id: data.id,
-          name: data.full_name,
-          ownerId: payload.installation.account?.id as unknown as bigint,
-        })) || [];
+    if (!payload.repositories_added.length) return;
+    const repositoriesMapped =
+      payload.repositories_added?.map(
+        (data) =>
+          ({
+            id: data.id,
+            name: data.full_name,
+            ownerId: payload.installation.account?.id as unknown as bigint,
+          }) as unknown as Repository,
+      ) || [];
 
-      await prisma.repository.createMany({
-        data: repositoriesMapped,
-      });
-    }
+    await this.repositoryService.saveRepositories(repositoriesMapped);
   }
 
   private async removeRepositories(
     payload: EmitterWebhookEvent<'installation_repositories.removed'>['payload'],
   ): Promise<void> {
-    if (payload.repositories_removed.length) {
-      const repositoriesIds = payload.repositories_removed.map(({ id }) => id);
+    if (!payload.repositories_removed.length) return;
+    const repositoriesIds = payload.repositories_removed.map(({ id }) => id);
 
-      try {
-        await prisma.pullRequest.deleteMany({
-          where: {
-            repositoryId: {
-              in: repositoriesIds,
-            },
-          },
-        });
-      } catch (error) {
-        console.error('Error deleting pull requests:', error);
-      }
-
-      await prisma.repository.deleteMany({
-        where: {
-          id: {
-            in: repositoriesIds,
-          },
-        },
-      });
-    }
+    await this.repositoryService.deleteRepositories(repositoriesIds);
   }
 }
