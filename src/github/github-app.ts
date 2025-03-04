@@ -9,3 +9,5 @@ export const gitHubApp = new App({
     secret: envConfig.GITHUB_WEBHOOK_SECRET,
   },
 });
+
+export type Octokit = typeof gitHubApp.octokit;

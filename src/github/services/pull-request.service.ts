@@ -4,139 +4,145 @@ import {
   PullRequestsByRepositoryNode,
 } from '../interfaces/pull-requests-by-repository-node';
 import { PullRequest } from '@prisma/client';
-import { saveCodeReviewHistoryByPullRequest } from './code-review.service';
+import { CodeReviewService } from './code-review.service';
 import { Octokit } from 'octokit';
+import { RepositoryAttributes } from '../interfaces/repository-attributes';
 
-const getPullRequestsByRepository = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  after?: string,
-): Promise<PullRequestsByRepositoryNode> => {
-  const query = `
-    query ($owner: String!, $name: String!, $after: String) {
-      repository(owner: $owner, name: $name) {
-        id
-        pullRequests(
-          first: 100,
-          after: $after,
-          states: [CLOSED, MERGED],
-          orderBy: { field: CREATED_AT, direction: ASC }
-        ) {
-          nodes {
-            id
-            number
-            title
-            state
-            url
-            author {
-              login
+export class PullRequestService {
+  private readonly codeReviewService = new CodeReviewService(this.octokit);
+
+  constructor(private readonly octokit: Octokit) {}
+
+  async savePullRequestsHistoryByRepository({
+    owner,
+    name,
+  }: RepositoryAttributes) {
+    const pullRequests = await this.getPullRequestHistory({ owner, name });
+
+    await prisma.pullRequest.createMany({
+      data: pullRequests,
+    });
+
+    const codeReviewsPromises = pullRequests.map(({ id, number }) => {
+      return this.codeReviewService.saveCodeReviewHistoryByPullRequest({
+        owner,
+        name,
+        pullRequestNumber: number,
+        pullRequestId: id,
+      });
+    });
+
+    await Promise.all(codeReviewsPromises);
+  }
+
+  private async getPullRequestsByRepository(
+    { owner, name }: RepositoryAttributes,
+    after?: string,
+  ): Promise<PullRequestsByRepositoryNode> {
+    const query = `
+      query ($owner: String!, $name: String!, $after: String) {
+        repository(owner: $owner, name: $name) {
+          id
+          pullRequests(
+            first: 100,
+            after: $after,
+            states: [CLOSED, MERGED],
+            orderBy: { field: CREATED_AT, direction: ASC }
+          ) {
+            nodes {
+              id
+              number
+              title
+              state
+              url
+              author {
+                login
+              }
+              createdAt
+              updatedAt
+              closedAt
+              additions
+              deletions
+              changedFiles
             }
-            createdAt
-            updatedAt
-            closedAt
-            additions
-            deletions
-            changedFiles
-          }
-          pageInfo {
-            endCursor
-            hasNextPage
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
           }
         }
       }
-    }
-  `;
+    `;
 
-  const variables = { owner, name: repo, after };
-  const result = await octokit.graphql<PullRequestsByRepositoryNode>(
-    query,
-    variables,
-  );
-
-  return result;
-};
-
-const filterPullRequestsFromLastYear = () => {
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-  return ({ createdAt }: PullRequestNode) => new Date(createdAt) >= oneYearAgo;
-};
-
-const getPullRequestHistory = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-  filter?: (node: PullRequestNode) => boolean,
-) => {
-  let allPullRequests: PullRequest[] = [];
-  let hasNextPage = true;
-  let cursor: string | undefined;
-  const filterFunction = filter || filterPullRequestsFromLastYear();
-
-  while (hasNextPage) {
-    const { repository } = await getPullRequestsByRepository(
-      octokit,
-      owner,
-      repo,
-      cursor,
+    const variables = { owner, name, after };
+    const result = await this.octokit.graphql<PullRequestsByRepositoryNode>(
+      query,
+      variables,
     );
-    const { pullRequests } = repository;
-    const recentPullRequests = pullRequests.nodes.filter(filterFunction);
-    const pullRequestsMapped = recentPullRequests.map(
-      ({
-        id,
-        number,
-        title,
-        state,
-        url,
-        author,
-        createdAt,
-        updatedAt,
-        closedAt,
-        additions,
-        deletions,
-        changedFiles,
-      }) =>
+
+    return result;
+  }
+
+  private filterPullRequestsFromLastYear = () => {
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    return ({ createdAt }: PullRequestNode) =>
+      new Date(createdAt) >= oneYearAgo;
+  };
+
+  private async getPullRequestHistory(
+    { owner, name }: RepositoryAttributes,
+    filter?: (node: PullRequestNode) => boolean,
+  ) {
+    let allPullRequests: PullRequest[] = [];
+    let hasNextPage = true;
+    let cursor: string | undefined;
+    const filterFunction = filter || this.filterPullRequestsFromLastYear();
+
+    while (hasNextPage) {
+      const { repository } = await this.getPullRequestsByRepository(
+        { owner, name },
+        cursor,
+      );
+      const { pullRequests } = repository;
+      const recentPullRequests = pullRequests.nodes.filter(filterFunction);
+      const pullRequestsMapped = recentPullRequests.map(
         ({
           id,
           number,
           title,
           state,
           url,
+          author,
+          createdAt,
+          updatedAt,
+          closedAt,
           additions,
           deletions,
           changedFiles,
-          author: author.login,
-          createdAt: new Date(createdAt),
-          updatedAt: new Date(updatedAt),
-          closedAt: closedAt ? new Date(closedAt) : null,
-          repositoryId: repository.id,
-        }) as PullRequest,
-    );
-    allPullRequests = allPullRequests.concat(pullRequestsMapped);
-    hasNextPage = pullRequests.pageInfo.hasNextPage;
-    cursor = pullRequests.pageInfo.endCursor;
+        }) =>
+          ({
+            id,
+            number,
+            title,
+            state,
+            url,
+            additions,
+            deletions,
+            changedFiles,
+            author: author.login,
+            createdAt: new Date(createdAt),
+            updatedAt: new Date(updatedAt),
+            closedAt: closedAt ? new Date(closedAt) : null,
+            repositoryId: repository.id,
+          }) as PullRequest,
+      );
+      allPullRequests = allPullRequests.concat(pullRequestsMapped);
+      hasNextPage = pullRequests.pageInfo.hasNextPage;
+      cursor = pullRequests.pageInfo.endCursor;
+    }
+
+    return allPullRequests;
   }
-
-  return allPullRequests;
-};
-
-export const savePullRequestsHistoryByRepository = async (
-  octokit: Octokit,
-  owner: string,
-  repo: string,
-) => {
-  const pullRequests = await getPullRequestHistory(octokit, owner, repo);
-
-  await prisma.pullRequest.createMany({
-    data: pullRequests,
-  });
-
-  const codeReviewsPromises = pullRequests.map(({ id, number }) => {
-    return saveCodeReviewHistoryByPullRequest(owner, repo, number, id, octokit);
-  });
-
-  await Promise.all(codeReviewsPromises);
-};
+}

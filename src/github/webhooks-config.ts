@@ -1,22 +1,30 @@
 import { createNodeMiddleware } from '@octokit/webhooks';
 import { gitHubApp } from './github-app';
 import { envConfig } from 'src/config/env-config';
-import { handleAppInstallation } from './event-handlers/installation';
-import { handlePullRequestEvent } from './event-handlers/pull-request';
-import { handleRepositoryEvent } from './event-handlers/repository';
-import { handleAppInstallationRepositories } from './event-handlers/installation-repositories';
+import { InstallationHandler } from './event-handlers/installation.handler';
+import { PullRequestHandler } from './event-handlers/pull-request.handler';
+import { RepositoryHandler } from './event-handlers/repository.handler';
+import { InstallationRepositoriesHandler } from './event-handlers/installation-repositories.handler';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-gitHubApp.webhooks.on('installation', handleAppInstallation as any);
+gitHubApp.webhooks.on('installation', async ({ octokit, payload }) => {
+  const handler = new InstallationHandler({ octokit, payload });
+  await handler.handle();
+});
 
-gitHubApp.webhooks.on(
-  'installation_repositories',
-  handleAppInstallationRepositories,
-);
+gitHubApp.webhooks.on('installation_repositories', async ({ payload }) => {
+  const handler = new InstallationRepositoriesHandler({ payload });
+  await handler.handle();
+});
 
-gitHubApp.webhooks.on('repository', handleRepositoryEvent);
+gitHubApp.webhooks.on('repository', async ({ payload }) => {
+  const handler = new RepositoryHandler({ payload });
+  await handler.handle();
+});
 
-gitHubApp.webhooks.on('pull_request', handlePullRequestEvent);
+gitHubApp.webhooks.on('pull_request', async ({ payload }) => {
+  const handler = new PullRequestHandler({ payload });
+  await handler.handle();
+});
 
 export const gitHubWebhooksMiddleware = createNodeMiddleware(
   gitHubApp.webhooks,
