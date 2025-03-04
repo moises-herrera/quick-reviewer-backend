@@ -30,10 +30,6 @@ export class InstallationHandler extends EventHandler<
         await this.handleAppDeletion(this.payload);
         break;
 
-      case 'new_permissions_accepted':
-        await this.handleNewPermissionsAccepted(this.payload);
-        break;
-
       default:
         break;
     }
@@ -81,17 +77,11 @@ export class InstallationHandler extends EventHandler<
     try {
       await prisma.account.delete({
         where: {
-          id: payload.installation.account?.node_id,
+          id: payload.installation.account?.id,
         },
       });
     } catch (error) {
       console.error('Error deleting account:', error);
     }
-  }
-
-  private async handleNewPermissionsAccepted(
-    payload: EmitterWebhookEvent<'installation.new_permissions_accepted'>['payload'],
-  ) {
-    console.log(payload);
   }
 }

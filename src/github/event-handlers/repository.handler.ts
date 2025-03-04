@@ -37,9 +37,9 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     try {
       await prisma.repository.create({
         data: {
-          id: payload.repository.node_id,
+          id: payload.repository.id,
           name: payload.repository.name,
-          ownerId: payload.repository.owner.node_id,
+          ownerId: payload.repository.owner.id,
         },
       });
     } catch (error) {
@@ -53,7 +53,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     try {
       await prisma.repository.delete({
         where: {
-          id: payload.repository.node_id,
+          id: payload.repository.id,
         },
       });
     } catch (error) {
@@ -67,7 +67,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     try {
       await prisma.repository.update({
         where: {
-          id: payload.repository.node_id,
+          id: payload.repository.id,
         },
         data: {
           name: payload.repository.name,

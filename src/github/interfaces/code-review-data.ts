@@ -1,6 +1,6 @@
 export interface CodeReviewData {
   id: number;
-  node_id: string;
+  id: string;
   user: {
     login: string;
   };

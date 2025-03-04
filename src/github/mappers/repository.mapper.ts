@@ -5,7 +5,7 @@ export const mapRepositoryToCreation = (
   repository: RepositoryData,
 ): Repository => {
   return {
-    id: repository.node_id,
+    id: repository.id as unknown as bigint,
     name: repository.name,
   } as Repository;
 };

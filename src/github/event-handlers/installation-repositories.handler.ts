@@ -33,9 +33,9 @@ export class InstallationRepositoriesHandler extends EventHandler<EventPayload> 
     if (payload.repositories_added.length) {
       const repositoriesMapped =
         payload.repositories_added?.map((data) => ({
-          id: data.node_id,
+          id: data.id,
           name: data.full_name,
-          ownerId: payload.installation.account?.node_id as string,
+          ownerId: payload.installation.account?.id as unknown as bigint,
         })) || [];
 
       await prisma.repository.createMany({
@@ -48,9 +48,7 @@ export class InstallationRepositoriesHandler extends EventHandler<EventPayload> 
     payload: EmitterWebhookEvent<'installation_repositories.removed'>['payload'],
   ): Promise<void> {
     if (payload.repositories_removed.length) {
-      const repositoriesIds = payload.repositories_removed.map(
-        ({ node_id }) => node_id,
-      );
+      const repositoriesIds = payload.repositories_removed.map(({ id }) => id);
 
       try {
         await prisma.pullRequest.deleteMany({

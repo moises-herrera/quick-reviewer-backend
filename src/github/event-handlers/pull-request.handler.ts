@@ -54,7 +54,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     try {
       await prisma.pullRequest.update({
         where: {
-          id: payload.pull_request.node_id,
+          id: payload.pull_request.id,
         },
         data: {
           state: payload.pull_request.state,
@@ -72,7 +72,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     try {
       await prisma.pullRequest.update({
         where: {
-          id: payload.pull_request.node_id,
+          id: payload.pull_request.id,
         },
         data: {
           state: payload.pull_request.state,
@@ -90,7 +90,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     try {
       await prisma.pullRequest.update({
         where: {
-          id: payload.pull_request.node_id,
+          id: payload.pull_request.id,
         },
         data: {
           additions: payload.pull_request.additions,

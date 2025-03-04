@@ -19,7 +19,7 @@ enum AccountType {
 }
 
 model Account {
-  id String @id
+  id BigInt @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -28,17 +28,17 @@ model Account {
 }
 
 model Repository {
-  id String @id
+  id BigInt @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pullRequests PullRequest[]
-  ownerId String
+  ownerId BigInt
   owner Account @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model PullRequest {
-  id String @id
+  id BigInt @id
   number Int
   title String
   state String
@@ -50,31 +50,31 @@ model PullRequest {
   additions Int
   deletions Int
   changedFiles Int
-  repositoryId String
+  repositoryId BigInt
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   reviews CodeReview[]
 }
 
 model CodeReview {
-  id String @id
-  pullRequestId String
+  id BigInt @id
+  pullRequestId BigInt
   reviewer String
   status String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
-  comments CodeReviewComment[]
 }
 
 model CodeReviewComment {
-  id String @id
-  codeReviewId String
+  id BigInt @id
+  codeReviewId BigInt
   body String
   path String
   diffHunk String?
+  line Int?
+  side String
+  position Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   resolvedAt DateTime?
-  replyToId String?
-  codeReview CodeReview @relation(fields: [codeReviewId], references: [id], onDelete: Cascade)
+  replyToId BigInt?
 }

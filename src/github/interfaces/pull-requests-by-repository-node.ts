@@ -1,5 +1,5 @@
 export interface PullRequestNode {
-  id: string;
+  databaseId: number;
   number: number;
   title: string;
   state: string;
@@ -25,7 +25,7 @@ export interface PullRequestsConnection {
 
 export interface PullRequestsByRepositoryNode {
   repository: {
-    id: string;
+    databaseId: number;
     pullRequests: PullRequestsConnection;
   };
 }

@@ -3,7 +3,7 @@ import { AccountData } from '../interfaces/account-data';
 
 export const mapAccountToCreation = (account: AccountData): Account =>
   ({
-    id: account.node_id,
+    id: account.id as unknown as bigint,
     name: account.login,
     type: account.type as AccountType,
   }) as Account;

@@ -3,7 +3,7 @@ import { PullRequest } from '@prisma/client';
 
 export const mapPullRequestToCreation = ({
   pull_request: {
-    node_id,
+    id,
     number,
     title,
     state,
@@ -19,7 +19,7 @@ export const mapPullRequestToCreation = ({
   repository,
 }: EmitterWebhookEvent<'pull_request.opened'>['payload']): PullRequest => {
   return {
-    id: node_id,
+    id: id as unknown as bigint,
     number,
     title,
     state,
@@ -27,7 +27,7 @@ export const mapPullRequestToCreation = ({
     additions,
     deletions,
     changedFiles: changed_files,
-    repositoryId: repository.node_id,
+    repositoryId: repository.id as unknown as bigint,
     author: user.login,
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),

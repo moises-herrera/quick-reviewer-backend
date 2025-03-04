@@ -28,7 +28,7 @@ export class PullRequestService {
         owner,
         name,
         pullRequestNumber: number,
-        pullRequestId: id,
+        pullRequestId: id as unknown as bigint,
       });
     });
 
@@ -42,7 +42,7 @@ export class PullRequestService {
     const query = `
       query ($owner: String!, $name: String!, $after: String) {
         repository(owner: $owner, name: $name) {
-          id
+          databaseId
           pullRequests(
             first: 100,
             after: $after,
@@ -50,7 +50,7 @@ export class PullRequestService {
             orderBy: { field: CREATED_AT, direction: ASC }
           ) {
             nodes {
-              id
+              databaseId
               number
               title
               state
@@ -109,7 +109,7 @@ export class PullRequestService {
       const recentPullRequests = pullRequests.nodes.filter(filterFunction);
       const pullRequestsMapped = recentPullRequests.map(
         ({
-          id,
+          databaseId: id,
           number,
           title,
           state,
@@ -123,7 +123,7 @@ export class PullRequestService {
           changedFiles,
         }) =>
           ({
-            id,
+            id: id as unknown as bigint,
             number,
             title,
             state,
@@ -135,7 +135,7 @@ export class PullRequestService {
             createdAt: new Date(createdAt),
             updatedAt: new Date(updatedAt),
             closedAt: closedAt ? new Date(closedAt) : null,
-            repositoryId: repository.id,
+            repositoryId: repository.databaseId as unknown as bigint,
           }) as PullRequest,
       );
       allPullRequests = allPullRequests.concat(pullRequestsMapped);
