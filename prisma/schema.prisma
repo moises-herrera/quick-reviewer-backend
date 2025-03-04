@@ -63,4 +63,18 @@ model CodeReview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+  comments CodeReviewComment[]
+}
+
+model CodeReviewComment {
+  id String @id
+  codeReviewId String
+  body String
+  path String
+  diffHunk String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  resolvedAt DateTime?
+  replyToId String?
+  codeReview CodeReview @relation(fields: [codeReviewId], references: [id], onDelete: Cascade)
 }
