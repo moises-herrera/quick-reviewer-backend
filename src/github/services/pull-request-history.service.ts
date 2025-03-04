@@ -48,8 +48,8 @@ export class PullRequestHistoryService {
           pullRequests(
             first: 100,
             after: $after,
-            states: [CLOSED, MERGED],
-            orderBy: { field: CREATED_AT, direction: ASC }
+            states: [MERGED],
+            orderBy: { field: CREATED_AT, direction: DESC }
           ) {
             nodes {
               databaseId

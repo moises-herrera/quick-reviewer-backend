@@ -1,11 +1,13 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
-import { PullRequestHistoryService } from '../services/pull-request-history.service';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { AccountService } from '../services/account.service';
+import { prisma } from 'src/database/db-connection';
+import { HistoryService } from '../services/history.service';
+import { Octokit } from 'octokit';
 
 type InstallationEvent = GitHubWebHookEvent<
   EmitterWebhookEvent<'installation'>['payload']
@@ -15,7 +17,7 @@ export class InstallationHandler extends EventHandler<
   EmitterWebhookEvent<'installation'>['payload']
 > {
   private readonly accountService = new AccountService();
-  private readonly pullRequestHistoryService = new PullRequestHistoryService(this.octokit);
+  private readonly historyService = new HistoryService(this.octokit as Octokit);
 
   constructor(event: InstallationEvent) {
     super(event);
@@ -51,14 +53,16 @@ export class InstallationHandler extends EventHandler<
         repositories: repositoriesMapped,
       });
 
-      const pullRequestsPromises = repositoriesMapped.map(({ name }) => {
-        return this.pullRequestHistoryService.savePullRequestsHistoryByRepository({
-          owner: account.name,
-          name,
-        });
+      const isTestAccount = await prisma.testAccount.findFirst({
+        where: { name: account.name },
       });
 
-      await Promise.all(pullRequestsPromises);
+      if (isTestAccount) {
+        await this.historyService.recordHistory(
+          account.name,
+          repositoriesMapped,
+        );
+      }
     } catch (error) {
       console.error('Error creating account:', error);
     }
