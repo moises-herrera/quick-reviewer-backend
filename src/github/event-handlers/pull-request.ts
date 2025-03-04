@@ -3,24 +3,14 @@ import {
   HandlerFunction,
 } from '@octokit/webhooks/dist-types/types';
 import { prisma } from 'src/database/db-connection';
+import { mapPullRequestToCreation } from '../mappers/pull-request.mapper';
 
 const handlePullRequestCreation = async (
   payload: EmitterWebhookEvent<'pull_request.opened'>['payload'],
 ) => {
   try {
     await prisma.pullRequest.create({
-      data: {
-        id: payload.pull_request.id,
-        number: payload.pull_request.number,
-        title: payload.pull_request.title,
-        state: payload.pull_request.state,
-        url: payload.pull_request.url,
-        additions: payload.pull_request.additions,
-        deletions: payload.pull_request.deletions,
-        changedFiles: payload.pull_request.changed_files,
-        repositoryId: payload.repository.id,
-        author: payload.pull_request.user.login,
-      },
+      data: mapPullRequestToCreation(payload),
     });
   } catch (error) {
     console.error('Error creating pull request:', error);
@@ -33,7 +23,7 @@ const handlePullRequestClosure = async (
   try {
     await prisma.pullRequest.update({
       where: {
-        id: payload.pull_request.id,
+        id: payload.pull_request.node_id,
       },
       data: {
         state: payload.pull_request.state,
@@ -51,7 +41,7 @@ const handlePullRequestReopening = async (
   try {
     await prisma.pullRequest.update({
       where: {
-        id: payload.pull_request.id,
+        id: payload.pull_request.node_id,
       },
       data: {
         state: payload.pull_request.state,
@@ -69,7 +59,7 @@ const handlePullRequestSynchronization = async (
   try {
     await prisma.pullRequest.update({
       where: {
-        id: payload.pull_request.id,
+        id: payload.pull_request.node_id,
       },
       data: {
         additions: payload.pull_request.additions,
@@ -85,8 +75,6 @@ const handlePullRequestSynchronization = async (
 export const handlePullRequestEvent: HandlerFunction<'pull_request'> = async ({
   payload,
 }) => {
-  console.log(payload);
-
   switch (payload.action) {
     case 'opened':
       await handlePullRequestCreation(payload);

@@ -19,7 +19,7 @@ enum AccountType {
 }
 
 model Account {
-  id BigInt @id
+  id String @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -28,17 +28,17 @@ model Account {
 }
 
 model Repository {
-  id BigInt @id
+  id String @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pullRequests PullRequest[]
-  ownerId BigInt
+  ownerId String
   owner Account @relation(fields: [ownerId], references: [id])
 }
 
 model PullRequest {
-  id BigInt @id
+  id String @id
   number Int
   title String
   state String
@@ -50,14 +50,14 @@ model PullRequest {
   additions Int
   deletions Int
   changedFiles Int
-  repositoryId BigInt
+  repositoryId String
   repository Repository @relation(fields: [repositoryId], references: [id])
   reviews CodeReview[]
 }
 
 model CodeReview {
-  id BigInt @id
-  pullRequestId BigInt
+  id String @id
+  pullRequestId String
   reviewer String
   status String
   createdAt DateTime @default(now())

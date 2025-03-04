@@ -10,9 +10,9 @@ const addRepositories = async (
   if (payload.repositories_added.length) {
     const repositoriesMapped =
       payload.repositories_added?.map((data) => ({
-        id: data.id,
+        id: data.node_id,
         name: data.full_name,
-        ownerId: payload.installation.account?.id as number,
+        ownerId: payload.installation.account?.node_id as string,
       })) || [];
 
     await prisma.repository.createMany({
@@ -25,7 +25,9 @@ const removeRepositories = async (
   payload: EmitterWebhookEvent<'installation_repositories.removed'>['payload'],
 ) => {
   if (payload.repositories_removed.length) {
-    const repositoriesIds = payload.repositories_removed.map(({ id }) => id);
+    const repositoriesIds = payload.repositories_removed.map(
+      ({ node_id }) => node_id,
+    );
 
     try {
       await prisma.pullRequest.deleteMany({

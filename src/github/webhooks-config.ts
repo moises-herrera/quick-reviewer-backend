@@ -6,7 +6,8 @@ import { handlePullRequestEvent } from './event-handlers/pull-request';
 import { handleRepositoryEvent } from './event-handlers/repository';
 import { handleAppInstallationRepositories } from './event-handlers/installation-repositories';
 
-gitHubApp.webhooks.on('installation', handleAppInstallation);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+gitHubApp.webhooks.on('installation', handleAppInstallation as any);
 
 gitHubApp.webhooks.on(
   'installation_repositories',

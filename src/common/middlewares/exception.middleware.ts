@@ -7,6 +7,8 @@ export const exceptionMiddleware = (
   _req: Request,
   res: Response,
 ): void => {
+  console.log(error);
+
   const httpException =
     error instanceof HttpException
       ? error

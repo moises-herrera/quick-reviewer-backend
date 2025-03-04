@@ -8,9 +8,9 @@ const handleRepositoryCreation = async (
   try {
     await prisma.repository.create({
       data: {
-        id: payload.repository.id,
-        name: payload.repository.full_name,
-        ownerId: payload.repository.owner.id,
+        id: payload.repository.node_id,
+        name: payload.repository.name,
+        ownerId: payload.repository.owner.node_id,
       },
     });
   } catch (error) {
@@ -24,7 +24,7 @@ const handleRepositoryDeletion = async (
   try {
     await prisma.repository.delete({
       where: {
-        id: payload.repository.id,
+        id: payload.repository.node_id,
       },
     });
   } catch (error) {
@@ -38,10 +38,10 @@ const handleRepositoryRenamed = async (
   try {
     await prisma.repository.update({
       where: {
-        id: payload.repository.id,
+        id: payload.repository.node_id,
       },
       data: {
-        name: payload.repository.full_name,
+        name: payload.repository.name,
       },
     });
   } catch (error) {
