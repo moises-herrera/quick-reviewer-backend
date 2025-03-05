@@ -13,4 +13,8 @@ gitHubRouter.get(
   controller.getAccessToken.bind(controller),
 );
 
+gitHubRouter.post('/refresh-token', controller.refreshToken.bind(controller));
+
+gitHubRouter.post('/logout', controller.logout.bind(controller));
+
 export { gitHubRouter };

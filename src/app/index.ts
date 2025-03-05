@@ -7,12 +7,24 @@ import { connectToDatabase } from '../database/db-connection';
 import { handleHttpExceptionMiddleware } from '../common/middlewares/handle-http-exception.middleware';
 import { sessionMiddleware } from '../common/middlewares/session.middleware';
 import { API_PREFIX } from '../constants/api';
+import cors from 'cors';
+import '../common/utils/big-int-serializer';
+import cookieParser from 'cookie-parser';
 
 const PORT = envConfig.PORT || 3000;
 
 const app = express();
 
 app.set('PORT', PORT);
+
+app.use(
+  cors({
+    origin: envConfig.FRONTEND_URL,
+    credentials: true,
+  }),
+);
+
+app.use(cookieParser());
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 app.use(gitHubWebhooksMiddleware as any);

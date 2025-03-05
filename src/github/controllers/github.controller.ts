@@ -58,11 +58,65 @@ export class GitHubController {
         res,
         'githubRefreshToken',
         authentication.refreshToken || '',
+        { maxAge: 1000 * 60 * 60 * 24 * 30 },
       );
 
       res.redirect(`${envConfig.FRONTEND_URL}/dashboard`);
     } catch (error) {
       res.redirect(`${envConfig.FRONTEND_URL}/auth-error=true`);
+      handleHttpExceptionMiddleware(error, req, res);
+    }
+  }
+
+  async refreshToken(req: Request, res: Response): Promise<void> {
+    try {
+      const { githubRefreshToken } = req.cookies;
+
+      if (!githubRefreshToken) {
+        throw new HttpException(
+          'Refresh token not provided',
+          StatusCodes.UNAUTHORIZED,
+        );
+      }
+
+      const { authentication } = await gitHubAuthApp.refreshToken({
+        refreshToken: githubRefreshToken,
+      });
+
+      CookieService.setCookie(res, 'githubToken', authentication.token);
+      CookieService.setCookie(
+        res,
+        'githubRefreshToken',
+        authentication.refreshToken || '',
+        { maxAge: 1000 * 60 * 60 * 24 * 30 },
+      );
+
+      res.status(StatusCodes.OK).json({
+        message: 'Token refreshed successfully',
+      });
+    } catch (error) {
+      handleHttpExceptionMiddleware(error, req, res);
+    }
+  }
+
+  async logout(req: Request, res: Response): Promise<void> {
+    try {
+      req.session.destroy((err) => {
+        if (err) {
+          throw new HttpException(
+            'Error destroying session',
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            err,
+          );
+        }
+
+        res.clearCookie('githubToken');
+        res.clearCookie('githubRefreshToken');
+        res.status(StatusCodes.OK).json({
+          message: 'Logged out successfully',
+        });
+      });
+    } catch (error) {
       handleHttpExceptionMiddleware(error, req, res);
     }
   }
