@@ -1,22 +1,22 @@
 import { Account, AccountType } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
-import { RecordFilters } from '../interfaces/record-filters';
+import { AccountFilters } from '../interfaces/record-filters';
 
 export class AccountService {
   async getOrganizations(
-    options: RecordFilters,
+    options: AccountFilters,
   ): Promise<PaginatedResponse<Account>> {
     return this.getAccounts('Organization', options);
   }
 
-  async getUsers(options: RecordFilters): Promise<PaginatedResponse<Account>> {
+  async getUsers(options: AccountFilters): Promise<PaginatedResponse<Account>> {
     return this.getAccounts('User', options);
   }
 
   private async getAccounts(
     type: AccountType,
-    options: RecordFilters,
+    options: AccountFilters,
   ): Promise<PaginatedResponse<Account>> {
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
@@ -45,6 +45,11 @@ export class AccountService {
         type,
         name: {
           contains: options.search,
+        },
+        users: {
+          some: {
+            userId: options.userId,
+          },
         },
       },
     });

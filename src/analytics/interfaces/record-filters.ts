@@ -1,5 +1,21 @@
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 
-export interface RecordFilters extends PaginationOptions {
+export interface AccountFilters extends PaginationOptions {
   userId: number;
+}
+
+export interface RepositoryFilters extends PaginationOptions {
+  userId: number;
+  ownerId?: number;
+}
+
+export interface PullRequestFilters extends PaginationOptions {
+  userId: number;
+  repositoryId?: number;
+}
+
+export interface PullRequestReviewFilters extends PaginationOptions {
+  userId: number;
+  repositoryId?: number;
+  pullRequestId?: number;
 }
