@@ -13,7 +13,7 @@ export const handleHttpExceptionMiddleware = (
     error instanceof HttpException
       ? error
       : new HttpException(
-          'Ha ocurrido un error',
+          'Something went wrong',
           StatusCodes.INTERNAL_SERVER_ERROR,
         );
 

@@ -32,6 +32,7 @@ model Account {
   updatedAt DateTime @updatedAt
   type AccountType
   repositories Repository[]
+  users UserAccount[]
 }
 
 model Repository {
@@ -42,6 +43,7 @@ model Repository {
   pullRequests PullRequest[]
   ownerId BigInt
   owner Account @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  users UserRepository[]
 }
 
 model PullRequest {
@@ -84,4 +86,35 @@ model CodeReviewComment {
   updatedAt DateTime @updatedAt
   resolvedAt DateTime?
   replyToId BigInt?
+}
+
+model User {
+  id BigInt @id
+  name String?
+  username String @unique
+  email String? @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accounts UserAccount[]
+  repositories UserRepository[]
+}
+
+model UserAccount {
+  id String @id @default(uuid())
+  userId BigInt
+  accountId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model UserRepository {
+  id String @id @default(uuid())
+  userId BigInt
+  repositoryId BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
 }
