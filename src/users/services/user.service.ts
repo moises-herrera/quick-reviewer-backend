@@ -2,6 +2,16 @@ import { User } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
 
 export class UserService {
+  async getUserById(id: bigint): Promise<User | null> {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return user;
+  }
+
   async saveUser(data: User): Promise<User> {
     const existingUser = await prisma.user.findUnique({
       where: {
