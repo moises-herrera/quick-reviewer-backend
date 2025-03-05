@@ -2,12 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from '../exceptions/http-exception';
 
-export const exceptionMiddleware = (
-  error: Error,
+export const handleHttpExceptionMiddleware = (
+  error: unknown,
   _req: Request,
   res: Response,
 ): void => {
-  console.log(error);
+  console.error(error);
 
   const httpException =
     error instanceof HttpException
