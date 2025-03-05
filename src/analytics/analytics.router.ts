@@ -1,10 +1,20 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import { AccountController } from './controllers/account.controller';
+import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
 
 const analyticsRouter = Router();
+const controller = new AccountController();
 
-analyticsRouter.post('/organizations', (req: Request, res: Response) => {
-  console.log(req.body);
-  res.json({ message: 'Organizations route' });
-});
+analyticsRouter.get(
+  '/organizations',
+  gitHubAuthMiddleware,
+  controller.getOrganizations.bind(controller),
+);
+
+analyticsRouter.get(
+  '/users',
+  gitHubAuthMiddleware,
+  controller.getUsers.bind(controller),
+);
 
 export { analyticsRouter };
