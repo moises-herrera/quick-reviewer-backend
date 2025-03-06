@@ -9,8 +9,13 @@ import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
 import { RegisterUserService } from 'src/users/services/register-user.service';
 import { Octokit } from '@octokit/rest';
+import { AuthRequest } from 'src/common/interfaces/auth-request';
+import { UserService } from 'src/users/services/user.service';
+import { User } from '@prisma/client';
 
 export class GitHubController {
+  private readonly userService = new UserService();
+
   async getAuthorizationUrl(req: Request, res: Response): Promise<void> {
     try {
       const state = CryptoService.generateRandomBytes(16);
@@ -48,10 +53,27 @@ export class GitHubController {
         );
       }
 
-      const registerUserService = new RegisterUserService(
-        new Octokit({ auth: authentication?.token }),
+      const octokit = new Octokit({ auth: authentication?.token });
+      const registerUserService = new RegisterUserService(octokit);
+
+      const { data: user } = await octokit.request('GET /user');
+
+      const existingUser = await this.userService.getUserById(
+        user.id as unknown as bigint,
       );
-      await registerUserService.registerUserData();
+
+      if (!existingUser) {
+        const userData: User = {
+          id: user.id as unknown as bigint,
+          name: user.name,
+          username: user.login,
+          email: user.notification_email ?? null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await registerUserService.registerUserData(userData);
+      }
 
       CookieService.setCookie(res, 'githubToken', authentication.token);
       CookieService.setCookie(
@@ -64,6 +86,22 @@ export class GitHubController {
       res.redirect(`${envConfig.FRONTEND_URL}/dashboard`);
     } catch (error) {
       res.redirect(`${envConfig.FRONTEND_URL}/auth-error=true`);
+      handleHttpExceptionMiddleware(error, req, res);
+    }
+  }
+
+  async checkToken(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      const { userId } = req;
+
+      const user = await this.userService.getUserById(
+        userId as unknown as bigint,
+      );
+
+      res.status(StatusCodes.OK).json({
+        user,
+      });
+    } catch (error) {
       handleHttpExceptionMiddleware(error, req, res);
     }
   }

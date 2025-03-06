@@ -10,26 +10,15 @@ export class RegisterUserService {
 
   constructor(private readonly octokit: Octokit) {}
 
-  async registerUserData(): Promise<void> {
-    const user = await this.registerGitHubUser();
+  async registerUserData(user: User): Promise<void> {
+    await this.registerGitHubUser(user);
     await this.registerGitHubAccounts(user);
     await this.registerGitHubRepositories(user);
   }
 
-  async registerGitHubUser(): Promise<User> {
+  async registerGitHubUser(user: User): Promise<User> {
     try {
-      const { data: user } = await this.octokit.request('GET /user');
-
-      const userData: User = {
-        id: user.id as unknown as bigint,
-        name: user.name,
-        username: user.login,
-        email: user.notification_email ?? null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      return this.userService.saveUser(userData);
+      return this.userService.saveUser(user);
     } catch (error) {
       throw new HttpException(
         'Error saving user data',
@@ -77,8 +66,14 @@ export class RegisterUserService {
 
   async registerGitHubRepositories(user: User): Promise<void> {
     try {
-      const { data: repositories } =
-        await this.octokit.request('GET /user/repos');
+      const { data: repositories } = await this.octokit.request(
+        'GET /user/repos',
+        {
+          affiliation: 'owner,collaborator,organization_member',
+          per_page: 100,
+          page: 1,
+        },
+      );
 
       if (!repositories.length) return;
       const existingRepositories = await prisma.repository.findMany({
