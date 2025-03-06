@@ -37,7 +37,7 @@ model Account {
 
 model Repository {
   id BigInt @id
-  name String @unique
+  name String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pullRequests PullRequest[]
