@@ -9,34 +9,31 @@ const accountController = new AccountController();
 const repositoryController = new RepositoryController();
 const pullRequestController = new PullRequestController();
 
+analyticsRouter.use(gitHubAuthMiddleware);
+
 analyticsRouter.get(
   '/accounts/organizations',
-  gitHubAuthMiddleware,
   accountController.getOrganizations.bind(accountController),
 );
 
 analyticsRouter.get(
   '/accounts/users',
-  gitHubAuthMiddleware,
   accountController.getUsers.bind(accountController),
 );
 
 analyticsRouter.get(
-  '/accounts/:ownerId/repositories',
-  gitHubAuthMiddleware,
+  '/accounts/:ownerName/repositories',
   repositoryController.getRepositories.bind(repositoryController),
 );
 
 analyticsRouter.get(
-  '/accounts/:ownerId/repositories/:repositoryId/pull-requests',
-  gitHubAuthMiddleware,
+  '/accounts/:ownerName/repositories/:repositoryName/pull-requests',
   pullRequestController.getPullRequests.bind(pullRequestController),
 );
 
 analyticsRouter.get(
-  '/accounts/:ownerId/repositories/:repositoryId/pull-requests/:pullRequestId/reviews',
-  gitHubAuthMiddleware,
+  '/accounts/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
   pullRequestController.getPullRequestReviews.bind(pullRequestController),
-)
+);
 
 export { analyticsRouter };

@@ -6,16 +6,18 @@ export interface AccountFilters extends PaginationOptions {
 
 export interface RepositoryFilters extends PaginationOptions {
   userId: number;
-  ownerId?: number;
+  ownerName?: string;
 }
 
 export interface PullRequestFilters extends PaginationOptions {
   userId: number;
-  repositoryId?: number;
+  ownerName?: string;
+  repositoryName?: string;
 }
 
 export interface PullRequestReviewFilters extends PaginationOptions {
   userId: number;
-  repositoryId?: number;
-  pullRequestId?: number;
+  ownerName?: string;
+  repositoryName?: string;
+  pullRequestNumber?: number;
 }

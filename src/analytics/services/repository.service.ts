@@ -2,11 +2,28 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from '../interfaces/record-filters';
 import { Repository } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
+import { HttpException } from 'src/common/exceptions/http-exception';
+import { StatusCodes } from 'http-status-codes';
 
 export class RepositoryService {
   async getRepositories(
     options: RepositoryFilters,
   ): Promise<PaginatedResponse<Repository>> {
+    const existingAccount = await prisma.account.findFirst({
+      where: {
+        name: options.ownerName,
+        users: {
+          some: {
+            userId: options.userId,
+          },
+        },
+      },
+    });
+
+    if (!existingAccount) {
+      throw new HttpException('Account not found', StatusCodes.NOT_FOUND);
+    }
+
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
     const repositories = await prisma.repository.findMany({
@@ -19,7 +36,7 @@ export class RepositoryService {
             userId: options.userId,
           },
         },
-        ownerId: options.ownerId,
+        ownerId: existingAccount.id,
       },
       take: options.limit,
       skip: skipRecords,
@@ -38,7 +55,9 @@ export class RepositoryService {
             userId: options.userId,
           },
         },
-        ownerId: options.ownerId,
+        owner: {
+          name: options.ownerName,
+        },
       },
     });
 

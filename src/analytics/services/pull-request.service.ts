@@ -5,23 +5,40 @@ import {
 } from '../interfaces/record-filters';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { CodeReview, PullRequest } from '@prisma/client';
+import { HttpException } from 'src/common/exceptions/http-exception';
+import { StatusCodes } from 'http-status-codes';
 
 export class PullRequestService {
   async getPullRequests(
     options: PullRequestFilters,
   ): Promise<PaginatedResponse<PullRequest>> {
+    const existingRepository = await prisma.repository.findFirst({
+      where: {
+        name: options.repositoryName,
+        owner: {
+          name: options.ownerName,
+        },
+        users: {
+          some: {
+            userId: options.userId,
+          },
+        },
+      },
+    });
+
+    if (!existingRepository) {
+      throw new HttpException('Repository not found', StatusCodes.NOT_FOUND);
+    }
+
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
-        repository: {
-          users: {
-            some: {
-              userId: options.userId,
-            },
-          },
+        repositoryId: existingRepository.id,
+        title: {
+          contains: options.search,
+          mode: 'insensitive',
         },
-        repositoryId: options.repositoryId,
       },
       take: options.limit,
       skip: skipRecords,
@@ -31,14 +48,11 @@ export class PullRequestService {
     });
     const total = await prisma.pullRequest.count({
       where: {
-        repository: {
-          users: {
-            some: {
-              userId: options.userId,
-            },
-          },
+        repositoryId: existingRepository.id,
+        title: {
+          contains: options.search,
+          mode: 'insensitive',
         },
-        repositoryId: options.repositoryId,
       },
     });
 
@@ -53,19 +67,34 @@ export class PullRequestService {
   async getPullRequestReviews(
     options: PullRequestReviewFilters,
   ): Promise<PaginatedResponse<CodeReview>> {
+    const existingPullRequest = await prisma.pullRequest.findFirst({
+      where: {
+        number: options.pullRequestNumber,
+        repository: {
+          name: options.repositoryName,
+          owner: {
+            name: options.ownerName,
+          },
+          users: {
+            some: {
+              userId: options.userId,
+            },
+          },
+        },
+      },
+    });
+
+    if (!existingPullRequest) {
+      throw new HttpException('Pull request not found', StatusCodes.NOT_FOUND);
+    }
+
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
     const pullRequestReviews = await prisma.codeReview.findMany({
       where: {
-        pullRequest: {
-          repository: {
-            users: {
-              some: {
-                userId: options.userId,
-              },
-            },
-          },
-          id: options.pullRequestId,
+        pullRequestId: existingPullRequest.id,
+        reviewer: {
+          contains: options.search,
         },
       },
       take: options.limit,
@@ -76,15 +105,9 @@ export class PullRequestService {
     });
     const total = await prisma.codeReview.count({
       where: {
-        pullRequest: {
-          repository: {
-            users: {
-              some: {
-                userId: options.userId,
-              },
-            },
-          },
-          id: options.pullRequestId,
+        pullRequestId: existingPullRequest.id,
+        reviewer: {
+          contains: options.search,
         },
       },
     });

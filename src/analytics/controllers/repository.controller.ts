@@ -11,12 +11,12 @@ export class RepositoryController {
   async getRepositories(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.userId as number;
-      const ownerId = Number(req.params.ownerId);
+      const ownerName = req.params.ownerName;
       const paginationOptions = parsePaginationOptions(req.query);
       const response = await this.repositoryService.getRepositories({
         ...paginationOptions,
         userId,
-        ownerId,
+        ownerName,
       });
 
       res.status(StatusCodes.OK).json(response);

@@ -11,12 +11,13 @@ export class PullRequestController {
   async getPullRequests(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.userId as number;
-      const repositoryId = Number(req.params.repositoryId);
+      const { ownerName, repositoryName } = req.params;
       const options = parsePaginationOptions(req.query);
       const response = await this.pullRequestService.getPullRequests({
         ...options,
         userId,
-        repositoryId,
+        ownerName,
+        repositoryName,
       });
 
       res.status(StatusCodes.OK).json(response);
@@ -28,14 +29,13 @@ export class PullRequestController {
   async getPullRequestReviews(req: AuthRequest, res: Response): Promise<void> {
     try {
       const userId = req.userId as number;
-      const repositoryId = Number(req.params.repositoryId);
-      const pullRequestId = Number(req.params.pullRequestId);
+      const { repositoryName, pullRequestNumber } = req.params;
       const options = parsePaginationOptions(req.query);
       const response = await this.pullRequestService.getPullRequestReviews({
         ...options,
         userId,
-        repositoryId,
-        pullRequestId,
+        repositoryName,
+        pullRequestNumber: Number(pullRequestNumber),
       });
 
       res.status(StatusCodes.OK).json(response);
