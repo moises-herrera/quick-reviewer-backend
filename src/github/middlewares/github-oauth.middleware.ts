@@ -2,11 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { OAuthSession } from 'src/common/interfaces/oauth-session';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
 
 export const gitHubOAuthMiddleware = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) => {
   try {
@@ -28,6 +27,6 @@ export const gitHubOAuthMiddleware = (
 
     next();
   } catch (error) {
-    handleHttpExceptionMiddleware(error, req, res);
+    next(error);
   }
 };

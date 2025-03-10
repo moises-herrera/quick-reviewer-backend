@@ -7,16 +7,16 @@ export class AccountService {
   async getOrganizations(
     options: AccountFilters,
   ): Promise<PaginatedResponse<Account>> {
-    return this.getAccounts('Organization', options);
+    return this.getAccounts(options, 'Organization');
   }
 
   async getUsers(options: AccountFilters): Promise<PaginatedResponse<Account>> {
-    return this.getAccounts('User', options);
+    return this.getAccounts(options, 'User');
   }
 
-  private async getAccounts(
-    type: AccountType,
+  async getAccounts(
     options: AccountFilters,
+    type?: AccountType,
   ): Promise<PaginatedResponse<Account>> {
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
@@ -57,6 +57,8 @@ export class AccountService {
     const response: PaginatedResponse<Account> = {
       data: accounts,
       total,
+      page: options.page,
+      totalPages: Math.ceil(total / options.limit),
     };
 
     return response;

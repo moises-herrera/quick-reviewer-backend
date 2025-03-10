@@ -1,6 +1,5 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { AccountService } from '../services/account.service';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
@@ -8,7 +7,29 @@ import { AuthRequest } from 'src/common/interfaces/auth-request';
 export class AccountController {
   private readonly accountService = new AccountService();
 
-  async getOrganizations(req: AuthRequest, res: Response): Promise<void> {
+  async getAllAccounts(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const userId = req.userId as number;
+      const paginationOptions = parsePaginationOptions(req.query);
+      const response = await this.accountService.getAccounts({
+        ...paginationOptions,
+        userId,
+      });
+      res.status(StatusCodes.OK).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getOrganizations(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
@@ -18,11 +39,15 @@ export class AccountController {
       });
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 
-  async getUsers(req: AuthRequest, res: Response): Promise<void> {
+  async getUsers(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
@@ -32,7 +57,7 @@ export class AccountController {
       });
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 }

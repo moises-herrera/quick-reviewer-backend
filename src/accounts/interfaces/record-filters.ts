@@ -11,13 +11,13 @@ export interface RepositoryFilters extends PaginationOptions {
 
 export interface PullRequestFilters extends PaginationOptions {
   userId: number;
-  ownerName?: string;
-  repositoryName?: string;
+  ownerName: string;
+  repositoryName: string;
 }
 
 export interface PullRequestReviewFilters extends PaginationOptions {
   userId: number;
-  ownerName?: string;
-  repositoryName?: string;
-  pullRequestNumber?: number;
+  ownerName: string;
+  repositoryName: string;
+  pullRequestNumber: number;
 }

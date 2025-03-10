@@ -12,19 +12,31 @@ export class PullRequestService {
   async getPullRequests(
     options: PullRequestFilters,
   ): Promise<PaginatedResponse<PullRequest>> {
-    const existingRepository = await prisma.repository.findFirst({
-      where: {
-        name: options.repositoryName,
-        owner: {
-          name: options.ownerName,
-        },
-        users: {
-          some: {
-            userId: options.userId,
+    const isRepositoryId = !isNaN(Number(options.repositoryName));
+    const repositoryFilter = {
+      where: isRepositoryId
+        ? {
+            id: Number(options.repositoryName),
+            users: {
+              some: {
+                userId: options.userId,
+              },
+            },
+          }
+        : {
+            name: options.repositoryName,
+            owner: {
+              name: options.ownerName,
+            },
+            users: {
+              some: {
+                userId: options.userId,
+              },
+            },
           },
-        },
-      },
-    });
+    } as const;
+    const existingRepository =
+      await prisma.repository.findFirst(repositoryFilter);
 
     if (!existingRepository) {
       throw new HttpException('Repository not found', StatusCodes.NOT_FOUND);
@@ -32,33 +44,32 @@ export class PullRequestService {
 
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
-    const pullRequests = await prisma.pullRequest.findMany({
+    const filter = {
       where: {
-        repositoryId: existingRepository.id,
+        repository: {
+          id: existingRepository.id,
+        },
         title: {
           contains: options.search,
           mode: 'insensitive',
         },
       },
+    } as const;
+    const pullRequests = await prisma.pullRequest.findMany({
+      ...filter,
       take: options.limit,
       skip: skipRecords,
       orderBy: {
         createdAt: 'desc',
       },
     });
-    const total = await prisma.pullRequest.count({
-      where: {
-        repositoryId: existingRepository.id,
-        title: {
-          contains: options.search,
-          mode: 'insensitive',
-        },
-      },
-    });
+    const total = await prisma.pullRequest.count(filter);
 
     const response: PaginatedResponse<PullRequest> = {
       data: pullRequests,
       total,
+      page: options.page,
+      totalPages: Math.ceil(total / options.limit),
     };
 
     return response;
@@ -90,31 +101,30 @@ export class PullRequestService {
 
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
-    const pullRequestReviews = await prisma.codeReview.findMany({
+    const pullRequestReviewFilter = {
       where: {
         pullRequestId: existingPullRequest.id,
         reviewer: {
           contains: options.search,
+          mode: 'insensitive',
         },
       },
+    } as const;
+    const pullRequestReviews = await prisma.codeReview.findMany({
+      ...pullRequestReviewFilter,
       take: options.limit,
       skip: skipRecords,
       orderBy: {
         createdAt: 'desc',
       },
     });
-    const total = await prisma.codeReview.count({
-      where: {
-        pullRequestId: existingPullRequest.id,
-        reviewer: {
-          contains: options.search,
-        },
-      },
-    });
+    const total = await prisma.codeReview.count(pullRequestReviewFilter);
 
     const response: PaginatedResponse<CodeReview> = {
       data: pullRequestReviews,
       total,
+      page: options.page,
+      totalPages: Math.ceil(total / options.limit),
     };
 
     return response;

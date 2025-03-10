@@ -4,7 +4,10 @@ import { envConfig } from 'src/config/env-config';
 import { gitHubWebhooksMiddleware } from '../github/webhooks-config';
 import { appRouter } from './app.router';
 import { connectToDatabase } from '../database/db-connection';
-import { handleHttpExceptionMiddleware } from '../common/middlewares/handle-http-exception.middleware';
+import {
+  handleHttpException,
+  handleNotFoundRoute,
+} from '../common/middlewares/handle-http-exception.middleware';
 import { sessionMiddleware } from '../common/middlewares/session.middleware';
 import { API_PREFIX } from '../constants/api';
 import cors from 'cors';
@@ -37,7 +40,9 @@ app.use(sessionMiddleware);
 
 app.use(API_PREFIX, appRouter);
 
-app.use(handleHttpExceptionMiddleware);
+app.use(handleNotFoundRoute);
+
+app.use(handleHttpException);
 
 connectToDatabase();
 

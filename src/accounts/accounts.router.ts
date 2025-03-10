@@ -4,36 +4,41 @@ import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middlew
 import { RepositoryController } from './controllers/repository.controller';
 import { PullRequestController } from './controllers/pull-request.controller';
 
-const analyticsRouter = Router();
+const accountsRouter = Router();
 const accountController = new AccountController();
 const repositoryController = new RepositoryController();
 const pullRequestController = new PullRequestController();
 
-analyticsRouter.use(gitHubAuthMiddleware);
+accountsRouter.use(gitHubAuthMiddleware);
 
-analyticsRouter.get(
-  '/accounts/organizations',
+accountsRouter.get(
+  '/',
+  accountController.getAllAccounts.bind(accountController),
+);
+
+accountsRouter.get(
+  '/organizations',
   accountController.getOrganizations.bind(accountController),
 );
 
-analyticsRouter.get(
-  '/accounts/users',
+accountsRouter.get(
+  '/users',
   accountController.getUsers.bind(accountController),
 );
 
-analyticsRouter.get(
-  '/accounts/:ownerName/repositories',
+accountsRouter.get(
+  '/:ownerName/repositories',
   repositoryController.getRepositories.bind(repositoryController),
 );
 
-analyticsRouter.get(
-  '/accounts/:ownerName/repositories/:repositoryName/pull-requests',
+accountsRouter.get(
+  '/:ownerName/repositories/:repositoryName/pull-requests',
   pullRequestController.getPullRequests.bind(pullRequestController),
 );
 
-analyticsRouter.get(
-  '/accounts/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
+accountsRouter.get(
+  '/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
   pullRequestController.getPullRequestReviews.bind(pullRequestController),
 );
 
-export { analyticsRouter };
+export { accountsRouter };

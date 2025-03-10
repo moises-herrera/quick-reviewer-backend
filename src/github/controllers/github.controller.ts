@@ -1,10 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { OAuthSession } from 'src/common/interfaces/oauth-session';
 import { gitHubAuthApp } from '../github-auth-app';
 import { envConfig } from 'src/config/env-config';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
 import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
 import { RegisterUserService } from 'src/users/services/register-user.service';
@@ -16,7 +15,11 @@ import { User } from '@prisma/client';
 export class GitHubController {
   private readonly userService = new UserService();
 
-  async getAuthorizationUrl(req: Request, res: Response): Promise<void> {
+  async getAuthorizationUrl(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const state = CryptoService.generateRandomBytes(16);
       const { url } = gitHubAuthApp.getWebFlowAuthorizationUrl({
@@ -27,11 +30,15 @@ export class GitHubController {
 
       res.redirect(url);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 
-  async getAccessToken(req: Request, res: Response): Promise<void> {
+  async getAccessToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { code } = req.query;
       let authentication:
@@ -73,6 +80,8 @@ export class GitHubController {
         };
 
         await registerUserService.registerUserData(userData);
+      } else {
+        await registerUserService.registerHistory(existingUser);
       }
 
       CookieService.setCookie(res, 'githubToken', authentication.token);
@@ -85,12 +94,16 @@ export class GitHubController {
 
       res.redirect(`${envConfig.FRONTEND_URL}/dashboard`);
     } catch (error) {
-      res.redirect(`${envConfig.FRONTEND_URL}/auth-error=true`);
-      handleHttpExceptionMiddleware(error, req, res);
+      res.redirect(`${envConfig.FRONTEND_URL}/auth/login?error=true`);
+      next(error);
     }
   }
 
-  async checkToken(req: AuthRequest, res: Response): Promise<void> {
+  async checkToken(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { userId } = req;
 
@@ -102,18 +115,22 @@ export class GitHubController {
         user,
       });
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 
-  async refreshToken(req: Request, res: Response): Promise<void> {
+  async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const { githubRefreshToken } = req.cookies;
 
       if (!githubRefreshToken) {
         throw new HttpException(
           'Refresh token not provided',
-          StatusCodes.UNAUTHORIZED,
+          StatusCodes.BAD_REQUEST,
         );
       }
 
@@ -129,15 +146,40 @@ export class GitHubController {
         { maxAge: 1000 * 60 * 60 * 24 * 30 },
       );
 
+      const {
+        status,
+        data: { user },
+      } = await gitHubAuthApp.checkToken({
+        token: authentication.token,
+      });
+
+      if (status >= 400 || !user) {
+        throw new HttpException(
+          'Error getting the user information',
+          status || StatusCodes.BAD_REQUEST,
+        );
+      }
+
+      const existingUser = await this.userService.getUserById(
+        user.id as unknown as bigint,
+      );
+
+      if (!existingUser) {
+        throw new HttpException(
+          'The user is not registered',
+          StatusCodes.NOT_FOUND,
+        );
+      }
+
       res.status(StatusCodes.OK).json({
-        message: 'Token refreshed successfully',
+        user: existingUser,
       });
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 
-  async logout(req: Request, res: Response): Promise<void> {
+  async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       req.session.destroy((err) => {
         if (err) {
@@ -155,7 +197,7 @@ export class GitHubController {
         });
       });
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 }

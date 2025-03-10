@@ -1,6 +1,5 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
 import { RepositoryService } from '../services/repository.service';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
@@ -8,7 +7,11 @@ import { parsePaginationOptions } from 'src/common/utils/parse-pagination-option
 export class RepositoryController {
   private readonly repositoryService = new RepositoryService();
 
-  async getRepositories(req: AuthRequest, res: Response): Promise<void> {
+  async getRepositories(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.userId as number;
       const ownerName = req.params.ownerName;
@@ -21,7 +24,7 @@ export class RepositoryController {
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 }

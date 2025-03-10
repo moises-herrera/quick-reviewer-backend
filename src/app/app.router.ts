@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { analyticsRouter } from 'src/analytics/analytics.router';
+import { accountsRouter } from 'src/accounts/accounts.router';
 import { gitHubRouter } from 'src/github/github.router';
 import { HealthCheckController } from './controllers/health-check.controller';
+import { statisticsRouter } from 'src/statistics/statistics.router';
 
 const appRouter = Router();
 const healthCheckController = new HealthCheckController();
@@ -13,6 +14,8 @@ appRouter.get(
 
 appRouter.use('/github', gitHubRouter);
 
-appRouter.use('/analytics', analyticsRouter);
+appRouter.use('/accounts', accountsRouter);
+
+appRouter.use('/statistics', statisticsRouter);
 
 export { appRouter };

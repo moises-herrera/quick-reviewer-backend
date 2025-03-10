@@ -50,13 +50,16 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     }
   }
 
-  private async handlePullRequestClosure(
-    payload: EmitterWebhookEvent<'pull_request.closed'>['payload'],
-  ): Promise<void> {
+  private async handlePullRequestClosure({
+    pull_request,
+  }: EmitterWebhookEvent<'pull_request.closed'>['payload']): Promise<void> {
     try {
-      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
-        state: payload.pull_request.state,
-        closedAt: new Date(payload.pull_request.closed_at || Date.now()),
+      await this.pullRequestService.updatePullRequest(pull_request.id, {
+        state: pull_request.state,
+        closedAt: new Date(pull_request.closed_at || Date.now()),
+        mergedAt: pull_request.merged
+          ? new Date(pull_request.merged_at || Date.now())
+          : null,
       });
     } catch (error) {
       console.error('Error closing pull request:', error);
@@ -76,16 +79,16 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     }
   }
 
-  private async handlePullRequestSynchronization(
-    payload: EmitterWebhookEvent<'pull_request.synchronize'>['payload'],
-  ): Promise<void> {
+  private async handlePullRequestSynchronization({
+    pull_request,
+  }: EmitterWebhookEvent<'pull_request.synchronize'>['payload']): Promise<void> {
     try {
-      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
-        state: payload.pull_request.state,
-        updatedAt: new Date(payload.pull_request.updated_at || Date.now()),
-        additions: payload.pull_request.additions,
-        deletions: payload.pull_request.deletions,
-        changedFiles: payload.pull_request.changed_files,
+      await this.pullRequestService.updatePullRequest(pull_request.id, {
+        state: pull_request.state,
+        updatedAt: new Date(pull_request.updated_at || Date.now()),
+        additions: pull_request.additions,
+        deletions: pull_request.deletions,
+        changedFiles: pull_request.changed_files,
       });
     } catch (error) {
       console.error('Error synchronizing pull request:', error);

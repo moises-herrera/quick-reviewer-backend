@@ -64,6 +64,8 @@ export class RepositoryService {
     const response: PaginatedResponse<Repository> = {
       data: repositories,
       total,
+      page: options.page,
+      totalPages: Math.ceil(total / options.limit),
     };
 
     return response;

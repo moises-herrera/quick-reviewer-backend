@@ -55,6 +55,7 @@ model PullRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   closedAt DateTime?
+  mergedAt DateTime?
   author String
   additions Int
   deletions Int

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { gitHubAuthApp } from '../github-auth-app';
 import { HttpException } from 'src/common/exceptions/http-exception';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
+import { handleHttpException } from 'src/common/middlewares/handle-http-exception.middleware';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
 import { UserService } from 'src/users/services/user.service';
 
@@ -20,27 +20,28 @@ export const gitHubAuthMiddleware = async (
       const { githubToken } = req.cookies;
 
       const {
+        status,
         data: { user },
       } = await gitHubAuthApp.checkToken({
         token: githubToken,
       });
 
-      if (!user) {
+      if (status >= 400 || !user) {
         throw new HttpException(
           'Error getting the user information',
-          StatusCodes.UNAUTHORIZED,
+          status || StatusCodes.BAD_REQUEST,
         );
       }
 
       const userService = new UserService();
-      const existingUser = userService.getUserById(
+      const existingUser = await userService.getUserById(
         user.id as unknown as bigint,
       );
 
       if (!existingUser) {
         throw new HttpException(
           'The user is not registered',
-          StatusCodes.UNAUTHORIZED,
+          StatusCodes.NOT_FOUND,
         );
       }
 
@@ -50,11 +51,15 @@ export const gitHubAuthMiddleware = async (
         throw error;
       }
 
-      throw new HttpException('Unauthorized', StatusCodes.UNAUTHORIZED, error);
+      throw new HttpException(
+        'Something went wrong',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        error,
+      );
     }
 
     next();
   } catch (error) {
-    handleHttpExceptionMiddleware(error, req, res);
+    handleHttpException(error, req, res);
   }
 };

@@ -1,6 +1,5 @@
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { handleHttpExceptionMiddleware } from 'src/common/middlewares/handle-http-exception.middleware';
 import { PullRequestService } from '../services/pull-request.service';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
@@ -8,7 +7,11 @@ import { parsePaginationOptions } from 'src/common/utils/parse-pagination-option
 export class PullRequestController {
   private readonly pullRequestService = new PullRequestService();
 
-  async getPullRequests(req: AuthRequest, res: Response): Promise<void> {
+  async getPullRequests(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.userId as number;
       const { ownerName, repositoryName } = req.params;
@@ -22,25 +25,30 @@ export class PullRequestController {
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 
-  async getPullRequestReviews(req: AuthRequest, res: Response): Promise<void> {
+  async getPullRequestReviews(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = req.userId as number;
-      const { repositoryName, pullRequestNumber } = req.params;
+      const { ownerName, repositoryName, pullRequestNumber } = req.params;
       const options = parsePaginationOptions(req.query);
       const response = await this.pullRequestService.getPullRequestReviews({
         ...options,
         userId,
+        ownerName,
         repositoryName,
         pullRequestNumber: Number(pullRequestNumber),
       });
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
-      handleHttpExceptionMiddleware(error, req, res);
+      next(error);
     }
   }
 }

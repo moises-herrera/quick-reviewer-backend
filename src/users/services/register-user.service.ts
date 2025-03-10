@@ -12,6 +12,10 @@ export class RegisterUserService {
 
   async registerUserData(user: User): Promise<void> {
     await this.registerGitHubUser(user);
+    await this.registerHistory(user);
+  }
+
+  async registerHistory(user: User): Promise<void> {
     await this.registerGitHubAccounts(user);
     await this.registerGitHubRepositories(user);
   }

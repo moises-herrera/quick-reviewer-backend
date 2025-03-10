@@ -88,6 +88,7 @@ export class PullRequestHistoryService {
           created_at: createdAt,
           updated_at: updatedAt,
           closed_at: closedAt,
+          merged_at: mergedAt,
           base: {
             repo: { id: repositoryId },
           },
@@ -111,6 +112,7 @@ export class PullRequestHistoryService {
         createdAt: new Date(createdAt),
         updatedAt: new Date(updatedAt),
         closedAt: closedAt ? new Date(closedAt) : null,
+        mergedAt: mergedAt ? new Date(mergedAt) : null,
         repositoryId: repositoryId as unknown as bigint,
       } as PullRequest;
     });

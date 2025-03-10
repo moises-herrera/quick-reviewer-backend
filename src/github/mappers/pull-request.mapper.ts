@@ -32,5 +32,6 @@ export const mapPullRequestToCreation = ({
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),
     closedAt: closed_at ? new Date(closed_at) : null,
+    mergedAt: null,
   };
 };
