@@ -1,5 +1,5 @@
-import 'dotenv/config';
 import { z } from 'zod';
+import { parseEnvConfig } from 'src/common/utils/parse-env-config';
 
 const EnvSchema = z.object({
   NODE_ENV: z.preprocess(
@@ -23,7 +23,11 @@ const EnvSchema = z.object({
 
 export type EnvConfig = z.infer<typeof EnvSchema>;
 
-const { data, error } = EnvSchema.safeParse(process.env);
+const environmentVariables = parseEnvConfig();
+const { data, error } = EnvSchema.safeParse({
+  ...environmentVariables,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+});
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);

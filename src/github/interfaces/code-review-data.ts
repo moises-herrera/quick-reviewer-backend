@@ -1,6 +1,5 @@
 export interface CodeReviewData {
   id: number;
-  id: string;
   user: {
     login: string;
   };

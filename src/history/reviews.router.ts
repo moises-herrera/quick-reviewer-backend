@@ -7,9 +7,9 @@ const reviewsRouter = Router();
 const codeReviewController = new CodeReviewController();
 
 reviewsRouter.post(
-  '/reviews',
+  '/',
   validateBody(PullRequestInitialAverageTimeSchema),
-  codeReviewController.getCodeReviewsReviews.bind(codeReviewController),
+  codeReviewController.getCodeReviewsDetailedInfo.bind(codeReviewController),
 );
 
 export { reviewsRouter };
