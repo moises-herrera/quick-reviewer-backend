@@ -1,11 +1,13 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { PullRequest } from '@prisma/client';
 
-export const mapPullRequestToCreation = ({
-  pull_request: {
+export const mapPullRequestWithRepository = ({
+  pullRequest: {
     id,
+    node_id,
     number,
     title,
+    body,
     state,
     url,
     additions,
@@ -15,13 +17,20 @@ export const mapPullRequestToCreation = ({
     created_at,
     updated_at,
     closed_at,
+    base: { sha: baseSha },
+    head: { sha: headSha },
   },
   repository,
-}: EmitterWebhookEvent<'pull_request.opened'>['payload']): PullRequest => {
+}: {
+  pullRequest: EmitterWebhookEvent<'pull_request.opened'>['payload']['pull_request'];
+  repository: EmitterWebhookEvent<'pull_request.opened'>['payload']['repository'];
+}): PullRequest => {
   return {
     id: id as unknown as bigint,
+    nodeId: node_id,
     number,
     title,
+    body,
     state,
     url,
     additions,
@@ -33,5 +42,7 @@ export const mapPullRequestToCreation = ({
     updatedAt: new Date(updated_at),
     closedAt: closed_at ? new Date(closed_at) : null,
     mergedAt: null,
+    baseSha,
+    headSha,
   };
 };

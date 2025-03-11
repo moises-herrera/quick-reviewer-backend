@@ -12,5 +12,11 @@ export const testAccounts: TestAccount[] = [
     name: 'moises-herrera',
     createdAt: new Date(),
     updatedAt: new Date(),
-  }
+  },
+  {
+    id: 3n,
+    name: 'nest-e-commerce',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 ];

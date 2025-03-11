@@ -36,6 +36,7 @@
     "typescript-transform-paths": "^3.5.3"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
     "@octokit/oauth-app": "^7.1.6",
     "@octokit/rest": "^21.1.1",
     "@octokit/types": "^13.8.0",

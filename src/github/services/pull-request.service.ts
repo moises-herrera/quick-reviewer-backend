@@ -4,12 +4,32 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
 import { PullRequestFilters } from '../interfaces/record-filters';
+import { Octokit } from '../github-app';
+import { RestEndpointMethodTypes } from '@octokit/rest';
+import { isExtensionSupported } from 'src/common/utils/get-language-from-filename';
 
 export class PullRequestService {
   async savePullRequest(data: PullRequest): Promise<void> {
     await prisma.pullRequest.create({
       data,
     });
+  }
+
+  async getPullRequestById(
+    pullRequestId: number | string,
+  ): Promise<PullRequest | null> {
+    const pullRequest = await prisma.pullRequest.findFirst({
+      where:
+        typeof pullRequestId === 'string'
+          ? { nodeId: pullRequestId }
+          : { id: pullRequestId },
+    });
+
+    if (!pullRequest) {
+      throw new HttpException('Pull request not found', StatusCodes.NOT_FOUND);
+    }
+
+    return pullRequest;
   }
 
   async updatePullRequest(
@@ -88,5 +108,53 @@ export class PullRequestService {
     };
 
     return response;
+  }
+
+  async getFileContents(
+    octokit: Octokit,
+    owner: string,
+    repo: string,
+    pullRequestNumber: number,
+    headSha: string,
+  ): Promise<{
+    changedFiles: RestEndpointMethodTypes['pulls']['listFiles']['response']['data'];
+    fileContents: Map<string, string>;
+  }> {
+    const fileContents = new Map<string, string>();
+    const changedFiles = await octokit.rest.pulls.listFiles({
+      owner,
+      repo,
+      pull_number: pullRequestNumber,
+    });
+
+    for (const file of changedFiles.data) {
+      try {
+        if (
+          !['removed', 'renamed', 'unchanged'].includes(file.status) &&
+          isExtensionSupported(file.filename)
+        ) {
+          const response = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: file.filename,
+            ref: headSha,
+          });
+
+          const content = Buffer.from(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (response.data as any).content,
+            'base64',
+          ).toString();
+          fileContents.set(file.filename, content);
+        }
+      } catch (error) {
+        console.error('Error fetching file content:', error);
+      }
+    }
+
+    return {
+      changedFiles: changedFiles.data,
+      fileContents,
+    };
   }
 }

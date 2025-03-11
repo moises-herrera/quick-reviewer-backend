@@ -19,6 +19,7 @@ const EnvSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string().min(1),
   DATABASE_URL: z.string().min(1),
   SESSION_SECRET: z.string().min(1),
+  ANTHROPIC_API_KEY: z.string().min(1),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

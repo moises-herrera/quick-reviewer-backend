@@ -1,8 +1,11 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { mapPullRequestToCreation } from '../mappers/pull-request.mapper';
+import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { PullRequestService } from '../services/pull-request.service';
+import { AIReviewService } from '../services/reviewer.service';
+import { Octokit } from '../github-app';
+import { ReviewParams } from '../interfaces/review-params';
 
 type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
 
@@ -10,6 +13,7 @@ type PullRequestEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestHandler extends EventHandler<EventPayload> {
   private readonly pullRequestService = new PullRequestService();
+  private readonly aiReviewService = new AIReviewService();
 
   constructor(event: PullRequestEvent) {
     super(event);
@@ -19,6 +23,10 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     switch (this.payload.action) {
       case 'opened':
         await this.handlePullRequestCreation(this.payload);
+        break;
+
+      case 'edited':
+        await this.handlePullRequestUpdate(this.payload);
         break;
 
       case 'closed':
@@ -33,6 +41,10 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
         await this.handlePullRequestSynchronization(this.payload);
         break;
 
+      case 'ready_for_review':
+        await this.handlePullRequestReadyForReview(this.payload);
+        break;
+
       default:
         break;
     }
@@ -42,11 +54,48 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.opened'>['payload'],
   ): Promise<void> {
     try {
-      await this.pullRequestService.savePullRequest(
-        mapPullRequestToCreation(payload),
-      );
+      const pullRequestMapped = mapPullRequestWithRepository({
+        pullRequest: payload.pull_request,
+        repository: payload.repository,
+      });
+
+      if (!payload.pull_request.draft) {
+        const reviewParams: ReviewParams = {
+          pullRequest: pullRequestMapped,
+          repository: {
+            name: payload.repository.name,
+            owner: payload.repository.owner.login,
+          },
+        };
+        await this.aiReviewService.generatePullRequestReview(
+          this.octokit as Octokit,
+          reviewParams,
+        );
+      }
+
+      await this.pullRequestService.savePullRequest(pullRequestMapped);
     } catch (error) {
       console.error('Error creating pull request:', error);
+    }
+  }
+
+  private async handlePullRequestUpdate({
+    pull_request,
+    repository,
+  }: EmitterWebhookEvent<'pull_request.edited'>['payload']): Promise<void> {
+    try {
+      const pullRequestMapped = mapPullRequestWithRepository({
+        pullRequest: pull_request,
+        repository: repository,
+      });
+      await this.pullRequestService.updatePullRequest(pull_request.id, {
+        state: pullRequestMapped.state,
+        title: pullRequestMapped.title,
+        body: pullRequestMapped.body,
+        updatedAt: new Date(pull_request.updated_at || Date.now()),
+      });
+    } catch (error) {
+      console.error('Error updating pull request:', error);
     }
   }
 
@@ -79,10 +128,11 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     }
   }
 
-  private async handlePullRequestSynchronization({
-    pull_request,
-  }: EmitterWebhookEvent<'pull_request.synchronize'>['payload']): Promise<void> {
+  private async handlePullRequestSynchronization(
+    payload: EmitterWebhookEvent<'pull_request.synchronize'>['payload'],
+  ): Promise<void> {
     try {
+      const { pull_request } = payload;
       await this.pullRequestService.updatePullRequest(pull_request.id, {
         state: pull_request.state,
         updatedAt: new Date(pull_request.updated_at || Date.now()),
@@ -92,6 +142,31 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
       });
     } catch (error) {
       console.error('Error synchronizing pull request:', error);
+    }
+  }
+
+  private async handlePullRequestReadyForReview(
+    payload: EmitterWebhookEvent<'pull_request.ready_for_review'>['payload'],
+  ): Promise<void> {
+    try {
+      const pullRequestMapped = mapPullRequestWithRepository({
+        pullRequest: payload.pull_request,
+        repository: payload.repository,
+      });
+      const reviewParams: ReviewParams = {
+        pullRequest: pullRequestMapped,
+        repository: {
+          name: payload.repository.name,
+          owner: payload.repository.owner.login,
+        },
+      };
+
+      await this.aiReviewService.generatePullRequestReview(
+        this.octokit as Octokit,
+        reviewParams,
+      );
+    } catch (error) {
+      console.error('Error marking pull request as ready for review:', error);
     }
   }
 }

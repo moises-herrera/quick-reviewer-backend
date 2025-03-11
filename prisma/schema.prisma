@@ -48,8 +48,10 @@ model Repository {
 
 model PullRequest {
   id BigInt @id
+  nodeId String
   number Int
   title String
+  body String?
   state String
   url String @unique
   createdAt DateTime @default(now())
@@ -61,6 +63,8 @@ model PullRequest {
   deletions Int
   changedFiles Int
   repositoryId BigInt
+  headSha String
+  baseSha String
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
   reviews CodeReview[]
 }

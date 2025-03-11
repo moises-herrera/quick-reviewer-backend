@@ -78,6 +78,7 @@ export class PullRequestHistoryService {
       const {
         data: {
           id,
+          node_id: nodeId,
           title,
           state,
           url,
@@ -91,7 +92,9 @@ export class PullRequestHistoryService {
           merged_at: mergedAt,
           base: {
             repo: { id: repositoryId },
+            sha: baseSha,
           },
+          head: { sha: headSha },
         },
       } = await this.octokit.rest.pulls.get({
         owner,
@@ -101,6 +104,7 @@ export class PullRequestHistoryService {
 
       return {
         id: id as unknown as bigint,
+        nodeId,
         number,
         title,
         state,
@@ -114,6 +118,8 @@ export class PullRequestHistoryService {
         closedAt: closedAt ? new Date(closedAt) : null,
         mergedAt: mergedAt ? new Date(mergedAt) : null,
         repositoryId: repositoryId as unknown as bigint,
+        baseSha,
+        headSha,
       } as PullRequest;
     });
 
