@@ -1,15 +1,14 @@
 import { Router } from 'express';
 import { AccountController } from './controllers/account.controller';
-import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
 import { RepositoryController } from './controllers/repository.controller';
 import { PullRequestController } from './controllers/pull-request.controller';
+import { CodeReviewController } from './controllers/code-review.controller';
 
 const accountsRouter = Router();
 const accountController = new AccountController();
 const repositoryController = new RepositoryController();
 const pullRequestController = new PullRequestController();
-
-accountsRouter.use(gitHubAuthMiddleware);
+const codeReviewController = new CodeReviewController();
 
 accountsRouter.get(
   '/',
@@ -38,7 +37,7 @@ accountsRouter.get(
 
 accountsRouter.get(
   '/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
-  pullRequestController.getPullRequestReviews.bind(pullRequestController),
+  codeReviewController.getCodeReviewsReviews.bind(codeReviewController),
 );
 
 export { accountsRouter };

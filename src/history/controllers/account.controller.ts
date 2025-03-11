@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { AccountService } from '../services/account.service';
+import { AccountService } from '../../github/services/account.service';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthRequest } from 'src/common/interfaces/auth-request';

@@ -4,11 +4,9 @@ import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middlew
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { PullRequestAverageCompletionTimeSchema } from './schemas/pull-request-average-completion-time.schema';
 import { PullRequestInitialAverageTimeSchema } from './schemas/pull-request-initial-average-time.schema';
-import { ReviewController } from './controllers/review.controller';
 
 const statisticsRouter = Router();
 const statisticsController = new StatisticsController();
-const reviewController = new ReviewController();
 
 statisticsRouter.use(gitHubAuthMiddleware);
 
@@ -54,12 +52,6 @@ statisticsRouter.post(
   '/pull-requests/review-count-by-repository',
   validateBody(PullRequestInitialAverageTimeSchema),
   statisticsController.getReviewCountByRepository.bind(statisticsController),
-);
-
-statisticsRouter.post(
-  '/reviews',
-  validateBody(PullRequestInitialAverageTimeSchema),
-  reviewController.getPullRequestReviews.bind(reviewController),
 );
 
 export { statisticsRouter };

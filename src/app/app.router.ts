@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { accountsRouter } from 'src/accounts/accounts.router';
+import { historyRouter } from 'src/history/history.router';
 import { gitHubRouter } from 'src/github/github.router';
 import { HealthCheckController } from './controllers/health-check.controller';
 import { statisticsRouter } from 'src/statistics/statistics.router';
@@ -14,7 +14,7 @@ appRouter.get(
 
 appRouter.use('/github', gitHubRouter);
 
-appRouter.use('/accounts', accountsRouter);
+appRouter.use('/history', historyRouter);
 
 appRouter.use('/statistics', statisticsRouter);
 
