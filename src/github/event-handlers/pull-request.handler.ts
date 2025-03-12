@@ -3,9 +3,9 @@ import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { PullRequestService } from '../services/pull-request.service';
-import { AIReviewService } from '../services/reviewer.service';
+import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../github-app';
-import { ReviewParams } from '../interfaces/review-params';
+import { AIReviewParams } from '../interfaces/review-params';
 
 type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
 
@@ -60,13 +60,19 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
       });
 
       if (!payload.pull_request.draft) {
-        const reviewParams: ReviewParams = {
+        const reviewParams: AIReviewParams = {
           pullRequest: pullRequestMapped,
           repository: {
             name: payload.repository.name,
             owner: payload.repository.owner.login,
           },
+          includeFileContents: true,
         };
+        await this.aiReviewService.generatePullRequestSummary(
+          this.octokit as Octokit,
+          reviewParams,
+        );
+
         await this.aiReviewService.generatePullRequestReview(
           this.octokit as Octokit,
           reviewParams,
@@ -153,13 +159,19 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
         pullRequest: payload.pull_request,
         repository: payload.repository,
       });
-      const reviewParams: ReviewParams = {
+      const reviewParams: AIReviewParams = {
         pullRequest: pullRequestMapped,
         repository: {
           name: payload.repository.name,
           owner: payload.repository.owner.login,
         },
+        includeFileContents: true,
       };
+
+      await this.aiReviewService.generatePullRequestSummary(
+        this.octokit as Octokit,
+        reviewParams,
+      );
 
       await this.aiReviewService.generatePullRequestReview(
         this.octokit as Octokit,

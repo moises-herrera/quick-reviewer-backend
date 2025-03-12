@@ -114,20 +114,14 @@ export class PullRequestService {
     octokit: Octokit,
     owner: string,
     repo: string,
-    pullRequestNumber: number,
+    changedFiles: RestEndpointMethodTypes['pulls']['listFiles']['response']['data'],
     headSha: string,
   ): Promise<{
-    changedFiles: RestEndpointMethodTypes['pulls']['listFiles']['response']['data'];
     fileContents: Map<string, string>;
   }> {
     const fileContents = new Map<string, string>();
-    const changedFiles = await octokit.rest.pulls.listFiles({
-      owner,
-      repo,
-      pull_number: pullRequestNumber,
-    });
 
-    for (const file of changedFiles.data) {
+    for (const file of changedFiles) {
       try {
         if (
           !['removed', 'renamed', 'unchanged'].includes(file.status) &&
@@ -153,7 +147,6 @@ export class PullRequestService {
     }
 
     return {
-      changedFiles: changedFiles.data,
       fileContents,
     };
   }

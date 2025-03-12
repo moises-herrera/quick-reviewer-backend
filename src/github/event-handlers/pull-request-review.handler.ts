@@ -32,7 +32,7 @@ export class PullRequestReviewHandler extends EventHandler<EventPayload> {
   ): Promise<void> {
     try {
       await this.codeReviewService.saveCodeReview({
-        ...mapCodeReviewToCreation(payload as unknown as CodeReviewData),
+        ...mapCodeReviewToCreation(payload.review as CodeReviewData),
         pullRequestId: payload.pull_request.id as unknown as bigint,
       });
     } catch (error) {

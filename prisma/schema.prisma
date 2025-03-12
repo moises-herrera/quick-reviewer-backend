@@ -16,6 +16,7 @@ datasource db {
 enum AccountType {
   User
   Organization
+  Bot
 }
 
 model TestAccount {
@@ -48,7 +49,7 @@ model Repository {
 
 model PullRequest {
   id BigInt @id
-  nodeId String
+  nodeId String @unique
   number Int
   title String
   body String?
@@ -66,14 +67,31 @@ model PullRequest {
   headSha String
   baseSha String
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  comments PullRequestComment[]
   reviews CodeReview[]
+}
+
+model PullRequestComment {
+  id BigInt @id
+  pullRequestId BigInt
+  body String
+  user String
+  userType AccountType @default(User)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  commitId String?
+  type String?
+  pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
 }
 
 model CodeReview {
   id BigInt @id
   pullRequestId BigInt
   reviewer String
+  body String?
   status String
+  userType AccountType @default(User)
+  commitId String
   createdAt DateTime @default(now())
   pullRequest PullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
 }

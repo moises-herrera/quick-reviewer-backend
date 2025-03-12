@@ -150,4 +150,18 @@ export class CodeReviewService {
 
     return response;
   }
+
+  async getCodeReview(
+    pullRequestId: bigint,
+    commitId: string,
+  ): Promise<CodeReview | null> {
+    const pullRequestReview = await prisma.codeReview.findFirst({
+      where: {
+        pullRequestId,
+        commitId,
+      },
+    });
+
+    return pullRequestReview;
+  }
 }
