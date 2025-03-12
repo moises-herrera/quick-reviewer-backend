@@ -6,7 +6,7 @@ import { prisma } from 'src/database/db-connection';
 import { PullRequestFilters } from '../interfaces/record-filters';
 import { Octokit } from '../github-app';
 import { RestEndpointMethodTypes } from '@octokit/rest';
-import { isExtensionSupported } from 'src/common/utils/get-language-from-filename';
+import { isExtensionSupported } from 'src/common/utils/language-support';
 
 export class PullRequestService {
   async savePullRequest(data: PullRequest): Promise<void> {

@@ -1,7 +1,7 @@
 import {
   getLanguageFromFilename,
   isExtensionSupported,
-} from 'src/common/utils/get-language-from-filename';
+} from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { AIService } from 'src/ai/services/ai.service';
 import { Octokit } from '../github-app';
