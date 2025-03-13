@@ -14,44 +14,38 @@ statisticsRouter.use(gitHubAuthMiddleware);
 statisticsRouter.post(
   '/pull-requests/average-creation-count-by-repository',
   validateBody(PullRequestFiltersSchema),
-  statisticsController.getPullRequestAverageCreationCountByRepository.bind(
-    statisticsController,
-  ),
+  statisticsController.getPullRequestAverageCreationCountByRepository,
 );
 
 statisticsRouter.post(
   '/pull-requests/average-completion-time',
   validateBody(PullRequestFiltersSchema),
-  statisticsController.getPullRequestAverageCompletionTime.bind(
-    statisticsController,
-  ),
+  statisticsController.getPullRequestAverageCompletionTime,
 );
 
 statisticsRouter.post(
   '/pull-requests/initial-review-average-time',
   validateBody(PullRequestFiltersWithStateSchema),
-  statisticsController.getInitialReviewAverageTime.bind(statisticsController),
+  statisticsController.getInitialReviewAverageTime,
 );
 
 statisticsRouter.post(
   '/pull-requests/average-review-count',
   validateBody(PullRequestFiltersWithStateSchema),
-  statisticsController.getAverageReviewCount.bind(statisticsController),
+  statisticsController.getAverageReviewCount,
 );
 
 // Chart routes
 statisticsRouter.post(
   '/pull-requests/count-by-repository',
   validateBody(PullRequestFiltersWithStateSchema),
-  statisticsController.getPullRequestCountByRepository.bind(
-    statisticsController,
-  ),
+  statisticsController.getPullRequestCountByRepository,
 );
 
 statisticsRouter.post(
   '/pull-requests/review-count-by-repository',
   validateBody(PullRequestFiltersWithStateSchema),
-  statisticsController.getReviewCountByRepository.bind(statisticsController),
+  statisticsController.getReviewCountByRepository,
 );
 
 export { statisticsRouter };
