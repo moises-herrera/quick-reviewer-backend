@@ -1,6 +1,5 @@
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { Octokit } from '../interfaces/octokit';
-import { isExtensionSupported } from 'src/common/utils/language-support';
 
 export class PullRequestService {
   async getFileContents(
@@ -16,10 +15,7 @@ export class PullRequestService {
 
     for (const file of changedFiles) {
       try {
-        if (
-          !['removed', 'renamed', 'unchanged'].includes(file.status) &&
-          isExtensionSupported(file.filename)
-        ) {
+        if (!['removed', 'renamed', 'unchanged'].includes(file.status)) {
           const response = await octokit.rest.repos.getContent({
             owner,
             repo,

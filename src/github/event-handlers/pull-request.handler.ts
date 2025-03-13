@@ -59,6 +59,8 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
         repository: payload.repository,
       });
 
+      await this.pullRequestService.savePullRequest(pullRequestMapped);
+
       if (!payload.pull_request.draft) {
         const reviewParams: AIReviewParams = {
           pullRequest: pullRequestMapped,
@@ -78,8 +80,6 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
           reviewParams,
         );
       }
-
-      await this.pullRequestService.savePullRequest(pullRequestMapped);
     } catch (error) {
       console.error('Error creating pull request:', error);
     }

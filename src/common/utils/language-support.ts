@@ -21,13 +21,9 @@ export const getLanguageFromFilename = (
 };
 
 export const isExtensionSupported = (filename: string): boolean => {
-  const extension = filename.split('.').pop()?.toLowerCase();
-
   if (filename.endsWith('.lock.json') || filename.endsWith('-lock.yaml')) {
     return false;
   }
 
-  return Object.keys(languagesExtensionsDictionary).includes(
-    extension as LanguageExtension,
-  );
+  return true;
 };

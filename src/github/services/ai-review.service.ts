@@ -1,7 +1,4 @@
-import {
-  getLanguageFromFilename,
-  isExtensionSupported,
-} from 'src/common/utils/language-support';
+import { getLanguageFromFilename } from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { AIService } from 'src/ai/services/ai.service';
 import { Octokit } from '../interfaces/octokit';
@@ -15,7 +12,8 @@ import { PullRequestService } from './pull-request.service';
 export class AIReviewService {
   private readonly aiService = new AIService();
   private readonly pullRequestService = new PullRequestService();
-  private readonly pullRequestCommentService = new PullRequestCommentRepository();
+  private readonly pullRequestCommentService =
+    new PullRequestCommentRepository();
 
   private async getPullRequestContext(
     octokit: Octokit,
@@ -111,17 +109,16 @@ export class AIReviewService {
 
   async generatePullRequestReview(
     octokit: Octokit,
-    { repository, pullRequest, includeFileContents = true }: AIReviewParams,
+    { repository, pullRequest }: AIReviewParams,
   ): Promise<void> {
     const { owner, name } = repository;
     const { number: pullNumber } = pullRequest;
     const context = await this.getPullRequestContext(octokit, {
       repository,
       pullRequest,
-      includeFileContents,
     });
 
-    const { generalComment } = await this.reviewPullRequest(context);
+    const { generalComment, comments } = await this.reviewPullRequest(context);
 
     try {
       await octokit.rest.pulls.createReview({
@@ -130,6 +127,7 @@ export class AIReviewService {
         pull_number: pullNumber,
         body: generalComment,
         event: 'COMMENT',
+        comments,
       });
     } catch (error) {
       console.log('Error creating AI review:', error);
@@ -185,18 +183,15 @@ export class AIReviewService {
         Output the general comment and review comments in a JSON format with the following structure:
 
         Example:
-        '{"generalComment": "Well-structured job configuration with appropriate security controls!", "comments": [{"path": src/app/components/app.component.ts, "line": 10, "position": 2, "body": "This is a comment"}]}',
-        'where "path" is the path of the file, "line" is the line number, "body" is the comment, and 
-        the position value equals the number of lines down from the first "@@" hunk header in the file you want to add a comment. 
-        The line just below the "@@" line is position 1, the next line is position 2, and so on.
+        '{"generalComment": "Well-structured job configuration with appropriate security controls!", "comments": [{"path": src/app/components/app.component.ts, "line": 10, "body": "This is a comment"}]}',
+        'where "path" is the path of the file, "line" is the line number, "body" is the comment.
 
         If you find no issues, return a general comment and an empty array of comments.
 
         Notes: 
         - Only answer with the JSON object.
         - Do not add any other text or explanation.
-        - IMPORTANT: You can count the line numbers from the diff hunk or the file content, but only the line numbers in the diff hunk are valid for comments.
-        - Do not use the file content to generate comments, only use it for context.
+        - IMPORTANT: Only count the line numbers from the diff hunk because they are valid for comments. So, count the lines with + and - signs, but do not count the lines with no signs.
         `,
       messages: [{ role: 'user', content: prompt }],
     });
@@ -219,7 +214,6 @@ export class AIReviewService {
 
       # Changed files
       ${changedFiles
-        .filter(({ filename }) => isExtensionSupported(filename))
         .map(({ filename, patch }) => {
           let fileDiff = `
           ## ${filename}
