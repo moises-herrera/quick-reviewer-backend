@@ -6,6 +6,6 @@ export interface AIReviewParams {
     name: string;
     owner: string;
   };
+  fullReview?: boolean;
   includeFileContents?: boolean;
-  includeFileComments?: boolean;
 }

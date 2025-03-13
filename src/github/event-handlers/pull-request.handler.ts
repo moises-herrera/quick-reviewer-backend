@@ -6,6 +6,7 @@ import { PullRequestRepository } from '../repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
+import { PullRequest } from '@prisma/client';
 
 type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
 
@@ -50,35 +51,48 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     }
   }
 
-  private async handlePullRequestCreation(
-    payload: EmitterWebhookEvent<'pull_request.opened'>['payload'],
-  ): Promise<void> {
+  private async reviewPullRequest({
+    pullRequest,
+    repository,
+  }: {
+    pullRequest: PullRequest;
+    repository: { name: string; owner: string };
+  }): Promise<void> {
+    const reviewParams: AIReviewParams = {
+      pullRequest,
+      repository,
+    };
+    await this.aiReviewService.generatePullRequestSummary(
+      this.octokit as Octokit,
+      { ...reviewParams, fullReview: true, includeFileContents: true },
+    );
+
+    await this.aiReviewService.generatePullRequestReview(
+      this.octokit as Octokit,
+      reviewParams,
+    );
+  }
+
+  private async handlePullRequestCreation({
+    pull_request,
+    repository,
+  }: EmitterWebhookEvent<'pull_request.opened'>['payload']): Promise<void> {
     try {
       const pullRequestMapped = mapPullRequestWithRepository({
-        pullRequest: payload.pull_request,
-        repository: payload.repository,
+        pullRequest: pull_request,
+        repository: repository,
       });
 
       await this.pullRequestService.savePullRequest(pullRequestMapped);
 
-      if (!payload.pull_request.draft) {
-        const reviewParams: AIReviewParams = {
+      if (!pull_request.draft) {
+        await this.reviewPullRequest({
           pullRequest: pullRequestMapped,
           repository: {
-            name: payload.repository.name,
-            owner: payload.repository.owner.login,
+            name: repository.name,
+            owner: repository.owner.login,
           },
-          includeFileContents: true,
-        };
-        await this.aiReviewService.generatePullRequestSummary(
-          this.octokit as Octokit,
-          reviewParams,
-        );
-
-        await this.aiReviewService.generatePullRequestReview(
-          this.octokit as Octokit,
-          reviewParams,
-        );
+        });
       }
     } catch (error) {
       console.error('Error creating pull request:', error);
@@ -138,45 +152,56 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.synchronize'>['payload'],
   ): Promise<void> {
     try {
-      const { pull_request } = payload;
+      const { pull_request, repository } = payload;
+
       await this.pullRequestService.updatePullRequest(pull_request.id, {
         state: pull_request.state,
         updatedAt: new Date(pull_request.updated_at || Date.now()),
         additions: pull_request.additions,
         deletions: pull_request.deletions,
         changedFiles: pull_request.changed_files,
+        baseSha: pull_request.base.sha,
+        headSha: pull_request.head.sha,
       });
+
+      const pullRequestMapped = mapPullRequestWithRepository({
+        pullRequest: pull_request,
+        repository: repository,
+      });
+
+      if (!pull_request.draft) {
+        await this.reviewPullRequest({
+          pullRequest: pullRequestMapped,
+          repository: {
+            name: repository.name,
+            owner: repository.owner.login,
+          },
+        });
+      }
     } catch (error) {
       console.error('Error synchronizing pull request:', error);
     }
   }
 
-  private async handlePullRequestReadyForReview(
-    payload: EmitterWebhookEvent<'pull_request.ready_for_review'>['payload'],
-  ): Promise<void> {
+  private async handlePullRequestReadyForReview({
+    pull_request,
+    repository,
+  }: EmitterWebhookEvent<'pull_request.ready_for_review'>['payload']): Promise<void> {
     try {
       const pullRequestMapped = mapPullRequestWithRepository({
-        pullRequest: payload.pull_request,
-        repository: payload.repository,
+        pullRequest: pull_request,
+        repository: repository,
       });
-      const reviewParams: AIReviewParams = {
-        pullRequest: pullRequestMapped,
-        repository: {
-          name: payload.repository.name,
-          owner: payload.repository.owner.login,
-        },
-        includeFileContents: true,
-      };
 
-      await this.aiReviewService.generatePullRequestSummary(
-        this.octokit as Octokit,
-        reviewParams,
-      );
-
-      await this.aiReviewService.generatePullRequestReview(
-        this.octokit as Octokit,
-        reviewParams,
-      );
+      if (!pull_request.draft) {
+        await this.reviewPullRequest({
+          pullRequest: pullRequestMapped,
+          repository: {
+            name: repository.name,
+            owner: repository.owner.login,
+          },
+        });
+      }
     } catch (error) {
       console.error('Error marking pull request as ready for review:', error);
     }

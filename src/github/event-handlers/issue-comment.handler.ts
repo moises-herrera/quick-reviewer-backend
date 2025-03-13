@@ -21,7 +21,8 @@ type IssueCommentEvent = GitHubWebHookEvent<EventPayload>;
 
 export class IssueCommentHandler extends EventHandler<EventPayload> {
   private readonly pullRequestService = new PullRequestRepository();
-  private readonly pullRequestCommentService = new PullRequestCommentRepository();
+  private readonly pullRequestCommentService =
+    new PullRequestCommentRepository();
   private readonly codeReviewService = new CodeReviewRepository();
   private readonly aiReviewService = new AIReviewService();
 
@@ -72,48 +73,14 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
         name: payload.repository.name,
         owner: payload.repository.owner.login,
       },
-      includeFileComments: false,
     };
 
     if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
-      const lastComment =
-        await this.pullRequestCommentService.getPullRequestComment(
-          pullRequest.id,
-          BOT_USER_REFERENCE,
-          'summary',
-        );
-
-      // Check if a comment made by the bot already exists and is for the same commit
-      if (
-        lastComment &&
-        lastComment.userType === 'Bot' &&
-        lastComment.commitId === pullRequest.headSha
-      ) {
-        return;
-      }
-
       await this.aiReviewService.generatePullRequestSummary(
         this.octokit as Octokit,
-        defaultParams,
-        lastComment?.id as unknown as number,
+        { ...defaultParams, fullReview: true, includeFileContents: true },
       );
     } else if (payload.comment.body === REVIEW_PULL_REQUEST_COMMAND) {
-      const lastCodeReview = await this.codeReviewService.getCodeReview(
-        pullRequest.id,
-        pullRequest.headSha,
-      );
-
-      // Check if the code review already exists and is for the same commit
-      // If it does, we don't need to generate a new one
-      if (
-        lastCodeReview &&
-        lastCodeReview.reviewer === BOT_USER_REFERENCE &&
-        lastCodeReview.userType === 'Bot' &&
-        lastCodeReview?.commitId === pullRequest.headSha
-      ) {
-        return;
-      }
-
       await this.aiReviewService.generatePullRequestReview(
         this.octokit as Octokit,
         defaultParams,

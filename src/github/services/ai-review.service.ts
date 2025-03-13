@@ -1,4 +1,7 @@
-import { getLanguageFromFilename } from 'src/common/utils/language-support';
+import {
+  getLanguageFromFilename,
+  isExtensionSupported,
+} from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { AIService } from 'src/ai/services/ai.service';
 import { Octokit } from '../interfaces/octokit';
@@ -8,24 +11,73 @@ import { PullRequestComment } from '@prisma/client';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
 import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
 import { PullRequestService } from './pull-request.service';
+import { BOT_USER_REFERENCE } from '../constants/bot';
+import { CodeReviewRepository } from '../repositories/code-review.repository';
+import fs from 'node:fs';
+import { PromptMessage } from 'src/ai/interfaces/message-config';
+import { RestEndpointMethodTypes } from '@octokit/rest';
 
 export class AIReviewService {
   private readonly aiService = new AIService();
   private readonly pullRequestService = new PullRequestService();
-  private readonly pullRequestCommentService =
+  private readonly pullRequestCommentRepository =
     new PullRequestCommentRepository();
+  private readonly codeReviewRepository = new CodeReviewRepository();
+
+  private readonly summaryPrompt = fs.readFileSync(
+    'src/ai/prompts/pull-request-summary.md',
+    'utf8',
+  );
+
+  private readonly reviewPrompt = fs.readFileSync(
+    'src/ai/prompts/pull-request-review.md',
+    'utf8',
+  );
 
   private async getPullRequestContext(
     octokit: Octokit,
-    { repository, pullRequest, includeFileContents = false }: AIReviewParams,
+    {
+      repository,
+      pullRequest,
+      fullReview = false,
+      includeFileContents = false,
+    }: AIReviewParams,
   ): Promise<PullRequestContext> {
     const { owner, name } = repository;
     const { number: pullNumber, headSha } = pullRequest;
-    const { data: changedFiles } = await octokit.rest.pulls.listFiles({
-      owner,
-      repo: name,
-      pull_number: pullNumber,
-    });
+    let changedFiles:
+      | Awaited<
+          RestEndpointMethodTypes['pulls']['listFiles']['response']['data']
+        >
+      | undefined = undefined;
+
+    if (fullReview) {
+      const { data } = await octokit.rest.pulls.listFiles({
+        owner,
+        repo: name,
+        pull_number: pullNumber,
+      });
+
+      changedFiles = data;
+    } else {
+      const {
+        data: { files },
+      } = await octokit.rest.repos.getCommit({
+        owner,
+        repo: name,
+        ref: headSha,
+      });
+
+      if (!files) {
+        throw new Error('No files found in the pull request');
+      }
+
+      changedFiles = files;
+    }
+
+    const filteredChangedFiles = changedFiles.filter(({ filename }) =>
+      isExtensionSupported(filename),
+    );
     let fileContents: Map<string, string> | undefined = undefined;
 
     if (includeFileContents) {
@@ -33,7 +85,7 @@ export class AIReviewService {
         octokit,
         owner,
         name,
-        changedFiles,
+        filteredChangedFiles,
         headSha,
       );
 
@@ -42,7 +94,7 @@ export class AIReviewService {
 
     const context: PullRequestContext = {
       pullRequest,
-      changedFiles,
+      changedFiles: filteredChangedFiles,
       fileContents,
     };
 
@@ -51,18 +103,60 @@ export class AIReviewService {
 
   async generatePullRequestSummary(
     octokit: Octokit,
-    { repository, pullRequest, includeFileContents = true }: AIReviewParams,
-    commentId?: number,
-  ): Promise<void> {
-    const { owner, name } = repository;
-    const { number: pullNumber } = pullRequest;
-    const context = await this.getPullRequestContext(octokit, {
+    {
       repository,
       pullRequest,
-      includeFileContents,
-    });
+      fullReview = false,
+      includeFileContents = true,
+    }: AIReviewParams,
+  ): Promise<void> {
+    const lastComment =
+      await this.pullRequestCommentRepository.getPullRequestComment(
+        pullRequest.id,
+        BOT_USER_REFERENCE,
+        'summary',
+      );
 
-    const summary = await this.summarizePullRequest(context);
+    // Check if a comment made by the bot already exists and is for the same commit
+    if (
+      lastComment &&
+      lastComment.userType === 'Bot' &&
+      lastComment.commitId === pullRequest.headSha
+    ) {
+      const message = `There are no changes since the last review, so there is no need to update the summary.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+      await octokit.rest.issues.createComment({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: message,
+      });
+
+      return;
+    }
+
+    const { owner, name } = repository;
+    const { number: pullNumber } = pullRequest;
+    let context: PullRequestContext | undefined = undefined;
+
+    try {
+      context = await this.getPullRequestContext(octokit, {
+        repository,
+        pullRequest,
+        fullReview,
+        includeFileContents,
+      });
+    } catch (error) {
+      console.error('Error getting pull request context:', error);
+      return;
+    }
+
+    const summary = await this.summarizePullRequest({
+      ...context,
+      additionalContext: lastComment?.body
+        ? `Last pull request summary generated (check if it is necessary to update the summary): ${lastComment.body}`
+        : '',
+    });
 
     try {
       const commentOptions = {
@@ -72,7 +166,7 @@ export class AIReviewService {
         body: summary,
       };
 
-      if (!commentId) {
+      if (!lastComment?.id) {
         const { data } =
           await octokit.rest.issues.createComment(commentOptions);
         const comment = mapPullRequestComment(data, {
@@ -80,21 +174,21 @@ export class AIReviewService {
           commitId: pullRequest.headSha,
         }) as PullRequestComment;
 
-        await this.pullRequestCommentService.savePullRequestComment({
+        await this.pullRequestCommentRepository.savePullRequestComment({
           ...comment,
           type: 'summary',
         });
       } else {
         const { data } = await octokit.rest.issues.updateComment({
           ...commentOptions,
-          comment_id: commentId,
+          comment_id: Number(lastComment.id),
         });
         const comment = mapPullRequestComment(data, {
           pullRequestId: pullRequest.id,
           commitId: pullRequest.headSha,
         }) as PullRequestComment;
-        await this.pullRequestCommentService.updatePullRequestComment(
-          commentId as unknown as bigint,
+        await this.pullRequestCommentRepository.updatePullRequestComment(
+          lastComment.id,
           {
             body: comment.body,
             updatedAt: new Date(),
@@ -111,12 +205,44 @@ export class AIReviewService {
     octokit: Octokit,
     { repository, pullRequest }: AIReviewParams,
   ): Promise<void> {
+    const lastCodeReview = await this.codeReviewRepository.getCodeReview(
+      pullRequest.id,
+      pullRequest.headSha,
+    );
+
+    // Check if the code review already exists and is for the same commit
+    // If it does, we don't need to generate a new one
+    if (
+      lastCodeReview &&
+      lastCodeReview.reviewer === BOT_USER_REFERENCE &&
+      lastCodeReview.userType === 'Bot' &&
+      lastCodeReview?.commitId === pullRequest.headSha
+    ) {
+      const message = `Already reviewed this pull request.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+      await octokit.rest.issues.createComment({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: message,
+      });
+
+      return;
+    }
+
     const { owner, name } = repository;
     const { number: pullNumber } = pullRequest;
-    const context = await this.getPullRequestContext(octokit, {
-      repository,
-      pullRequest,
-    });
+    let context: PullRequestContext | undefined = undefined;
+
+    try {
+      context = await this.getPullRequestContext(octokit, {
+        repository,
+        pullRequest,
+      });
+    } catch (error) {
+      console.error('Error getting pull request context:', error);
+      return;
+    }
 
     const { generalComment, comments } = await this.reviewPullRequest(context);
 
@@ -138,30 +264,34 @@ export class AIReviewService {
     pullRequest,
     changedFiles,
     fileContents,
-  }: PullRequestContext): Promise<string> {
+    additionalContext = '',
+  }: PullRequestContext & {
+    additionalContext?: string;
+  }): Promise<string> {
     const prompt = this.buildContextPrompt({
       pullRequest,
       changedFiles,
       fileContents,
     });
+    const messages: PromptMessage[] = [{ role: 'user', content: prompt }];
+
+    if (additionalContext) {
+      messages.unshift({
+        role: 'user',
+        content: additionalContext,
+      });
+    }
 
     const completion = await this.aiService.sendMessage({
-      systemInstructions: `
-        You are an expert code reviewer. You will receive a pull request with a list of files and their diffs.
-        If you receive the full content of each file, use it as context. Your task is to review the code and provide a summary of the changes in markdown syntax.
-        Use the following format:
-        ## Summary
-        Provide a summary of the changes in the pull request, including the main points and any important details in a paragraph.
-        ## Files Changed
-        | File/Module | Change Summary |
-        | ----------- | -------------- |
-        | src/app/components/app.component.ts | Added a new component for the app header. |
-        `,
-      messages: [{ role: 'user', content: prompt }],
+      systemInstructions: this.summaryPrompt,
+      messages,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (completion.content[0] as any).text;
+    const response = (completion.content[0] as any).text;
+    const formattedResponse = `${response}\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+    return formattedResponse;
   }
 
   async reviewPullRequest({
@@ -176,30 +306,23 @@ export class AIReviewService {
     });
 
     const completion = await this.aiService.sendMessage({
-      systemInstructions: `
-        You are an expert code reviewer. You will receive a pull request with a list of files and their diffs.
-        In case you receive the full content of each file, use it as context. Your task is to review the code and provide feedback.
-        Generate a short general comment and review comments in markdown syntax if you find any issues.
-        Output the general comment and review comments in a JSON format with the following structure:
-
-        Example:
-        '{"generalComment": "Well-structured job configuration with appropriate security controls!", "comments": [{"path": src/app/components/app.component.ts, "line": 10, "body": "This is a comment"}]}',
-        'where "path" is the path of the file, "line" is the line number, "body" is the comment.
-
-        If you find no issues, return a general comment and an empty array of comments.
-
-        Notes: 
-        - Only answer with the JSON object.
-        - Do not add any other text or explanation.
-        - IMPORTANT: Only count the line numbers from the diff hunk because they are valid for comments. So, count the lines with + and - signs, but do not count the lines with no signs.
-        `,
+      systemInstructions: this.reviewPrompt,
       messages: [{ role: 'user', content: prompt }],
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const text = (completion.content[0] as any).text;
-    const parsedJson = JSON.parse(text) as AIPullRequestReview;
-    return parsedJson;
+    const { comments } = JSON.parse(text) as {
+      comments: AIPullRequestReview['comments'];
+    };
+    const response: AIPullRequestReview = {
+      generalComment: comments.length
+        ? `## Review\n\n ${comments.length} comments.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
+        : `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
+      comments,
+    };
+
+    return response;
   }
 
   private buildContextPrompt({
