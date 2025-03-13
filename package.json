@@ -5,6 +5,7 @@
   "scripts": {
     "tsc": "tsc",
     "build": "rimraf ./dist && tsc && tsc-alias",
+    "db:init": "pnpx prisma db push && pnpx prisma generate",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "dev": "set NODE_ENV=development && ts-node-dev -r tsconfig-paths/register src/index.ts",

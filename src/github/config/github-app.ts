@@ -3,7 +3,7 @@ import { envConfig } from 'src/config/env-config';
 
 export const gitHubApp = new App({
   appId: envConfig.GITHUB_APP_ID,
-  privateKey: envConfig.GITHUB_PRIVATE_KEY_PATH,
+  privateKey: envConfig.GITHUB_PRIVATE_KEY,
   webhooks: {
     secret: envConfig.GITHUB_WEBHOOK_SECRET,
   },
