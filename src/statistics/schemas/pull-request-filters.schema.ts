@@ -1,9 +1,8 @@
 import { changeMonths } from 'src/common/utils/date-helper';
 import { z } from 'zod';
 
-export const PullRequestInitialAverageTimeSchema = z.object({
+export const PullRequestFiltersSchema = z.object({
   repositories: z.array(z.number()),
-  status: z.enum(['open', 'closed']).optional(),
   startDate: z
     .string()
     .optional()
@@ -29,6 +28,6 @@ export const PullRequestInitialAverageTimeSchema = z.object({
   }),
 });
 
-export type PullRequestInitialAverageTime = z.infer<
-  typeof PullRequestInitialAverageTimeSchema
+export type PullRequestAverageCompletionTime = z.infer<
+  typeof PullRequestFiltersSchema
 >;

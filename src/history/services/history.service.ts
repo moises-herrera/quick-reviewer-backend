@@ -1,5 +1,5 @@
 import { Repository } from '@prisma/client';
-import { Octokit } from '../github-app';
+import { Octokit } from '../../github/interfaces/octokit';
 import { PullRequestHistoryService } from './pull-request-history.service';
 
 export class HistoryService {

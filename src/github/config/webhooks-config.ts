@@ -1,14 +1,14 @@
 import { createNodeMiddleware } from '@octokit/webhooks';
 import { gitHubApp } from './github-app';
 import { envConfig } from 'src/config/env-config';
-import { InstallationHandler } from './event-handlers/installation.handler';
-import { PullRequestHandler } from './event-handlers/pull-request.handler';
-import { RepositoryHandler } from './event-handlers/repository.handler';
-import { InstallationRepositoriesHandler } from './event-handlers/installation-repositories.handler';
-import { PullRequestReviewHandler } from './event-handlers/pull-request-review.handler';
-import { PullRequestReviewThreadHandler } from './event-handlers/pull-request-review-thread.handler';
-import { PullRequestReviewCommentHandler } from './event-handlers/pull-request-review-comment.handler';
-import { IssueCommentHandler } from './event-handlers/issue-comment.handler';
+import { InstallationHandler } from '../event-handlers/installation.handler';
+import { PullRequestHandler } from '../event-handlers/pull-request.handler';
+import { RepositoryHandler } from '../event-handlers/repository.handler';
+import { InstallationRepositoriesHandler } from '../event-handlers/installation-repositories.handler';
+import { PullRequestReviewHandler } from '../event-handlers/pull-request-review.handler';
+import { PullRequestReviewThreadHandler } from '../event-handlers/pull-request-review-thread.handler';
+import { PullRequestReviewCommentHandler } from '../event-handlers/pull-request-review-comment.handler';
+import { IssueCommentHandler } from '../event-handlers/issue-comment.handler';
 
 gitHubApp.webhooks.on('installation', async ({ octokit, payload }) => {
   const handler = new InstallationHandler({ octokit, payload });

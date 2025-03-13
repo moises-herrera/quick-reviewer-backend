@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { StatisticsController } from './controllers/statistics.controller';
+import { StatisticsController } from '../controllers/statistics.controller';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
-import { PullRequestAverageCompletionTimeSchema } from './schemas/pull-request-average-completion-time.schema';
-import { PullRequestInitialAverageTimeSchema } from './schemas/pull-request-initial-average-time.schema';
+import { PullRequestFiltersSchema } from '../schemas/pull-request-filters.schema';
+import { PullRequestFiltersWithStateSchema } from '../schemas/pull-request-filters-with-state.schema';
 
 const statisticsRouter = Router();
 const statisticsController = new StatisticsController();
@@ -13,7 +13,7 @@ statisticsRouter.use(gitHubAuthMiddleware);
 // KPI routes
 statisticsRouter.post(
   '/pull-requests/average-creation-count-by-repository',
-  validateBody(PullRequestAverageCompletionTimeSchema),
+  validateBody(PullRequestFiltersSchema),
   statisticsController.getPullRequestAverageCreationCountByRepository.bind(
     statisticsController,
   ),
@@ -21,7 +21,7 @@ statisticsRouter.post(
 
 statisticsRouter.post(
   '/pull-requests/average-completion-time',
-  validateBody(PullRequestAverageCompletionTimeSchema),
+  validateBody(PullRequestFiltersSchema),
   statisticsController.getPullRequestAverageCompletionTime.bind(
     statisticsController,
   ),
@@ -29,20 +29,20 @@ statisticsRouter.post(
 
 statisticsRouter.post(
   '/pull-requests/initial-review-average-time',
-  validateBody(PullRequestInitialAverageTimeSchema),
+  validateBody(PullRequestFiltersWithStateSchema),
   statisticsController.getInitialReviewAverageTime.bind(statisticsController),
 );
 
 statisticsRouter.post(
   '/pull-requests/average-review-count',
-  validateBody(PullRequestInitialAverageTimeSchema),
+  validateBody(PullRequestFiltersWithStateSchema),
   statisticsController.getAverageReviewCount.bind(statisticsController),
 );
 
 // Chart routes
 statisticsRouter.post(
   '/pull-requests/count-by-repository',
-  validateBody(PullRequestInitialAverageTimeSchema),
+  validateBody(PullRequestFiltersWithStateSchema),
   statisticsController.getPullRequestCountByRepository.bind(
     statisticsController,
   ),
@@ -50,7 +50,7 @@ statisticsRouter.post(
 
 statisticsRouter.post(
   '/pull-requests/review-count-by-repository',
-  validateBody(PullRequestInitialAverageTimeSchema),
+  validateBody(PullRequestFiltersWithStateSchema),
   statisticsController.getReviewCountByRepository.bind(statisticsController),
 );
 

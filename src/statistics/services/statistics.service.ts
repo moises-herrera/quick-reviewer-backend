@@ -1,7 +1,7 @@
 import { prisma } from 'src/database/db-connection';
-import { PullRequestAverageCompletionTime } from '../schemas/pull-request-average-completion-time.schema';
+import { PullRequestAverageCompletionTime } from '../schemas/pull-request-filters.schema';
 import { Metric } from '../interfaces/metric';
-import { PullRequestInitialAverageTime } from '../schemas/pull-request-initial-average-time.schema';
+import { PullRequestInitialAverageTime } from '../schemas/pull-request-filters-with-state.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { ChartData } from '../interfaces/chart-data';
 

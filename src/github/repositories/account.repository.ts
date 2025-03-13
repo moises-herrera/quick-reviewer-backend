@@ -3,7 +3,7 @@ import { Account, AccountType, Repository } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { AccountFilters } from '../interfaces/record-filters';
 
-export class AccountService {
+export class AccountRepository {
   async saveAccount({
     repositories,
     ...account

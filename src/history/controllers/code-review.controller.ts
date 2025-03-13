@@ -1,18 +1,17 @@
-import { NextFunction, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { AuthRequest } from 'src/common/interfaces/auth-request';
+import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
-import { CodeReviewService } from 'src/github/services/code-review.service';
-import { PullRequestAverageCompletionTime } from 'src/statistics/schemas/pull-request-average-completion-time.schema';
+import { CodeReviewRepository } from 'src/github/repositories/code-review.repository';
+import { PullRequestAverageCompletionTime } from 'src/statistics/schemas/pull-request-filters.schema';
 
 export class CodeReviewController {
-  private readonly codeReviewService = new CodeReviewService();
+  private readonly codeReviewService = new CodeReviewRepository();
 
-  async getCodeReviewsReviews(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getCodeReviewsReviews: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const userId = req.userId as number;
       const { ownerName, repositoryName, pullRequestNumber } = req.params;
@@ -29,13 +28,13 @@ export class CodeReviewController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getCodeReviewsDetailedInfo(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getCodeReviewsDetailedInfo: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const options = parsePaginationOptions(req.query);
       const response = await this.codeReviewService.getCodeReviewsDetailedInfo({
@@ -48,5 +47,5 @@ export class CodeReviewController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

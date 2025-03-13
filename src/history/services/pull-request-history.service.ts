@@ -1,16 +1,16 @@
 import { prisma } from 'src/database/db-connection';
 import { PullRequest } from '@prisma/client';
 import { CodeReviewHistoryService } from './code-review-history.service';
-import { Octokit } from '../github-app';
-import { RepositoryAttributes } from '../interfaces/repository-attributes';
-import { PullRequestFilters } from '../interfaces/pull-request-filters';
+import { Octokit } from '../../github/interfaces/octokit';
+import { RepositoryAttributes } from '../../github/interfaces/repository-attributes';
+import { PullRequestFilters } from '../../github/interfaces/pull-request-filters';
 
 export class PullRequestHistoryService {
   private readonly codeReviewHistoryService = new CodeReviewHistoryService(
     this.octokit,
   );
 
-  constructor(private readonly octokit: Octokit) {}
+  constructor(private readonly octokit: Octokit) {} 
 
   async savePullRequestsHistoryByRepository({
     owner,

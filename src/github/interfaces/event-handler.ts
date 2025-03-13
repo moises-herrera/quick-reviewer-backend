@@ -1,4 +1,4 @@
-import { Octokit } from '../github-app';
+import { Octokit } from '../interfaces/octokit';
 import { GitHubWebHookEvent } from './github-webhook-event';
 
 export abstract class EventHandler<T> {

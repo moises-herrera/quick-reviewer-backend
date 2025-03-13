@@ -3,14 +3,14 @@ import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
 import { CodeReviewData } from '../interfaces/code-review-data';
-import { CodeReviewService } from '../services/code-review.service';
+import { CodeReviewRepository } from '../repositories/code-review.repository';
 
 type EventPayload = EmitterWebhookEvent<'pull_request_review'>['payload'];
 
 type PullRequestReviewEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestReviewHandler extends EventHandler<EventPayload> {
-  private readonly codeReviewService = new CodeReviewService();
+  private readonly codeReviewService = new CodeReviewRepository();
 
   constructor(event: PullRequestReviewEvent) {
     super(event);

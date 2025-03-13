@@ -4,18 +4,18 @@ import {
 } from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { AIService } from 'src/ai/services/ai.service';
-import { Octokit } from '../github-app';
-import { PullRequestService } from './pull-request.service';
+import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
 import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { PullRequestCommentService } from './pull-request-comment.service';
+import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
+import { PullRequestService } from './pull-request.service';
 
 export class AIReviewService {
   private readonly aiService = new AIService();
   private readonly pullRequestService = new PullRequestService();
-  private readonly pullRequestCommentService = new PullRequestCommentService();
+  private readonly pullRequestCommentService = new PullRequestCommentRepository();
 
   private async getPullRequestContext(
     octokit: Octokit,

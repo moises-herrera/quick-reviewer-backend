@@ -1,7 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import { envConfig } from 'src/config/env-config';
-import { gitHubWebhooksMiddleware } from '../github/webhooks-config';
+import { gitHubWebhooksMiddleware } from '../github/config/webhooks-config';
 import { appRouter } from './app.router';
 import { connectToDatabase } from '../database/db-connection';
 import {

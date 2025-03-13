@@ -1,6 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
 import { OAuthSession } from 'src/common/interfaces/oauth-session';
-import { gitHubAuthApp } from '../github-auth-app';
+import { gitHubAuthApp } from '../config/github-auth-app';
 import { envConfig } from 'src/config/env-config';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
@@ -8,18 +7,17 @@ import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
 import { RegisterUserService } from 'src/users/services/register-user.service';
 import { Octokit } from '@octokit/rest';
-import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { UserService } from 'src/users/services/user.service';
+import { UserRepository } from 'src/users/repositories/user.repository';
 import { User } from '@prisma/client';
+import {
+  AuthHttpHandler,
+  HttpHandler,
+} from 'src/common/interfaces/http-handler';
 
-export class GitHubController {
-  private readonly userService = new UserService();
+export class GitHubAuthController {
+  private readonly userService = new UserRepository();
 
-  async getAuthorizationUrl(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getAuthorizationUrl: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       const state = CryptoService.generateRandomBytes(16);
       const { url } = gitHubAuthApp.getWebFlowAuthorizationUrl({
@@ -32,13 +30,9 @@ export class GitHubController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getAccessToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getAccessToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       const { code } = req.query;
       let authentication:
@@ -97,13 +91,9 @@ export class GitHubController {
       res.redirect(`${envConfig.FRONTEND_URL}/auth/login?error=true`);
       next(error);
     }
-  }
+  };
 
-  async checkToken(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  checkToken: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const { userId } = req;
 
@@ -117,13 +107,9 @@ export class GitHubController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async refreshToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  refreshToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       const { githubRefreshToken } = req.cookies;
 
@@ -177,9 +163,9 @@ export class GitHubController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+  logout: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       req.session.destroy((err) => {
         if (err) {
@@ -199,5 +185,5 @@ export class GitHubController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { RepositoryService } from '../services/repository.service';
+import { ProjectRepository } from '../repositories/project-repository.repository';
 import { Repository } from '@prisma/client';
 
 type EventPayload = EmitterWebhookEvent<'installation_repositories'>['payload'];
@@ -9,7 +9,7 @@ type EventPayload = EmitterWebhookEvent<'installation_repositories'>['payload'];
 type InstallationRepositoriesEvent = GitHubWebHookEvent<EventPayload>;
 
 export class InstallationRepositoriesHandler extends EventHandler<EventPayload> {
-  private readonly repositoryService = new RepositoryService();
+  private readonly repositoryService = new ProjectRepository();
 
   constructor(event: InstallationRepositoriesEvent) {
     super(event);

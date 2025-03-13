@@ -5,7 +5,7 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
 import { RepositoryFilters } from '../interfaces/record-filters';
 
-export class RepositoryService {
+export class ProjectRepository {
   async saveRepositories(repositories: Repository[]): Promise<void> {
     await prisma.repository.createMany({
       data: repositories,

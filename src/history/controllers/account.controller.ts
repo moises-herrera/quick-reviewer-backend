@@ -1,17 +1,12 @@
-import { NextFunction, Response } from 'express';
-import { AccountService } from '../../github/services/account.service';
+import { AccountRepository } from '../../github/repositories/account.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
-import { AuthRequest } from 'src/common/interfaces/auth-request';
+import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 
 export class AccountController {
-  private readonly accountService = new AccountService();
+  private readonly accountService = new AccountRepository();
 
-  async getAllAccounts(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getAllAccounts: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
@@ -23,13 +18,9 @@ export class AccountController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getOrganizations(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getOrganizations: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
@@ -41,13 +32,9 @@ export class AccountController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getUsers(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getUsers: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
@@ -59,5 +46,5 @@ export class AccountController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

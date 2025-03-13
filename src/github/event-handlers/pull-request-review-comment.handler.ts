@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { CodeReviewCommentService } from '../services/code-review-comment.service';
+import { CodeReviewCommentRepository } from '../repositories/code-review-comment.repository';
 import { mapCodeReviewCommentToCreation } from '../mappers/code-review-comment.mapper';
 
 type EventPayload =
@@ -10,7 +10,7 @@ type EventPayload =
 type PullRequestReviewCommentEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestReviewCommentHandler extends EventHandler<EventPayload> {
-  private readonly codeReviewCommentService = new CodeReviewCommentService();
+  private readonly codeReviewCommentService = new CodeReviewCommentRepository();
 
   constructor(event: PullRequestReviewCommentEvent) {
     super(event);

@@ -1,18 +1,17 @@
-import { NextFunction, Response } from 'express';
 import { StatisticsService } from '../services/statistics.service';
 import { StatusCodes } from 'http-status-codes';
-import { PullRequestAverageCompletionTime } from '../schemas/pull-request-average-completion-time.schema';
-import { PullRequestInitialAverageTime } from '../schemas/pull-request-initial-average-time.schema';
-import { AuthRequest } from 'src/common/interfaces/auth-request';
+import { PullRequestAverageCompletionTime } from '../schemas/pull-request-filters.schema';
+import { PullRequestInitialAverageTime } from '../schemas/pull-request-filters-with-state.schema';
+import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 
 export class StatisticsController {
   private readonly statisticsService = new StatisticsService();
 
-  async getPullRequestAverageCreationCountByRepository(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getPullRequestAverageCreationCountByRepository: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response =
         await this.statisticsService.getPullRequestAverageCreationCountByRepository(
@@ -26,13 +25,13 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getPullRequestAverageCompletionTime(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getPullRequestAverageCompletionTime: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response =
         await this.statisticsService.getPullRequestAverageCompletionTime({
@@ -44,13 +43,13 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getInitialReviewAverageTime(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getInitialReviewAverageTime: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response = await this.statisticsService.getInitialReviewAverageTime(
         {
@@ -63,13 +62,13 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getAverageReviewCount(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getAverageReviewCount: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response = await this.statisticsService.getAverageReviewCount({
         ...(req.body as PullRequestInitialAverageTime),
@@ -80,13 +79,13 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getReviewCountByRepository(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getReviewCountByRepository: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response =
         await this.statisticsService.getPullRequestReviewCountByRepository({
@@ -98,13 +97,13 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getPullRequestCountByRepository(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getPullRequestCountByRepository: AuthHttpHandler = async (
+    req,
+    res,
+    next,
+  ): Promise<void> => {
     try {
       const response =
         await this.statisticsService.getPullRequestCountByRepository({
@@ -116,5 +115,5 @@ export class StatisticsController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

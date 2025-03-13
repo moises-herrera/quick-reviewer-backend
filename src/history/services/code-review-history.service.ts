@@ -1,9 +1,9 @@
 import { prisma } from 'src/database/db-connection';
 import { CodeReview } from '@prisma/client';
-import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
-import { CodeReviewData } from '../interfaces/code-review-data';
-import { Octokit } from '../github-app';
-import { CodeReviewAttributes } from '../interfaces/code-review-attributes';
+import { mapCodeReviewToCreation } from '../../github/mappers/code-review.mapper';
+import { CodeReviewData } from '../../github/interfaces/code-review-data';
+import { Octokit } from '../../github/interfaces/octokit';
+import { CodeReviewAttributes } from '../../github/interfaces/code-review-attributes';
 
 export class CodeReviewHistoryService {
   constructor(private readonly octokit: Octokit) {}

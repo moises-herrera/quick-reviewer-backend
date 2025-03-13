@@ -4,25 +4,25 @@ import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { AIReviewService } from '../services/ai-review.service';
 import {
   REVIEW_PULL_REQUEST_COMMAND,
-  SUMMARY_PULL_REQUEST_COMMAND,
+  SUMMARIZE_PULL_REQUEST_COMMAND,
 } from '../constants/commands';
-import { Octokit } from '../github-app';
-import { PullRequestService } from '../services/pull-request.service';
+import { Octokit } from '../interfaces/octokit';
+import { PullRequestRepository } from '../repositories/pull-request.repository';
 import { AIReviewParams } from '../interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
-import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/github-app';
-import { PullRequestCommentService } from '../services/pull-request-comment.service';
+import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/bot';
+import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { CodeReviewService } from '../services/code-review.service';
+import { CodeReviewRepository } from '../repositories/code-review.repository';
 
 type EventPayload = EmitterWebhookEvent<'issue_comment'>['payload'];
 
 type IssueCommentEvent = GitHubWebHookEvent<EventPayload>;
 
 export class IssueCommentHandler extends EventHandler<EventPayload> {
-  private readonly pullRequestService = new PullRequestService();
-  private readonly pullRequestCommentService = new PullRequestCommentService();
-  private readonly codeReviewService = new CodeReviewService();
+  private readonly pullRequestService = new PullRequestRepository();
+  private readonly pullRequestCommentService = new PullRequestCommentRepository();
+  private readonly codeReviewService = new CodeReviewRepository();
   private readonly aiReviewService = new AIReviewService();
 
   constructor(event: IssueCommentEvent) {
@@ -75,7 +75,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
       includeFileComments: false,
     };
 
-    if (payload.comment.body === SUMMARY_PULL_REQUEST_COMMAND) {
+    if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
       const lastComment =
         await this.pullRequestCommentService.getPullRequestComment(
           pullRequest.id,

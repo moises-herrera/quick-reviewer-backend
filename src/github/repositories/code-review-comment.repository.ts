@@ -1,7 +1,7 @@
 import { CodeReviewComment } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
 
-export class CodeReviewCommentService {
+export class CodeReviewCommentRepository {
   async saveCodeReviewComment(data: CodeReviewComment): Promise<void> {
     await prisma.codeReviewComment.create({
       data,

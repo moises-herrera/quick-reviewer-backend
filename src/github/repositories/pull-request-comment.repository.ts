@@ -1,7 +1,7 @@
 import { PullRequestComment } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
 
-export class PullRequestCommentService {
+export class PullRequestCommentRepository {
   async savePullRequestComment(data: PullRequestComment): Promise<void> {
     await prisma.pullRequestComment.create({
       data,

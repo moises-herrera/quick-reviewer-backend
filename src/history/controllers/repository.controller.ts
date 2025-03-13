@@ -1,17 +1,12 @@
-import { NextFunction, Response } from 'express';
-import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { RepositoryService } from '../../github/services/repository.service';
+import { ProjectRepository } from '../../github/repositories/project-repository.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
+import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 
 export class RepositoryController {
-  private readonly repositoryService = new RepositoryService();
+  private readonly repositoryService = new ProjectRepository();
 
-  async getRepositories(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  getRepositories: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as number;
       const ownerName = req.params.ownerName;
@@ -26,5 +21,5 @@ export class RepositoryController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

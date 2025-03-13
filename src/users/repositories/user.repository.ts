@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
 
-export class UserService {
+export class UserRepository {
   async getUserById(id: bigint): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where: {

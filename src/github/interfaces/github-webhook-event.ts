@@ -1,4 +1,4 @@
-import { Octokit } from '../github-app';
+import { Octokit } from '../interfaces/octokit';
 
 export interface GitHubWebHookEvent<T> {
   octokit?: Octokit;

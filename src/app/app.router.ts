@@ -1,16 +1,14 @@
 import { Router } from 'express';
-import { historyRouter } from 'src/history/history.router';
-import { gitHubRouter } from 'src/github/github.router';
-import { HealthCheckController } from './controllers/health-check.controller';
-import { statisticsRouter } from 'src/statistics/statistics.router';
+import { historyRouter } from 'src/history/routes/history.router';
+import { gitHubRouter } from 'src/github/routes/github.router';
+import { statisticsRouter } from 'src/statistics/routes/statistics.router';
+import { StatusCodes } from 'http-status-codes';
 
 const appRouter = Router();
-const healthCheckController = new HealthCheckController();
 
-appRouter.get(
-  '/health-check',
-  healthCheckController.getHealthStatus.bind(healthCheckController),
-);
+appRouter.get('/health-check', (_req, res) => {
+  res.status(StatusCodes.OK).json({ status: 'ok' });
+});
 
 appRouter.use('/github', gitHubRouter);
 

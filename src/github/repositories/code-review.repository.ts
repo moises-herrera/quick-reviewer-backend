@@ -6,10 +6,10 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { PullRequestAverageCompletionTime } from 'src/statistics/schemas/pull-request-average-completion-time.schema';
+import { PullRequestAverageCompletionTime } from 'src/statistics/schemas/pull-request-filters.schema';
 import { ReviewInfo } from '../interfaces/review-info';
 
-export class CodeReviewService {
+export class CodeReviewRepository {
   async saveCodeReview(data: CodeReview): Promise<void> {
     await prisma.codeReview.create({
       data,

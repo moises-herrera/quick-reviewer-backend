@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { gitHubAuthApp } from '../github-auth-app';
+import { gitHubAuthApp } from '../config/github-auth-app';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { handleHttpException } from 'src/common/middlewares/handle-http-exception.middleware';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { UserService } from 'src/users/services/user.service';
+import { UserRepository } from 'src/users/repositories/user.repository';
 
 export const gitHubAuthMiddleware = async (
   req: Request,
@@ -33,7 +33,7 @@ export const gitHubAuthMiddleware = async (
         );
       }
 
-      const userService = new UserService();
+      const userService = new UserRepository();
       const existingUser = await userService.getUserById(
         user.id as unknown as bigint,
       );

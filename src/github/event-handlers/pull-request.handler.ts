@@ -2,9 +2,9 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { PullRequestService } from '../services/pull-request.service';
+import { PullRequestRepository } from '../repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
-import { Octokit } from '../github-app';
+import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
 
 type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
@@ -12,7 +12,7 @@ type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
 type PullRequestEvent = GitHubWebHookEvent<EventPayload>;
 
 export class PullRequestHandler extends EventHandler<EventPayload> {
-  private readonly pullRequestService = new PullRequestService();
+  private readonly pullRequestService = new PullRequestRepository();
   private readonly aiReviewService = new AIReviewService();
 
   constructor(event: PullRequestEvent) {
