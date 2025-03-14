@@ -1,10 +1,10 @@
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
+import { injectable, inject } from 'inversify';
 import { PullRequestFiltersType } from '../schemas/pull-request-filters.schema';
 import { Metric } from '../interfaces/metric';
 import { PullRequestFiltersWithStateType } from '../schemas/pull-request-filters-with-state.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { ChartData } from '../interfaces/chart-data';
+import { PullRequestRepository } from 'src/github/repositories/pull-request.repository';
 
 @injectable()
 export class StatisticsService {
@@ -17,34 +17,18 @@ export class StatisticsService {
   private readonly pullRequestAverageReviewCount =
     'Pull Request Average Review Count';
 
-  async getPullRequestAverageCreationCountByRepository({
-    userId,
-    repositories,
-    startDate,
-    endDate,
-  }: PullRequestFiltersType & UserBasicInfo): Promise<Metric> {
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      select: {
-        createdAt: true,
-        closedAt: true,
-      },
-    });
+  constructor(
+    @inject(PullRequestRepository)
+    private pullRequestRepository: PullRequestRepository,
+  ) {}
+
+  async getPullRequestAverageCreationCountByRepository(
+    filters: PullRequestFiltersType & UserBasicInfo,
+  ): Promise<Metric> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForAverageCreationCount(
+        filters,
+      );
 
     if (pullRequests.length === 0) {
       return {
@@ -58,43 +42,18 @@ export class StatisticsService {
 
     return {
       name: this.pullRequestAverageCreationCount,
-      value: total / repositories.length,
+      value: total / filters.repositories.length,
       unit: 'pull requests',
     };
   }
 
-  async getPullRequestAverageCompletionTime({
-    userId,
-    repositories,
-    startDate,
-    endDate,
-  }: PullRequestFiltersType & UserBasicInfo): Promise<Metric> {
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        state: 'closed',
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-        mergedAt: {
-          not: null,
-        },
-      },
-      select: {
-        createdAt: true,
-        closedAt: true,
-      },
-    });
+  async getPullRequestAverageCompletionTime(
+    filters: PullRequestFiltersType & UserBasicInfo,
+  ): Promise<Metric> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForAverageCompletionTime(
+        filters,
+      );
 
     if (pullRequests.length === 0) {
       return {
@@ -122,48 +81,13 @@ export class StatisticsService {
     };
   }
 
-  async getInitialReviewAverageTime({
-    userId,
-    repositories,
-    status,
-    startDate,
-    endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<Metric> {
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        state: status,
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-        reviews: {
-          some: {
-            id: {
-              not: undefined,
-            },
-          },
-        },
-      },
-      select: {
-        createdAt: true,
-        closedAt: true,
-        reviews: {
-          select: {
-            createdAt: true,
-          },
-        },
-      },
-    });
+  async getInitialReviewAverageTime(
+    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+  ): Promise<Metric> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForInitialReviewTime(
+        filters,
+      );
 
     if (pullRequests.length === 0) {
       return {
@@ -198,39 +122,13 @@ export class StatisticsService {
     };
   }
 
-  async getAverageReviewCount({
-    userId,
-    repositories,
-    status,
-    startDate,
-    endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<Metric> {
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        state: status,
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      select: {
-        reviews: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
+  async getAverageReviewCount(
+    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+  ): Promise<Metric> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForAverageReviewCount(
+        filters,
+      );
 
     if (pullRequests.length === 0) {
       return {
@@ -254,51 +152,13 @@ export class StatisticsService {
     };
   }
 
-  async getPullRequestReviewCountByRepository({
-    userId,
-    repositories,
-    status,
-    startDate,
-    endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<ChartData> {
-    // Get all pull requests grouped by repositoryId and count the number of reviews for each pull request.
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        state: status,
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      select: {
-        repositoryId: true,
-        repository: {
-          select: {
-            name: true,
-            owner: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        reviews: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
+  async getPullRequestReviewCountByRepository(
+    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+  ): Promise<ChartData> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForReviewCountByRepository(
+        filters,
+      );
 
     const reviewCountsByRepository: Record<string, number[]> = {};
     pullRequests.forEach(({ repository, reviews }) => {
@@ -329,43 +189,13 @@ export class StatisticsService {
     };
   }
 
-  async getPullRequestCountByRepository({
-    userId,
-    repositories,
-    startDate,
-    endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<ChartData> {
-    const pullRequests = await prisma.pullRequest.findMany({
-      where: {
-        repositoryId: {
-          in: repositories,
-        },
-        repository: {
-          users: {
-            some: {
-              userId,
-            },
-          },
-        },
-        createdAt: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      select: {
-        repositoryId: true,
-        repository: {
-          select: {
-            name: true,
-            owner: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-      },
-    });
+  async getPullRequestCountByRepository(
+    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+  ): Promise<ChartData> {
+    const pullRequests =
+      await this.pullRequestRepository.findPullRequestsForCountByRepository(
+        filters,
+      );
 
     const pullRequestCountsByRepository: Record<string, number> = {};
 

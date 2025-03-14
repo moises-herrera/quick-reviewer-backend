@@ -4,6 +4,9 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
 import { PullRequestFilters } from '../interfaces/record-filters';
+import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
+import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
+import { PullRequestFiltersWithStateType } from 'src/statistics/schemas/pull-request-filters-with-state.schema';
 
 export class PullRequestRepository {
   async savePullRequest(data: PullRequest): Promise<void> {
@@ -105,5 +108,232 @@ export class PullRequestRepository {
     };
 
     return response;
+  }
+
+  async findPullRequestsForAverageCreationCount({
+    userId,
+    repositories,
+    startDate,
+    endDate,
+  }: PullRequestFiltersType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+
+  async findPullRequestsForAverageCompletionTime({
+    userId,
+    repositories,
+    startDate,
+    endDate,
+  }: PullRequestFiltersType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        state: 'closed',
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+        mergedAt: {
+          not: null,
+        },
+      },
+      select: {
+        createdAt: true,
+        closedAt: true,
+      },
+    });
+  }
+
+  async findPullRequestsForInitialReviewTime({
+    userId,
+    repositories,
+    status,
+    startDate,
+    endDate,
+  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        state: status,
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+        reviews: {
+          some: {
+            id: {
+              not: undefined,
+            },
+          },
+        },
+      },
+      select: {
+        createdAt: true,
+        closedAt: true,
+        reviews: {
+          select: {
+            createdAt: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findPullRequestsForAverageReviewCount({
+    userId,
+    repositories,
+    status,
+    startDate,
+    endDate,
+  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        state: status,
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      },
+      select: {
+        reviews: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findPullRequestsForReviewCountByRepository({
+    userId,
+    repositories,
+    status,
+    startDate,
+    endDate,
+  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        state: status,
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      },
+      select: {
+        repositoryId: true,
+        repository: {
+          select: {
+            name: true,
+            owner: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        reviews: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findPullRequestsForCountByRepository({
+    userId,
+    repositories,
+    startDate,
+    endDate,
+  }: PullRequestFiltersType & UserBasicInfo) {
+    return prisma.pullRequest.findMany({
+      where: {
+        repositoryId: {
+          in: repositories,
+        },
+        repository: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+        createdAt: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      },
+      select: {
+        repositoryId: true,
+        repository: {
+          select: {
+            name: true,
+            owner: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }
