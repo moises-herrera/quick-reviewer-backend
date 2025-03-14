@@ -25,83 +25,129 @@ import {
   PullRequestReviewCommentEvent,
   PullRequestReviewThreadEvent,
 } from '../interfaces/events';
+import { EventHandler } from '../interfaces/event-handler';
+
+type EventTypeMap = {
+  installation: InstallationEvent;
+  installation_repositories: InstallationRepositoriesEvent;
+  repository: RepositoryEvent;
+  pull_request: PullRequestEvent;
+  issue_comment: IssueCommentEvent;
+  pull_request_review: PullRequestReviewEvent;
+  pull_request_review_comment: PullRequestReviewCommentEvent;
+  pull_request_review_thread: PullRequestReviewThreadEvent;
+};
+
+@injectable()
+export class GitHubRepositories {
+  constructor(
+    @inject(AccountRepository)
+    public readonly accountRepository: AccountRepository,
+    @inject(ProjectRepository)
+    public readonly projectRepository: ProjectRepository,
+    @inject(PullRequestRepository)
+    public readonly pullRequestRepository: PullRequestRepository,
+    @inject(PullRequestCommentRepository)
+    public readonly pullRequestCommentRepository: PullRequestCommentRepository,
+    @inject(CodeReviewRepository)
+    public readonly codeReviewRepository: CodeReviewRepository,
+    @inject(CodeReviewCommentRepository)
+    public readonly codeReviewCommentRepository: CodeReviewCommentRepository,
+  ) {}
+}
+
+@injectable()
+export class GitHubServices {
+  constructor(
+    @inject(HistoryService) public readonly historyService: HistoryService,
+    @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
+  ) {}
+}
 
 @injectable()
 export class EventHandlerFactory {
+  private handlerCreators: {
+    [K in keyof EventTypeMap]?: (
+      event: EventTypeMap[K],
+    ) => EventHandler<EventTypeMap[K]['payload']>;
+  } = {};
+
   constructor(
-    @inject(AccountRepository)
-    private readonly accountRepository: AccountRepository,
-    @inject(ProjectRepository)
-    private readonly projectRepository: ProjectRepository,
-    @inject(PullRequestRepository)
-    private readonly pullRequestRepository: PullRequestRepository,
-    @inject(PullRequestCommentRepository)
-    private readonly pullRequestCommentRepository: PullRequestCommentRepository,
-    @inject(CodeReviewRepository)
-    private readonly codeReviewRepository: CodeReviewRepository,
-    @inject(CodeReviewCommentRepository)
-    private readonly codeReviewCommentRepository: CodeReviewCommentRepository,
-    @inject(HistoryService) private readonly historyService: HistoryService,
-    @inject(AIReviewService)
-    private readonly aiReviewService: AIReviewService,
-  ) {}
-
-  createInstallationHandler(event: InstallationEvent): InstallationHandler {
-    return new InstallationHandler(
-      event,
-      this.accountRepository,
-      this.historyService,
-    );
+    @inject(GitHubRepositories)
+    private readonly repositories: GitHubRepositories,
+    @inject(GitHubServices) private readonly services: GitHubServices,
+  ) {
+    this.registerHandlers();
   }
 
-  createInstallationRepositoriesHandler(
-    event: InstallationRepositoriesEvent,
-  ): InstallationRepositoriesHandler {
-    return new InstallationRepositoriesHandler(event, this.projectRepository);
+  private registerHandlers() {
+    // Register all handlers with their event types
+    this.handlerCreators['installation'] = (event: InstallationEvent) =>
+      new InstallationHandler(
+        event,
+        this.repositories.accountRepository,
+        this.services.historyService,
+      );
+
+    this.handlerCreators['installation_repositories'] = (
+      event: InstallationRepositoriesEvent,
+    ) =>
+      new InstallationRepositoriesHandler(
+        event,
+        this.repositories.projectRepository,
+      );
+
+    this.handlerCreators['repository'] = (event: RepositoryEvent) =>
+      new RepositoryHandler(event, this.repositories.projectRepository);
+
+    this.handlerCreators['pull_request'] = (event: PullRequestEvent) =>
+      new PullRequestHandler(
+        event,
+        this.repositories.pullRequestRepository,
+        this.services.aiReviewService,
+      );
+
+    this.handlerCreators['issue_comment'] = (event: IssueCommentEvent) =>
+      new IssueCommentHandler(
+        event,
+        this.repositories.pullRequestRepository,
+        this.repositories.pullRequestCommentRepository,
+        this.services.aiReviewService,
+      );
+
+    this.handlerCreators['pull_request_review'] = (
+      event: PullRequestReviewEvent,
+    ) =>
+      new PullRequestReviewHandler(
+        event,
+        this.repositories.codeReviewRepository,
+      );
+
+    this.handlerCreators['pull_request_review_comment'] = (
+      event: PullRequestReviewCommentEvent,
+    ) =>
+      new PullRequestReviewCommentHandler(
+        event,
+        this.repositories.codeReviewCommentRepository,
+      );
+
+    this.handlerCreators['pull_request_review_thread'] = (
+      event: PullRequestReviewThreadEvent,
+    ) =>
+      new PullRequestReviewThreadHandler(
+        event,
+        this.repositories.codeReviewCommentRepository,
+      );
   }
 
-  createRepositoryHandler(event: RepositoryEvent): RepositoryHandler {
-    return new RepositoryHandler(event, this.projectRepository);
-  }
-
-  createPullRequestHandler(event: PullRequestEvent): PullRequestHandler {
-    return new PullRequestHandler(
-      event,
-      this.pullRequestRepository,
-      this.aiReviewService,
-    );
-  }
-
-  createIssueCommentHandler(event: IssueCommentEvent): IssueCommentHandler {
-    return new IssueCommentHandler(
-      event,
-      this.pullRequestRepository,
-      this.pullRequestCommentRepository,
-      this.aiReviewService,
-    );
-  }
-
-  createPullRequestReviewHandler(
-    event: PullRequestReviewEvent,
-  ): PullRequestReviewHandler {
-    return new PullRequestReviewHandler(event, this.codeReviewRepository);
-  }
-
-  createPullRequestReviewCommentHandler(
-    event: PullRequestReviewCommentEvent,
-  ): PullRequestReviewCommentHandler {
-    return new PullRequestReviewCommentHandler(
-      event,
-      this.codeReviewCommentRepository,
-    );
-  }
-
-  createPullRequestReviewThreadHandler(
-    event: PullRequestReviewThreadEvent,
-  ): PullRequestReviewThreadHandler {
-    return new PullRequestReviewThreadHandler(
-      event,
-      this.codeReviewCommentRepository,
-    );
+  createHandler<K extends keyof EventTypeMap>(
+    type: K,
+    event: EventTypeMap[K],
+  ): EventHandler<EventTypeMap[K]['payload']> {
+    const creator = this.handlerCreators[type];
+    if (!creator) {
+      throw new Error(`No handler registered for event type: ${type}`);
+    }
+    return creator(event);
   }
 }

@@ -15,7 +15,11 @@ import { CodeReviewController } from 'src/history/controllers/code-review.contro
 import { AIService } from 'src/ai/services/ai.service';
 import { AIReviewService } from 'src/github/services/ai-review.service';
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
-import { EventHandlerFactory } from 'src/github/factories/event-handler-factory';
+import {
+  EventHandlerFactory,
+  GitHubRepositories,
+  GitHubServices,
+} from 'src/github/factories/event-handler-factory';
 import { PullRequestService } from 'src/github/services/pull-request.service';
 import { AccountController } from 'src/history/controllers/account.controller';
 import { PullRequestController } from 'src/history/controllers/pull-request.controller';
@@ -52,4 +56,6 @@ container.bind<CodeReviewController>(CodeReviewController).toSelf();
 container.bind<StatisticsController>(StatisticsController).toSelf();
 
 // Factories
+container.bind(GitHubRepositories).to(GitHubRepositories);
+container.bind(GitHubServices).to(GitHubServices);
 container.bind<EventHandlerFactory>(EventHandlerFactory).toSelf();
