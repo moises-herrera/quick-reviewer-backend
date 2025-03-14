@@ -1,33 +1,31 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { AIReviewService } from '../services/ai-review.service';
 import {
   REVIEW_PULL_REQUEST_COMMAND,
   SUMMARIZE_PULL_REQUEST_COMMAND,
 } from '../constants/commands';
 import { Octokit } from '../interfaces/octokit';
-import { PullRequestRepository } from '../repositories/pull-request.repository';
-import { AIReviewParams } from '../interfaces/review-params';
+import { AIReviewParams } from '../../core/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/bot';
-import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { CodeReviewRepository } from '../repositories/code-review.repository';
+import { IssueCommentEvent } from '../interfaces/events';
+import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { AIReviewService } from 'src/core/services/ai-review.service';
 
-type EventPayload = EmitterWebhookEvent<'issue_comment'>['payload'];
-
-type IssueCommentEvent = GitHubWebHookEvent<EventPayload>;
-
-export class IssueCommentHandler extends EventHandler<EventPayload> {
-  private readonly pullRequestService = new PullRequestRepository();
-  private readonly pullRequestCommentService =
-    new PullRequestCommentRepository();
-  private readonly codeReviewService = new CodeReviewRepository();
-  private readonly aiReviewService = new AIReviewService();
-
-  constructor(event: IssueCommentEvent) {
+export class IssueCommentHandler extends EventHandler<
+  IssueCommentEvent['payload']
+> {
+  constructor(
+    event: IssueCommentEvent,
+    private readonly pullRequestRepository: PullRequestRepository,
+    private readonly pullRequestCommentRepository: PullRequestCommentRepository,
+    private readonly aiReviewService: AIReviewService,
+  ) {
     super(event);
+
+    this.aiReviewService.setGitProvider(this.octokit as Octokit);
   }
 
   async handle(): Promise<void> {
@@ -76,15 +74,13 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
     };
 
     if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestSummary(
-        this.octokit as Octokit,
-        { ...defaultParams, fullReview: true, includeFileContents: true },
-      );
+      await this.aiReviewService.generatePullRequestSummary({
+        ...defaultParams,
+        fullReview: true,
+        includeFileContents: true,
+      });
     } else if (payload.comment.body === REVIEW_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestReview(
-        this.octokit as Octokit,
-        defaultParams,
-      );
+      await this.aiReviewService.generatePullRequestReview(defaultParams);
     }
   }
 
@@ -92,7 +88,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'issue_comment.created'>['payload'],
   ): Promise<void> {
     try {
-      const pullRequest = await this.pullRequestService.getPullRequestById(
+      const pullRequest = await this.pullRequestRepository.getPullRequestById(
         payload.issue.node_id,
       );
 
@@ -107,7 +103,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
         return;
       }
 
-      await this.pullRequestCommentService.savePullRequestComment({
+      await this.pullRequestCommentRepository.savePullRequestComment({
         ...mapPullRequestComment(payload.comment),
         pullRequestId: pullRequest.id,
       } as PullRequestComment);
@@ -120,7 +116,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'issue_comment.edited'>['payload'],
   ): Promise<void> {
     try {
-      const pullRequest = await this.pullRequestService.getPullRequestById(
+      const pullRequest = await this.pullRequestRepository.getPullRequestById(
         payload.issue.node_id,
       );
 
@@ -135,7 +131,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
         return;
       }
 
-      await this.pullRequestCommentService.updatePullRequestComment(
+      await this.pullRequestCommentRepository.updatePullRequestComment(
         payload.comment.id as unknown as bigint,
         mapPullRequestComment(payload.comment),
       );
@@ -148,7 +144,7 @@ export class IssueCommentHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'issue_comment.deleted'>['payload'],
   ): Promise<void> {
     try {
-      await this.pullRequestCommentService.deletePullRequestComment(
+      await this.pullRequestCommentRepository.deletePullRequestComment(
         payload.comment.id as unknown as bigint,
       );
     } catch (error) {

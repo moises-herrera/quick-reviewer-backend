@@ -3,12 +3,13 @@ import { AccountController } from '../controllers/account.controller';
 import { RepositoryController } from '../controllers/repository.controller';
 import { PullRequestController } from '../controllers/pull-request.controller';
 import { CodeReviewController } from '../controllers/code-review.controller';
+import { container } from 'src/config/inversify-config';
 
 const accountsRouter = Router();
-const accountController = new AccountController();
-const repositoryController = new RepositoryController();
-const pullRequestController = new PullRequestController();
-const codeReviewController = new CodeReviewController();
+const accountController = container.get(AccountController);
+const repositoryController = container.get(RepositoryController);
+const pullRequestController = container.get(PullRequestController);
+const codeReviewController = container.get(CodeReviewController);
 
 accountsRouter.get('/', accountController.getAllAccounts);
 

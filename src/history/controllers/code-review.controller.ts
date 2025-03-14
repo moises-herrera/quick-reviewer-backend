@@ -1,11 +1,16 @@
+import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
-import { CodeReviewRepository } from 'src/github/repositories/code-review.repository';
-import { PullRequestAverageCompletionTime } from 'src/statistics/schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
+@injectable()
 export class CodeReviewController {
-  private readonly codeReviewService = new CodeReviewRepository();
+  constructor(
+    @inject(CodeReviewRepository)
+    private readonly codeReviewRepository: CodeReviewRepository,
+  ) {}
 
   getCodeReviewsReviews: AuthHttpHandler = async (
     req,
@@ -16,7 +21,7 @@ export class CodeReviewController {
       const userId = req.userId as number;
       const { ownerName, repositoryName, pullRequestNumber } = req.params;
       const options = parsePaginationOptions(req.query);
-      const response = await this.codeReviewService.getCodeReviews({
+      const response = await this.codeReviewRepository.getCodeReviews({
         ...options,
         userId,
         ownerName,
@@ -37,11 +42,12 @@ export class CodeReviewController {
   ): Promise<void> => {
     try {
       const options = parsePaginationOptions(req.query);
-      const response = await this.codeReviewService.getCodeReviewsDetailedInfo({
-        ...(req.body as PullRequestAverageCompletionTime),
-        ...options,
-        userId: req.userId as number,
-      });
+      const response =
+        await this.codeReviewRepository.getCodeReviewsDetailedInfo({
+          ...(req.body as PullRequestFiltersType),
+          ...options,
+          userId: req.userId as number,
+        });
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {

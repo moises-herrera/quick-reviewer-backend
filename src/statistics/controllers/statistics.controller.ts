@@ -1,11 +1,16 @@
-import { StatisticsService } from '../services/statistics.service';
+import { injectable, inject } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
-import { PullRequestAverageCompletionTime } from '../schemas/pull-request-filters.schema';
-import { PullRequestInitialAverageTime } from '../schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
+import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
+import { StatisticsService } from 'src/core/services/statistics.service';
 
+@injectable()
 export class StatisticsController {
-  private readonly statisticsService = new StatisticsService();
+  constructor(
+    @inject(StatisticsService)
+    private readonly statisticsService: StatisticsService,
+  ) {}
 
   getPullRequestAverageCreationCountByRepository: AuthHttpHandler = async (
     req,
@@ -16,7 +21,7 @@ export class StatisticsController {
       const response =
         await this.statisticsService.getPullRequestAverageCreationCountByRepository(
           {
-            ...(req.body as PullRequestAverageCompletionTime),
+            ...(req.body as PullRequestFiltersType),
             userId: req.userId as number,
           },
         );
@@ -35,7 +40,7 @@ export class StatisticsController {
     try {
       const response =
         await this.statisticsService.getPullRequestAverageCompletionTime({
-          ...(req.body as PullRequestAverageCompletionTime),
+          ...(req.body as PullRequestFiltersType),
           userId: req.userId as number,
         });
 
@@ -53,7 +58,7 @@ export class StatisticsController {
     try {
       const response = await this.statisticsService.getInitialReviewAverageTime(
         {
-          ...(req.body as PullRequestInitialAverageTime),
+          ...(req.body as PullRequestFiltersWithStateType),
           userId: req.userId as number,
         },
       );
@@ -70,10 +75,11 @@ export class StatisticsController {
     next,
   ): Promise<void> => {
     try {
-      const response = await this.statisticsService.getAverageReviewCount({
-        ...(req.body as PullRequestInitialAverageTime),
-        userId: req.userId as number,
-      });
+      const response =
+        await this.statisticsService.getPullRequestAverageReviewCount({
+          ...(req.body as PullRequestFiltersWithStateType),
+          userId: req.userId as number,
+        });
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {
@@ -89,7 +95,7 @@ export class StatisticsController {
     try {
       const response =
         await this.statisticsService.getPullRequestReviewCountByRepository({
-          ...(req.body as PullRequestInitialAverageTime),
+          ...(req.body as PullRequestFiltersWithStateType),
           userId: req.userId as number,
         });
 
@@ -107,7 +113,7 @@ export class StatisticsController {
     try {
       const response =
         await this.statisticsService.getPullRequestCountByRepository({
-          ...(req.body as PullRequestInitialAverageTime),
+          ...(req.body as PullRequestFiltersWithStateType),
           userId: req.userId as number,
         });
 

@@ -1,18 +1,22 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { ProjectRepository } from '../repositories/project-repository.repository';
 import { Repository } from '@prisma/client';
+import { injectable } from 'inversify';
+import { InstallationRepositoriesEvent } from '../interfaces/events';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
 
-type EventPayload = EmitterWebhookEvent<'installation_repositories'>['payload'];
+@injectable()
+export class InstallationRepositoriesHandler extends EventHandler<
+  InstallationRepositoriesEvent['payload']
+> {
+  private readonly repositoryService: ProjectRepository;
 
-type InstallationRepositoriesEvent = GitHubWebHookEvent<EventPayload>;
-
-export class InstallationRepositoriesHandler extends EventHandler<EventPayload> {
-  private readonly repositoryService = new ProjectRepository();
-
-  constructor(event: InstallationRepositoriesEvent) {
+  constructor(
+    event: InstallationRepositoriesEvent,
+    repositoryService: ProjectRepository,
+  ) {
     super(event);
+    this.repositoryService = repositoryService;
   }
 
   async handle() {

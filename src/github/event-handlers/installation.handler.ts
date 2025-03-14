@@ -3,24 +3,24 @@ import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
-import { AccountRepository } from '../repositories/account.repository';
 import { prisma } from 'src/database/db-connection';
-import { HistoryService } from '../../history/services/history.service';
-import { Octokit } from 'octokit';
-
-type InstallationEvent = GitHubWebHookEvent<
-  EmitterWebhookEvent<'installation'>['payload']
->;
+import { InstallationEvent } from '../interfaces/events';
+import { AccountRepository } from 'src/core/repositories/account.repository';
+import { HistoryService } from 'src/core/services/history.service';
 
 export class InstallationHandler extends EventHandler<
-  EmitterWebhookEvent<'installation'>['payload']
+  InstallationEvent['payload']
 > {
-  private readonly accountService = new AccountRepository();
-  private readonly historyService = new HistoryService(this.octokit as Octokit);
-
-  constructor(event: InstallationEvent) {
+  constructor(
+    event: InstallationEvent,
+    private readonly accountService: AccountRepository,
+    private readonly historyService: HistoryService,
+  ) {
     super(event);
+
+    if (event.octokit) {
+      this.historyService.setGitProvider(event.octokit);
+    }
   }
 
   async handle() {

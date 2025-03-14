@@ -1,17 +1,22 @@
-import { ProjectRepository } from '../../github/repositories/project-repository.repository';
+import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
 
+@injectable()
 export class RepositoryController {
-  private readonly repositoryService = new ProjectRepository();
+  constructor(
+    @inject(ProjectRepository)
+    private readonly projectRepository: ProjectRepository,
+  ) {}
 
   getRepositories: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as number;
       const ownerName = req.params.ownerName;
       const paginationOptions = parsePaginationOptions(req.query);
-      const response = await this.repositoryService.getRepositories({
+      const response = await this.projectRepository.getRepositories({
         ...paginationOptions,
         userId,
         ownerName,

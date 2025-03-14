@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { StatisticsController } from '../controllers/statistics.controller';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
-import { PullRequestFiltersSchema } from '../schemas/pull-request-filters.schema';
-import { PullRequestFiltersWithStateSchema } from '../schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersSchema } from '../../common/schemas/pull-request-filters.schema';
+import { PullRequestFiltersWithStateSchema } from '../../common/schemas/pull-request-filters-with-state.schema';
+import { container } from 'src/config/inversify-config';
 
 const statisticsRouter = Router();
-const statisticsController = new StatisticsController();
+const statisticsController = container.get(StatisticsController);
 
 statisticsRouter.use(gitHubAuthMiddleware);
 

@@ -1,17 +1,15 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { EventHandler } from '../interfaces/event-handler';
-import { CodeReviewCommentRepository } from '../repositories/code-review-comment.repository';
+import { PullRequestReviewThreadEvent } from '../interfaces/events';
+import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
 
-type EventPayload =
-  EmitterWebhookEvent<'pull_request_review_thread'>['payload'];
-
-type PullRequestReviewThreadEvent = GitHubWebHookEvent<EventPayload>;
-
-export class PullRequestReviewThreadHandler extends EventHandler<EventPayload> {
-  private readonly codeReviewCommentService = new CodeReviewCommentRepository();
-
-  constructor(event: PullRequestReviewThreadEvent) {
+export class PullRequestReviewThreadHandler extends EventHandler<
+  PullRequestReviewThreadEvent['payload']
+> {
+  constructor(
+    event: PullRequestReviewThreadEvent,
+    private readonly codeReviewCommentRepository: CodeReviewCommentRepository,
+  ) {
     super(event);
   }
 
@@ -33,7 +31,7 @@ export class PullRequestReviewThreadHandler extends EventHandler<EventPayload> {
   private async handlePullRequestReviewThreadResolved(
     payload: EmitterWebhookEvent<'pull_request_review_thread.resolved'>['payload'],
   ): Promise<void> {
-    await this.codeReviewCommentService.updateCodeReviewComments(
+    await this.codeReviewCommentRepository.updateCodeReviewComments(
       payload.thread.comments.map(({ id }) => id),
       {
         resolvedAt: new Date(),
@@ -44,7 +42,7 @@ export class PullRequestReviewThreadHandler extends EventHandler<EventPayload> {
   private async handlePullRequestReviewThreadUnresolved(
     payload: EmitterWebhookEvent<'pull_request_review_thread.unresolved'>['payload'],
   ): Promise<void> {
-    await this.codeReviewCommentService.updateCodeReviewComments(
+    await this.codeReviewCommentRepository.updateCodeReviewComments(
       payload.thread.comments.map(({ id }) => id),
       {
         resolvedAt: null,
