@@ -1,4 +1,4 @@
-export interface PromptConfig {
+export interface AIMessageConfig {
   systemInstructions: string;
   messages: PromptMessage[];
 }

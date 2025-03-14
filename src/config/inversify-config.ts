@@ -12,7 +12,7 @@ import { StatisticsService } from 'src/statistics/services/statistics.service';
 import { StatisticsController } from 'src/statistics/controllers/statistics.controller';
 import { RepositoryController } from 'src/history/controllers/repository.controller';
 import { CodeReviewController } from 'src/history/controllers/code-review.controller';
-import { AIService } from 'src/ai/services/ai.service';
+import { AnthropicAIService } from 'src/ai/services/anthropic-ai.service';
 import { AIReviewService } from 'src/github/services/ai-review.service';
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
 import {
@@ -30,6 +30,7 @@ import { ProjectRepository } from 'src/core/repositories/project.repository';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { AIService } from 'src/core/services/ai.service';
 
 export const container = new Container();
 
@@ -62,7 +63,7 @@ container
   .bind<RegisterUserService>(RegisterUserService)
   .to(RegisterUserService);
 container.bind<StatisticsService>(StatisticsService).to(StatisticsService);
-container.bind<AIService>(AIService).to(AIService);
+container.bind<AIService>(AIService).to(AnthropicAIService);
 container.bind<AIReviewService>(AIReviewService).to(AIReviewService);
 container.bind<PullRequestService>(PullRequestService).to(PullRequestService);
 

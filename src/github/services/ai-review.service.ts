@@ -3,7 +3,6 @@ import {
   isExtensionSupported,
 } from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
-import { AIService } from 'src/ai/services/ai.service';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
 import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
@@ -12,11 +11,12 @@ import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
 import { PullRequestService } from './pull-request.service';
 import { BOT_USER_REFERENCE } from '../constants/bot';
 import fs from 'node:fs';
-import { PromptMessage } from 'src/ai/interfaces/message-config';
+import { PromptMessage } from 'src/core/interfaces/ai-message-config';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { inject, injectable } from 'inversify';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { AIService } from 'src/core/services/ai.service';
 
 @injectable()
 export class AIReviewService {
@@ -289,13 +289,11 @@ export class AIReviewService {
       });
     }
 
-    const completion = await this.aiService.sendMessage({
+    const response = await this.aiService.sendMessage({
       systemInstructions: this.summaryPrompt,
       messages,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = (completion.content[0] as any).text;
     const formattedResponse = `${response}\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
     return formattedResponse;
@@ -316,10 +314,7 @@ export class AIReviewService {
       systemInstructions: this.reviewPrompt,
       messages: [{ role: 'user', content: prompt }],
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const text = (completion.content[0] as any).text;
-    const { comments } = JSON.parse(text) as {
+    const { comments } = JSON.parse(completion) as {
       comments: AIPullRequestReview['comments'];
     };
     const response: AIPullRequestReview = {
