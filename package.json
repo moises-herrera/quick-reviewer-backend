@@ -8,8 +8,8 @@
     "db:init": "pnpx prisma db push && pnpx prisma generate",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "dev": "set NODE_ENV=development && ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "start": "set NODE_ENV=production && node ./dist/index.js",
+    "dev": "cross-env NODE_ENV=development ts-node-dev -r tsconfig-paths/register src/index.ts",
+    "start": "cross-env NODE_ENV=production node ./dist/index.js",
     "seed": "ts-node-dev -r tsconfig-paths/register src/database/seed/seed-database.ts"
   },
   "keywords": [],
@@ -46,6 +46,7 @@
     "connect-redis": "^8.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
