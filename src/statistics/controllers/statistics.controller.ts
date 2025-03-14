@@ -1,9 +1,9 @@
 import { injectable, inject } from 'inversify';
-import { StatisticsService } from '../services/statistics.service';
 import { StatusCodes } from 'http-status-codes';
-import { PullRequestFiltersType } from '../../common/schemas/pull-request-filters.schema';
-import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
+import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
+import { StatisticsService } from 'src/core/services/statistics.service';
 
 @injectable()
 export class StatisticsController {
@@ -75,10 +75,11 @@ export class StatisticsController {
     next,
   ): Promise<void> => {
     try {
-      const response = await this.statisticsService.getAverageReviewCount({
-        ...(req.body as PullRequestFiltersWithStateType),
-        userId: req.userId as number,
-      });
+      const response =
+        await this.statisticsService.getPullRequestAverageReviewCount({
+          ...(req.body as PullRequestFiltersWithStateType),
+          userId: req.userId as number,
+        });
 
       res.status(StatusCodes.OK).json(response);
     } catch (error) {

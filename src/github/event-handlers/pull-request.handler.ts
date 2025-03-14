@@ -1,12 +1,12 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
-import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../interfaces/octokit';
-import { AIReviewParams } from '../interfaces/review-params';
+import { AIReviewParams } from 'src/core/interfaces/review-params';
 import { PullRequest } from '@prisma/client';
 import { PullRequestEvent } from '../interfaces/events';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { AIReviewService } from 'src/core/services/ai-review.service';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']
@@ -17,6 +17,8 @@ export class PullRequestHandler extends EventHandler<
     private readonly aiReviewService: AIReviewService,
   ) {
     super(event);
+
+    this.aiReviewService.setGitProvider(this.octokit as Octokit);
   }
 
   async handle(): Promise<void> {
@@ -61,15 +63,13 @@ export class PullRequestHandler extends EventHandler<
       pullRequest,
       repository,
     };
-    await this.aiReviewService.generatePullRequestSummary(
-      this.octokit as Octokit,
-      { ...reviewParams, fullReview: true, includeFileContents: true },
-    );
+    await this.aiReviewService.generatePullRequestSummary({
+      ...reviewParams,
+      fullReview: true,
+      includeFileContents: true,
+    });
 
-    await this.aiReviewService.generatePullRequestReview(
-      this.octokit as Octokit,
-      reviewParams,
-    );
+    await this.aiReviewService.generatePullRequestReview(reviewParams);
   }
 
   private async handlePullRequestCreation({

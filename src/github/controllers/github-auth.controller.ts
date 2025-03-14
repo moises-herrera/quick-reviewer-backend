@@ -5,7 +5,6 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
-import { RegisterUserService } from 'src/github/services/register-user.service';
 import { Octokit } from '@octokit/rest';
 import { User } from '@prisma/client';
 import {
@@ -14,6 +13,7 @@ import {
 } from 'src/common/interfaces/http-handler';
 import { inject } from 'inversify';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
+import { RegisterUserService } from 'src/core/services/register-user.service';
 
 export class GitHubAuthController {
   constructor(
@@ -61,7 +61,7 @@ export class GitHubAuthController {
       }
 
       const octokit = new Octokit({ auth: authentication?.token });
-      this.registerUserService.setOctokit(octokit);
+      this.registerUserService.setGitProvider(octokit);
 
       const { data: user } = await octokit.request('GET /user');
 

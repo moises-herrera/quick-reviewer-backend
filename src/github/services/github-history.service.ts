@@ -8,9 +8,10 @@ import { RepositoryAttributes } from 'src/core/interfaces/repository-attributes'
 import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { HistoryService } from 'src/core/services/history.service';
 
 @injectable()
-export class GitHubHistoryService {
+export class GitHubHistoryService implements HistoryService {
   private octokit?: Octokit;
 
   constructor(
@@ -20,7 +21,7 @@ export class GitHubHistoryService {
     private readonly codeReviewRepository: CodeReviewRepository,
   ) {}
 
-  setOctokit(octokit: Octokit) {
+  setGitProvider(octokit: Octokit) {
     this.octokit = octokit;
   }
 
@@ -42,7 +43,7 @@ export class GitHubHistoryService {
     await Promise.all(pullRequestsPromises);
   }
 
-  async savePullRequestsHistoryByRepository({
+  private async savePullRequestsHistoryByRepository({
     owner,
     name,
   }: RepositoryAttributes) {
@@ -62,7 +63,7 @@ export class GitHubHistoryService {
     await Promise.all(codeReviewsPromises);
   }
 
-  async saveCodeReviewHistoryByPullRequest(
+  private async saveCodeReviewHistoryByPullRequest(
     attributes: CodeReviewAttributes,
   ): Promise<void> {
     const codeReviews =

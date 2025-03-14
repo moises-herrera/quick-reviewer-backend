@@ -7,20 +7,20 @@ import { PostgresPullRequestRepository } from 'src/database/repositories/postgre
 import { PostgresAccountRepository } from 'src/database/repositories/postgres-account.repository';
 import { GitHubHistoryService } from 'src/github/services/github-history.service';
 import { PostgresUserRepository } from 'src/database/repositories/postgres-user.repository';
-import { RegisterUserService } from 'src/github/services/register-user.service';
-import { StatisticsService } from 'src/statistics/services/statistics.service';
+import { GitHubRegisterUserService } from 'src/github/services/github-register-user.service';
+import { AppStatisticsService } from 'src/statistics/services/app-statistics.service';
 import { StatisticsController } from 'src/statistics/controllers/statistics.controller';
 import { RepositoryController } from 'src/history/controllers/repository.controller';
 import { CodeReviewController } from 'src/history/controllers/code-review.controller';
 import { AnthropicAIService } from 'src/ai/services/anthropic-ai.service';
-import { AIReviewService } from 'src/github/services/ai-review.service';
+import { GitHubAIReviewService } from 'src/github/services/github-ai-review.service';
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
 import {
   EventHandlerFactory,
-  GitHubRepositories,
-  GitHubServices,
+  Repositories,
+  Services,
 } from 'src/github/factories/event-handler-factory';
-import { PullRequestService } from 'src/github/services/pull-request.service';
+import { GitHubPullRequestService } from 'src/github/services/github-pull-request.service';
 import { AccountController } from 'src/history/controllers/account.controller';
 import { PullRequestController } from 'src/history/controllers/pull-request.controller';
 import { AccountRepository } from 'src/core/repositories/account.repository';
@@ -31,6 +31,11 @@ import { PullRequestCommentRepository } from 'src/core/repositories/pull-request
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 import { AIService } from 'src/core/services/ai.service';
+import { HistoryService } from 'src/core/services/history.service';
+import { RegisterUserService } from 'src/core/services/register-user.service';
+import { StatisticsService } from 'src/core/services/statistics.service';
+import { AIReviewService } from 'src/core/services/ai-review.service';
+import { PullRequestService } from 'src/core/services/pull-request.service';
 
 export const container = new Container();
 
@@ -56,16 +61,16 @@ container
 container.bind<UserRepository>(UserRepository).to(PostgresUserRepository);
 
 // Services
-container
-  .bind<GitHubHistoryService>(GitHubHistoryService)
-  .to(GitHubHistoryService);
+container.bind<HistoryService>(HistoryService).to(GitHubHistoryService);
 container
   .bind<RegisterUserService>(RegisterUserService)
-  .to(RegisterUserService);
-container.bind<StatisticsService>(StatisticsService).to(StatisticsService);
+  .to(GitHubRegisterUserService);
+container.bind<StatisticsService>(StatisticsService).to(AppStatisticsService);
 container.bind<AIService>(AIService).to(AnthropicAIService);
-container.bind<AIReviewService>(AIReviewService).to(AIReviewService);
-container.bind<PullRequestService>(PullRequestService).to(PullRequestService);
+container.bind<AIReviewService>(AIReviewService).to(GitHubAIReviewService);
+container
+  .bind<PullRequestService>(PullRequestService)
+  .to(GitHubPullRequestService);
 
 // Controllers
 container
@@ -86,8 +91,8 @@ container
   .to(StatisticsController);
 
 // Factories
-container.bind<GitHubRepositories>(GitHubRepositories).to(GitHubRepositories);
-container.bind<GitHubServices>(GitHubServices).to(GitHubServices);
+container.bind<Repositories>(Repositories).to(Repositories);
+container.bind<Services>(Services).to(Services);
 container
   .bind<EventHandlerFactory>(EventHandlerFactory)
   .to(EventHandlerFactory);

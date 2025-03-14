@@ -1,19 +1,27 @@
-import { RestEndpointMethodTypes } from '@octokit/rest';
-import { Octokit } from '../interfaces/octokit';
 import { isExtensionSupported } from 'src/common/utils/language-support';
+import { injectable } from 'inversify';
+import { PullRequestFile } from 'src/core/interfaces/pull-request-file';
+import { Octokit } from '@octokit/rest';
+import { PullRequestService } from 'src/core/services/pull-request.service';
 
-export class PullRequestService {
+@injectable()
+export class GitHubPullRequestService implements PullRequestService {
+  private octokit: Octokit = {} as Octokit;
+
   private readonly omittedFileStatuses: string[] = [
     'removed',
     'renamed',
     'unchanged',
   ];
 
-  async getFileContents(
-    octokit: Octokit,
+  setGitProvider(gitProvider: Octokit) {
+    this.octokit = gitProvider;
+  }
+
+  async getFilesContent(
     owner: string,
     repo: string,
-    changedFiles: RestEndpointMethodTypes['pulls']['listFiles']['response']['data'],
+    changedFiles: PullRequestFile[],
     headSha: string,
   ): Promise<{
     fileContents: Map<string, string>;
@@ -26,7 +34,7 @@ export class PullRequestService {
           !this.omittedFileStatuses.includes(file.status) &&
           isExtensionSupported(file.filename)
         ) {
-          const response = await octokit.rest.repos.getContent({
+          const response = await this.octokit.rest.repos.getContent({
             owner,
             repo,
             path: file.filename,

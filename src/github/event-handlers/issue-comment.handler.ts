@@ -1,18 +1,18 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { AIReviewService } from '../services/ai-review.service';
 import {
   REVIEW_PULL_REQUEST_COMMAND,
   SUMMARIZE_PULL_REQUEST_COMMAND,
 } from '../constants/commands';
 import { Octokit } from '../interfaces/octokit';
-import { AIReviewParams } from '../interfaces/review-params';
+import { AIReviewParams } from '../../core/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/bot';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
 import { IssueCommentEvent } from '../interfaces/events';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { AIReviewService } from 'src/core/services/ai-review.service';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']
@@ -24,6 +24,8 @@ export class IssueCommentHandler extends EventHandler<
     private readonly aiReviewService: AIReviewService,
   ) {
     super(event);
+
+    this.aiReviewService.setGitProvider(this.octokit as Octokit);
   }
 
   async handle(): Promise<void> {
@@ -72,15 +74,13 @@ export class IssueCommentHandler extends EventHandler<
     };
 
     if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestSummary(
-        this.octokit as Octokit,
-        { ...defaultParams, fullReview: true, includeFileContents: true },
-      );
+      await this.aiReviewService.generatePullRequestSummary({
+        ...defaultParams,
+        fullReview: true,
+        includeFileContents: true,
+      });
     } else if (payload.comment.body === REVIEW_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestReview(
-        this.octokit as Octokit,
-        defaultParams,
-      );
+      await this.aiReviewService.generatePullRequestReview(defaultParams);
     }
   }
 

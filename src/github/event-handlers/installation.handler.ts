@@ -4,9 +4,9 @@ import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
 import { prisma } from 'src/database/db-connection';
-import { GitHubHistoryService } from '../services/github-history.service';
 import { InstallationEvent } from '../interfaces/events';
 import { AccountRepository } from 'src/core/repositories/account.repository';
+import { HistoryService } from 'src/core/services/history.service';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']
@@ -14,12 +14,12 @@ export class InstallationHandler extends EventHandler<
   constructor(
     event: InstallationEvent,
     private readonly accountService: AccountRepository,
-    private readonly historyService: GitHubHistoryService,
+    private readonly historyService: HistoryService,
   ) {
     super(event);
 
     if (event.octokit) {
-      this.historyService.setOctokit(event.octokit);
+      this.historyService.setGitProvider(event.octokit);
     }
   }
 

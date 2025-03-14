@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { envConfig } from 'src/config/env-config';
-import { AIMessageConfig } from '../../core/interfaces/ai-message-config';
+import { AIMessageConfig } from 'src/core/interfaces/ai-message-config';
 import { AIService } from 'src/core/services/ai.service';
 
 export class AnthropicAIService implements AIService {

@@ -5,9 +5,10 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
+import { RegisterUserService } from 'src/core/services/register-user.service';
 
 @injectable()
-export class RegisterUserService {
+export class GitHubRegisterUserService implements RegisterUserService {
   private octokit?: Octokit;
 
   constructor(
@@ -15,21 +16,21 @@ export class RegisterUserService {
     private readonly userService: UserRepository,
   ) {}
 
-  setOctokit(octokit: Octokit): void {
+  setGitProvider(octokit: Octokit): void {
     this.octokit = octokit;
   }
 
   async registerUserData(user: User): Promise<void> {
-    await this.registerGitHubUser(user);
+    await this.saveUserInfo(user);
     await this.registerHistory(user);
   }
 
   async registerHistory(user: User): Promise<void> {
-    await this.registerGitHubAccounts(user);
-    await this.registerGitHubRepositories(user);
+    await this.registerAccounts(user);
+    await this.registerRepositories(user);
   }
 
-  async registerGitHubUser(user: User): Promise<User> {
+  private async saveUserInfo(user: User): Promise<User> {
     try {
       return this.userService.saveUser(user);
     } catch (error) {
@@ -41,7 +42,7 @@ export class RegisterUserService {
     }
   }
 
-  async registerGitHubAccounts(user: User): Promise<void> {
+  private async registerAccounts(user: User): Promise<void> {
     if (!this.octokit) {
       throw new HttpException(
         'Octokit is not initialized',
@@ -84,7 +85,7 @@ export class RegisterUserService {
     }
   }
 
-  async registerGitHubRepositories(user: User): Promise<void> {
+  private async registerRepositories(user: User): Promise<void> {
     if (!this.octokit) {
       throw new HttpException(
         'Octokit is not initialized',

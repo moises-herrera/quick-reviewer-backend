@@ -1,13 +1,14 @@
 import { injectable, inject } from 'inversify';
 import { PullRequestFiltersType } from '../../common/schemas/pull-request-filters.schema';
-import { Metric } from '../interfaces/metric';
+import { Metric } from '../../core/interfaces/metric';
 import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-request-filters-with-state.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { ChartData } from '../interfaces/chart-data';
+import { ChartData } from '../../core/interfaces/chart-data';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { StatisticsService } from 'src/core/services/statistics.service';
 
 @injectable()
-export class StatisticsService {
+export class AppStatisticsService implements StatisticsService {
   private readonly pullRequestAverageCreationCount =
     'Pull Request Average Count';
   private readonly pullRequestAverageCompletionTime =
@@ -122,7 +123,7 @@ export class StatisticsService {
     };
   }
 
-  async getAverageReviewCount(
+  async getPullRequestAverageReviewCount(
     filters: PullRequestFiltersWithStateType & UserBasicInfo,
   ): Promise<Metric> {
     const pullRequests =

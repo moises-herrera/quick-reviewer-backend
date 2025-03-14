@@ -1,14 +1,12 @@
 import { injectable, inject } from 'inversify';
 import { InstallationHandler } from '../event-handlers/installation.handler';
 import { InstallationRepositoriesHandler } from '../event-handlers/installation-repositories.handler';
-import { GitHubHistoryService } from '../services/github-history.service';
 import { RepositoryHandler } from '../event-handlers/repository.handler';
 import { PullRequestHandler } from '../event-handlers/pull-request.handler';
 import { IssueCommentHandler } from '../event-handlers/issue-comment.handler';
 import { PullRequestReviewHandler } from '../event-handlers/pull-request-review.handler';
 import { PullRequestReviewCommentHandler } from '../event-handlers/pull-request-review-comment.handler';
 import { PullRequestReviewThreadHandler } from '../event-handlers/pull-request-review-thread.handler';
-import { AIReviewService } from '../services/ai-review.service';
 import {
   InstallationEvent,
   InstallationRepositoriesEvent,
@@ -26,6 +24,8 @@ import { ProjectRepository } from 'src/core/repositories/project.repository';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { HistoryService } from 'src/core/services/history.service';
+import { AIReviewService } from 'src/core/services/ai-review.service';
 
 type EventTypeMap = {
   installation: InstallationEvent;
@@ -39,7 +39,7 @@ type EventTypeMap = {
 };
 
 @injectable()
-export class GitHubRepositories {
+export class Repositories {
   constructor(
     @inject(AccountRepository)
     public readonly accountRepository: AccountRepository,
@@ -57,10 +57,10 @@ export class GitHubRepositories {
 }
 
 @injectable()
-export class GitHubServices {
+export class Services {
   constructor(
-    @inject(GitHubHistoryService)
-    public readonly historyService: GitHubHistoryService,
+    @inject(HistoryService)
+    public readonly historyService: HistoryService,
     @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
   ) {}
 }
@@ -74,9 +74,9 @@ export class EventHandlerFactory {
   } = {};
 
   constructor(
-    @inject(GitHubRepositories)
-    private readonly repositories: GitHubRepositories,
-    @inject(GitHubServices) private readonly services: GitHubServices,
+    @inject(Repositories)
+    private readonly repositories: Repositories,
+    @inject(Services) private readonly services: Services,
   ) {
     this.registerHandlers();
   }
