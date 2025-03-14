@@ -2,7 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
 import { CodeReviewData } from '../interfaces/code-review-data';
-import { CodeReviewRepository } from '../repositories/code-review.repository';
+import { CodeReviewRepository } from '../../database/repositories/code-review.repository';
 import { PullRequestReviewEvent } from '../interfaces/events';
 
 export class PullRequestReviewHandler extends EventHandler<

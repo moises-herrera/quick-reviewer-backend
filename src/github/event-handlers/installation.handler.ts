@@ -3,9 +3,9 @@ import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
-import { AccountRepository } from '../repositories/account.repository';
+import { AccountRepository } from '../../database/repositories/account.repository';
 import { prisma } from 'src/database/db-connection';
-import { HistoryService } from '../../history/services/history.service';
+import { GitHubHistoryService } from '../services/github-history.service';
 import { InstallationEvent } from '../interfaces/events';
 
 export class InstallationHandler extends EventHandler<
@@ -14,7 +14,7 @@ export class InstallationHandler extends EventHandler<
   constructor(
     event: InstallationEvent,
     private readonly accountService: AccountRepository,
-    private readonly historyService: HistoryService,
+    private readonly historyService: GitHubHistoryService,
   ) {
     super(event);
 

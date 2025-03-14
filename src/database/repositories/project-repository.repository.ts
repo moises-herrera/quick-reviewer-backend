@@ -2,8 +2,8 @@ import { Repository } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
+import { RepositoryFilters } from 'src/core/interfaces/record-filters';
 import { prisma } from 'src/database/db-connection';
-import { RepositoryFilters } from '../interfaces/record-filters';
 
 export class ProjectRepository {
   async saveRepositories(repositories: Repository[]): Promise<void> {

@@ -1,16 +1,24 @@
 import { CodeReview, PullRequest, Repository } from '@prisma/client';
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
-import { CodeReviewAttributes } from 'src/github/interfaces/code-review-attributes';
+import { inject, injectable } from 'inversify';
+import { CodeReviewAttributes } from 'src/core/interfaces/code-review-attributes';
 import { CodeReviewData } from 'src/github/interfaces/code-review-data';
 import { Octokit } from 'src/github/interfaces/octokit';
-import { PullRequestFilters } from 'src/github/interfaces/pull-request-filters';
-import { RepositoryAttributes } from 'src/github/interfaces/repository-attributes';
+import { PullRequestFilters } from 'src/core/interfaces/pull-request-filters';
+import { RepositoryAttributes } from 'src/core/interfaces/repository-attributes';
 import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
+import { PullRequestRepository } from 'src/database/repositories/pull-request.repository';
+import { CodeReviewRepository } from 'src/database/repositories/code-review.repository';
 
 @injectable()
-export class HistoryService {
+export class GitHubHistoryService {
   private octokit?: Octokit;
+
+  constructor(
+    @inject(PullRequestRepository)
+    private readonly pullRequestRepository: PullRequestRepository,
+    @inject(CodeReviewRepository)
+    private readonly codeReviewRepository: CodeReviewRepository,
+  ) {}
 
   setOctokit(octokit: Octokit) {
     this.octokit = octokit;
@@ -40,9 +48,7 @@ export class HistoryService {
   }: RepositoryAttributes) {
     const pullRequests = await this.getPullRequestHistory({ owner, name });
 
-    await prisma.pullRequest.createMany({
-      data: pullRequests,
-    });
+    await this.pullRequestRepository.savePullRequests(pullRequests);
 
     const codeReviewsPromises = pullRequests.map(({ id, number }) => {
       return this.saveCodeReviewHistoryByPullRequest({
@@ -62,9 +68,7 @@ export class HistoryService {
     const codeReviews =
       await this.getCodeReviewHistoryByPullRequest(attributes);
 
-    await prisma.codeReview.createMany({
-      data: codeReviews,
-    });
+    await this.codeReviewRepository.saveCodeReviews(codeReviews);
   }
 
   private async getPullRequestsByRepository(

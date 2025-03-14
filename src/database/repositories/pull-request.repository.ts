@@ -3,14 +3,20 @@ import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
-import { PullRequestFilters } from '../interfaces/record-filters';
 import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersWithStateType } from 'src/statistics/schemas/pull-request-filters-with-state.schema';
+import { PullRequestFilters } from 'src/core/interfaces/record-filters';
 
 export class PullRequestRepository {
   async savePullRequest(data: PullRequest): Promise<void> {
     await prisma.pullRequest.create({
+      data,
+    });
+  }
+
+  async savePullRequests(data: PullRequest[]): Promise<void> {
+    await prisma.pullRequest.createMany({
       data,
     });
   }

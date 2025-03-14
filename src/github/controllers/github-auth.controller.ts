@@ -5,9 +5,9 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
-import { RegisterUserService } from 'src/users/services/register-user.service';
+import { RegisterUserService } from 'src/github/services/register-user.service';
 import { Octokit } from '@octokit/rest';
-import { UserRepository } from 'src/users/repositories/user.repository';
+import { UserRepository } from 'src/database/repositories/user.repository';
 import { User } from '@prisma/client';
 import {
   AuthHttpHandler,

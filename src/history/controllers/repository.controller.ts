@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { ProjectRepository } from '../../github/repositories/project-repository.repository';
+import { ProjectRepository } from '../../database/repositories/project-repository.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';

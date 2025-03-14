@@ -4,7 +4,7 @@ import { gitHubAuthApp } from '../config/github-auth-app';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { handleHttpException } from 'src/common/middlewares/handle-http-exception.middleware';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { UserRepository } from 'src/users/repositories/user.repository';
+import { UserRepository } from 'src/database/repositories/user.repository';
 
 export const gitHubAuthMiddleware = async (
   req: Request,

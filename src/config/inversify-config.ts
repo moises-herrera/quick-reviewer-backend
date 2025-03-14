@@ -1,13 +1,13 @@
 import { Container } from 'inversify';
-import { CodeReviewCommentRepository } from 'src/github/repositories/code-review-comment.repository';
-import { CodeReviewRepository } from 'src/github/repositories/code-review.repository';
-import { ProjectRepository } from 'src/github/repositories/project-repository.repository';
-import { PullRequestCommentRepository } from 'src/github/repositories/pull-request-comment.repository';
-import { PullRequestRepository } from 'src/github/repositories/pull-request.repository';
-import { AccountRepository } from 'src/github/repositories/account.repository';
-import { HistoryService } from 'src/history/services/history.service';
-import { UserRepository } from 'src/users/repositories/user.repository';
-import { RegisterUserService } from 'src/users/services/register-user.service';
+import { CodeReviewCommentRepository } from 'src/database/repositories/code-review-comment.repository';
+import { CodeReviewRepository } from 'src/database/repositories/code-review.repository';
+import { ProjectRepository } from 'src/database/repositories/project-repository.repository';
+import { PullRequestCommentRepository } from 'src/database/repositories/pull-request-comment.repository';
+import { PullRequestRepository } from 'src/database/repositories/pull-request.repository';
+import { AccountRepository } from 'src/database/repositories/account.repository';
+import { GitHubHistoryService } from 'src/github/services/github-history.service';
+import { UserRepository } from 'src/database/repositories/user.repository';
+import { RegisterUserService } from 'src/github/services/register-user.service';
 import { StatisticsService } from 'src/statistics/services/statistics.service';
 import { StatisticsController } from 'src/statistics/controllers/statistics.controller';
 import { RepositoryController } from 'src/history/controllers/repository.controller';
@@ -41,7 +41,7 @@ container.bind<UserRepository>(UserRepository).toSelf();
 
 // Services
 container.bind<PullRequestService>(PullRequestService).toSelf();
-container.bind<HistoryService>(HistoryService).toSelf();
+container.bind<GitHubHistoryService>(GitHubHistoryService).toSelf();
 container.bind<RegisterUserService>(RegisterUserService).toSelf();
 container.bind<StatisticsService>(StatisticsService).toSelf();
 container.bind<AIService>(AIService).toSelf();

@@ -1,20 +1,20 @@
 import { injectable, inject } from 'inversify';
 import { InstallationHandler } from '../event-handlers/installation.handler';
 import { InstallationRepositoriesHandler } from '../event-handlers/installation-repositories.handler';
-import { AccountRepository } from '../repositories/account.repository';
-import { ProjectRepository } from '../repositories/project-repository.repository';
-import { HistoryService } from '../../history/services/history.service';
+import { AccountRepository } from '../../database/repositories/account.repository';
+import { ProjectRepository } from '../../database/repositories/project-repository.repository';
+import { GitHubHistoryService } from '../services/github-history.service';
 import { RepositoryHandler } from '../event-handlers/repository.handler';
 import { PullRequestHandler } from '../event-handlers/pull-request.handler';
 import { IssueCommentHandler } from '../event-handlers/issue-comment.handler';
 import { PullRequestReviewHandler } from '../event-handlers/pull-request-review.handler';
 import { PullRequestReviewCommentHandler } from '../event-handlers/pull-request-review-comment.handler';
 import { PullRequestReviewThreadHandler } from '../event-handlers/pull-request-review-thread.handler';
-import { PullRequestRepository } from '../repositories/pull-request.repository';
+import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
-import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
-import { CodeReviewRepository } from '../repositories/code-review.repository';
-import { CodeReviewCommentRepository } from '../repositories/code-review-comment.repository';
+import { PullRequestCommentRepository } from '../../database/repositories/pull-request-comment.repository';
+import { CodeReviewRepository } from '../../database/repositories/code-review.repository';
+import { CodeReviewCommentRepository } from '../../database/repositories/code-review-comment.repository';
 import {
   InstallationEvent,
   InstallationRepositoriesEvent,
@@ -59,7 +59,7 @@ export class GitHubRepositories {
 @injectable()
 export class GitHubServices {
   constructor(
-    @inject(HistoryService) public readonly historyService: HistoryService,
+    @inject(GitHubHistoryService) public readonly historyService: GitHubHistoryService,
     @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
   ) {}
 }

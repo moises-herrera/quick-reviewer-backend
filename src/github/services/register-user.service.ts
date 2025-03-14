@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { User } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
-import { UserRepository } from '../repositories/user.repository';
+import { UserRepository } from '../../database/repositories/user.repository';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';

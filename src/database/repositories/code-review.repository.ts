@@ -1,17 +1,23 @@
 import { prisma } from 'src/database/db-connection';
 import { CodeReview } from '@prisma/client';
-import { PullRequestReviewFilters } from '../interfaces/record-filters';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
-import { ReviewInfo } from '../interfaces/review-info';
+import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
+import { ReviewInfo } from 'src/core/interfaces/review-info';
 
 export class CodeReviewRepository {
   async saveCodeReview(data: CodeReview): Promise<void> {
     await prisma.codeReview.create({
+      data,
+    });
+  }
+
+  async saveCodeReviews(data: CodeReview[]): Promise<void> {
+    await prisma.codeReview.createMany({
       data,
     });
   }
@@ -78,9 +84,9 @@ export class CodeReviewRepository {
     endDate,
     page,
     limit,
-  }: PullRequestFiltersType &
-    PaginationOptions &
-    UserBasicInfo): Promise<PaginatedResponse<ReviewInfo>> {
+  }: PullRequestFiltersType & PaginationOptions & UserBasicInfo): Promise<
+    PaginatedResponse<ReviewInfo>
+  > {
     const filter = {
       pullRequest: {
         repositoryId: {

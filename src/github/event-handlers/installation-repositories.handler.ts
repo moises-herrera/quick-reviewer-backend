@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { ProjectRepository } from '../repositories/project-repository.repository';
+import { ProjectRepository } from '../../database/repositories/project-repository.repository';
 import { Repository } from '@prisma/client';
 import { injectable } from 'inversify';
 import { InstallationRepositoriesEvent } from '../interfaces/events';

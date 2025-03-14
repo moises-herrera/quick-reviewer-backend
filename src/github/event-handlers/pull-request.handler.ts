@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
-import { PullRequestRepository } from '../repositories/pull-request.repository';
+import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';

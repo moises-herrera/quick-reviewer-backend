@@ -1,4 +1,4 @@
-import { PullRequestRepository } from '../../github/repositories/pull-request.repository';
+import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';

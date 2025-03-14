@@ -6,11 +6,11 @@ import {
   SUMMARIZE_PULL_REQUEST_COMMAND,
 } from '../constants/commands';
 import { Octokit } from '../interfaces/octokit';
-import { PullRequestRepository } from '../repositories/pull-request.repository';
+import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { AIReviewParams } from '../interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/bot';
-import { PullRequestCommentRepository } from '../repositories/pull-request-comment.repository';
+import { PullRequestCommentRepository } from '../../database/repositories/pull-request-comment.repository';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
 import { IssueCommentEvent } from '../interfaces/events';
 
