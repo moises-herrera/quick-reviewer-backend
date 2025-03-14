@@ -16,14 +16,10 @@ import { CodeReviewRepository } from '../repositories/code-review.repository';
 import fs from 'node:fs';
 import { PromptMessage } from 'src/ai/interfaces/message-config';
 import { RestEndpointMethodTypes } from '@octokit/rest';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class AIReviewService {
-  private readonly aiService = new AIService();
-  private readonly pullRequestService = new PullRequestService();
-  private readonly pullRequestCommentRepository =
-    new PullRequestCommentRepository();
-  private readonly codeReviewRepository = new CodeReviewRepository();
-
   private readonly summaryPrompt = fs.readFileSync(
     'src/ai/prompts/pull-request-summary.md',
     'utf8',
@@ -33,6 +29,17 @@ export class AIReviewService {
     'src/ai/prompts/pull-request-review.md',
     'utf8',
   );
+
+  constructor(
+    @inject(AIService)
+    private readonly aiService: AIService,
+    @inject(PullRequestService)
+    private readonly pullRequestService: PullRequestService,
+    @inject(PullRequestCommentRepository)
+    private readonly pullRequestCommentRepository: PullRequestCommentRepository,
+    @inject(CodeReviewRepository)
+    private readonly codeReviewRepository: CodeReviewRepository,
+  ) {}
 
   private async getPullRequestContext(
     octokit: Octokit,

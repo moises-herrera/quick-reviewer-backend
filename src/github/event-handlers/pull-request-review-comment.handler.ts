@@ -1,18 +1,16 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { CodeReviewCommentRepository } from '../repositories/code-review-comment.repository';
 import { mapCodeReviewCommentToCreation } from '../mappers/code-review-comment.mapper';
+import { PullRequestReviewCommentEvent } from '../interfaces/events';
 
-type EventPayload =
-  EmitterWebhookEvent<'pull_request_review_comment'>['payload'];
-
-type PullRequestReviewCommentEvent = GitHubWebHookEvent<EventPayload>;
-
-export class PullRequestReviewCommentHandler extends EventHandler<EventPayload> {
-  private readonly codeReviewCommentService = new CodeReviewCommentRepository();
-
-  constructor(event: PullRequestReviewCommentEvent) {
+export class PullRequestReviewCommentHandler extends EventHandler<
+  PullRequestReviewCommentEvent['payload']
+> {
+  constructor(
+    event: PullRequestReviewCommentEvent,
+    private readonly codeReviewCommentRepository: CodeReviewCommentRepository,
+  ) {
     super(event);
   }
 
@@ -38,7 +36,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<EventPayload> 
   private async handlePullRequestReviewCommentCreated({
     comment,
   }: EmitterWebhookEvent<'pull_request_review_comment.created'>['payload']): Promise<void> {
-    await this.codeReviewCommentService.saveCodeReviewComment(
+    await this.codeReviewCommentRepository.saveCodeReviewComment(
       mapCodeReviewCommentToCreation(comment),
     );
   }
@@ -46,7 +44,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<EventPayload> 
   private async handlePullRequestReviewCommentEdited({
     comment,
   }: EmitterWebhookEvent<'pull_request_review_comment.edited'>['payload']): Promise<void> {
-    await this.codeReviewCommentService.updateCodeReviewComment(
+    await this.codeReviewCommentRepository.updateCodeReviewComment(
       comment.id as unknown as bigint,
       {
         body: comment.body,
@@ -58,7 +56,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<EventPayload> 
   private async handlePullRequestReviewCommentDeleted(
     payload: EmitterWebhookEvent<'pull_request_review_comment.deleted'>['payload'],
   ): Promise<void> {
-    await this.codeReviewCommentService.deleteCodeReviewComment(
+    await this.codeReviewCommentRepository.deleteCodeReviewComment(
       payload.comment.id as unknown as bigint,
     );
   }

@@ -3,6 +3,12 @@ import { Octokit } from '../interfaces/octokit';
 import { isExtensionSupported } from 'src/common/utils/language-support';
 
 export class PullRequestService {
+  private readonly omittedFileStatuses: string[] = [
+    'removed',
+    'renamed',
+    'unchanged',
+  ];
+
   async getFileContents(
     octokit: Octokit,
     owner: string,
@@ -17,7 +23,7 @@ export class PullRequestService {
     for (const file of changedFiles) {
       try {
         if (
-          !['removed', 'renamed', 'unchanged'].includes(file.status) &&
+          !this.omittedFileStatuses.includes(file.status) &&
           isExtensionSupported(file.filename)
         ) {
           const response = await octokit.rest.repos.getContent({

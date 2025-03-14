@@ -1,10 +1,12 @@
+import { injectable } from 'inversify';
 import { prisma } from 'src/database/db-connection';
-import { PullRequestAverageCompletionTime } from '../schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from '../schemas/pull-request-filters.schema';
 import { Metric } from '../interfaces/metric';
-import { PullRequestInitialAverageTime } from '../schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersWithStateType } from '../schemas/pull-request-filters-with-state.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { ChartData } from '../interfaces/chart-data';
 
+@injectable()
 export class StatisticsService {
   private readonly pullRequestAverageCreationCount =
     'Pull Request Average Count';
@@ -20,7 +22,7 @@ export class StatisticsService {
     repositories,
     startDate,
     endDate,
-  }: PullRequestAverageCompletionTime & UserBasicInfo): Promise<Metric> {
+  }: PullRequestFiltersType & UserBasicInfo): Promise<Metric> {
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -66,7 +68,7 @@ export class StatisticsService {
     repositories,
     startDate,
     endDate,
-  }: PullRequestAverageCompletionTime & UserBasicInfo): Promise<Metric> {
+  }: PullRequestFiltersType & UserBasicInfo): Promise<Metric> {
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -126,7 +128,7 @@ export class StatisticsService {
     status,
     startDate,
     endDate,
-  }: PullRequestInitialAverageTime & UserBasicInfo): Promise<Metric> {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<Metric> {
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -202,7 +204,7 @@ export class StatisticsService {
     status,
     startDate,
     endDate,
-  }: PullRequestInitialAverageTime & UserBasicInfo): Promise<Metric> {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<Metric> {
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -258,7 +260,7 @@ export class StatisticsService {
     status,
     startDate,
     endDate,
-  }: PullRequestInitialAverageTime & UserBasicInfo): Promise<ChartData> {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<ChartData> {
     // Get all pull requests grouped by repositoryId and count the number of reviews for each pull request.
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
@@ -332,7 +334,7 @@ export class StatisticsService {
     repositories,
     startDate,
     endDate,
-  }: PullRequestInitialAverageTime & UserBasicInfo): Promise<ChartData> {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<ChartData> {
     const pullRequests = await prisma.pullRequest.findMany({
       where: {
         repositoryId: {

@@ -28,6 +28,4 @@ export const PullRequestFiltersSchema = z.object({
   }),
 });
 
-export type PullRequestAverageCompletionTime = z.infer<
-  typeof PullRequestFiltersSchema
->;
+export type PullRequestFiltersType = z.infer<typeof PullRequestFiltersSchema>;

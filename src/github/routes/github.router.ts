@@ -2,9 +2,10 @@ import { Router } from 'express';
 import { GitHubAuthController } from '../controllers/github-auth.controller';
 import { gitHubOAuthMiddleware } from '../middlewares/github-oauth.middleware';
 import { gitHubAuthMiddleware } from '../middlewares/github-auth.middleware';
+import { container } from 'src/config/inversify-config';
 
 const gitHubRouter = Router();
-const controller = new GitHubAuthController();
+const controller = container.get(GitHubAuthController);
 
 gitHubRouter.get('/auth/login', controller.getAuthorizationUrl);
 

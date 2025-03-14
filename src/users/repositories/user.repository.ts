@@ -1,6 +1,8 @@
 import { User } from '@prisma/client';
+import { injectable } from 'inversify';
 import { prisma } from 'src/database/db-connection';
 
+@injectable()
 export class UserRepository {
   async getUserById(id: bigint): Promise<User | null> {
     const user = await prisma.user.findUnique({

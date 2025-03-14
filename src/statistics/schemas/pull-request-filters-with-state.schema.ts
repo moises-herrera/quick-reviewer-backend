@@ -29,6 +29,6 @@ export const PullRequestFiltersWithStateSchema = z.object({
   }),
 });
 
-export type PullRequestInitialAverageTime = z.infer<
+export type PullRequestFiltersWithStateType = z.infer<
   typeof PullRequestFiltersWithStateSchema
 >;

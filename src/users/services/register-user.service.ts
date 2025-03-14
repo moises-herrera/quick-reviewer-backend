@@ -4,11 +4,19 @@ import { prisma } from 'src/database/db-connection';
 import { UserRepository } from '../repositories/user.repository';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
+import { inject, injectable } from 'inversify';
 
+@injectable()
 export class RegisterUserService {
-  private readonly userService = new UserRepository();
+  private octokit?: Octokit;
 
-  constructor(private readonly octokit: Octokit) {}
+  constructor(
+    @inject(UserRepository) private readonly userService: UserRepository,
+  ) {}
+
+  setOctokit(octokit: Octokit): void {
+    this.octokit = octokit;
+  }
 
   async registerUserData(user: User): Promise<void> {
     await this.registerGitHubUser(user);
@@ -33,6 +41,13 @@ export class RegisterUserService {
   }
 
   async registerGitHubAccounts(user: User): Promise<void> {
+    if (!this.octokit) {
+      throw new HttpException(
+        'Octokit is not initialized',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     try {
       const { data: accounts } = await this.octokit.request(
         'GET /user/memberships/orgs',
@@ -69,6 +84,13 @@ export class RegisterUserService {
   }
 
   async registerGitHubRepositories(user: User): Promise<void> {
+    if (!this.octokit) {
+      throw new HttpException(
+        'Octokit is not initialized',
+        StatusCodes.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     try {
       const { data: repositories } = await this.octokit.request(
         'GET /user/repos',

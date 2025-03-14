@@ -1,22 +1,21 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { PullRequestRepository } from '../repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
 import { PullRequest } from '@prisma/client';
+import { PullRequestEvent } from '../interfaces/events';
 
-type EventPayload = EmitterWebhookEvent<'pull_request'>['payload'];
-
-type PullRequestEvent = GitHubWebHookEvent<EventPayload>;
-
-export class PullRequestHandler extends EventHandler<EventPayload> {
-  private readonly pullRequestService = new PullRequestRepository();
-  private readonly aiReviewService = new AIReviewService();
-
-  constructor(event: PullRequestEvent) {
+export class PullRequestHandler extends EventHandler<
+  PullRequestEvent['payload']
+> {
+  constructor(
+    event: PullRequestEvent,
+    private readonly pullRequestRepository: PullRequestRepository,
+    private readonly aiReviewService: AIReviewService,
+  ) {
     super(event);
   }
 
@@ -83,7 +82,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
         repository: repository,
       });
 
-      await this.pullRequestService.savePullRequest(pullRequestMapped);
+      await this.pullRequestRepository.savePullRequest(pullRequestMapped);
 
       if (!pull_request.draft) {
         await this.reviewPullRequest({
@@ -108,7 +107,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
         pullRequest: pull_request,
         repository: repository,
       });
-      await this.pullRequestService.updatePullRequest(pull_request.id, {
+      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
         state: pullRequestMapped.state,
         title: pullRequestMapped.title,
         body: pullRequestMapped.body,
@@ -123,7 +122,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     pull_request,
   }: EmitterWebhookEvent<'pull_request.closed'>['payload']): Promise<void> {
     try {
-      await this.pullRequestService.updatePullRequest(pull_request.id, {
+      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
         state: pull_request.state,
         closedAt: new Date(pull_request.closed_at || Date.now()),
         mergedAt: pull_request.merged
@@ -139,10 +138,13 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'pull_request.reopened'>['payload'],
   ): Promise<void> {
     try {
-      await this.pullRequestService.updatePullRequest(payload.pull_request.id, {
-        state: payload.pull_request.state,
-        closedAt: null,
-      });
+      await this.pullRequestRepository.updatePullRequest(
+        payload.pull_request.id,
+        {
+          state: payload.pull_request.state,
+          closedAt: null,
+        },
+      );
     } catch (error) {
       console.error('Error reopening pull request:', error);
     }
@@ -154,7 +156,7 @@ export class PullRequestHandler extends EventHandler<EventPayload> {
     try {
       const { pull_request, repository } = payload;
 
-      await this.pullRequestService.updatePullRequest(pull_request.id, {
+      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
         state: pull_request.state,
         updatedAt: new Date(pull_request.updated_at || Date.now()),
         additions: pull_request.additions,

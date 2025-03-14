@@ -13,9 +13,15 @@ import {
   AuthHttpHandler,
   HttpHandler,
 } from 'src/common/interfaces/http-handler';
+import { inject } from 'inversify';
 
 export class GitHubAuthController {
-  private readonly userService = new UserRepository();
+  constructor(
+    @inject(UserRepository)
+    private readonly userRepository: UserRepository,
+    @inject(RegisterUserService)
+    private readonly registerUserService: RegisterUserService,
+  ) {}
 
   getAuthorizationUrl: HttpHandler = async (req, res, next): Promise<void> => {
     try {
@@ -55,11 +61,11 @@ export class GitHubAuthController {
       }
 
       const octokit = new Octokit({ auth: authentication?.token });
-      const registerUserService = new RegisterUserService(octokit);
+      this.registerUserService.setOctokit(octokit);
 
       const { data: user } = await octokit.request('GET /user');
 
-      const existingUser = await this.userService.getUserById(
+      const existingUser = await this.userRepository.getUserById(
         user.id as unknown as bigint,
       );
 
@@ -73,9 +79,9 @@ export class GitHubAuthController {
           updatedAt: new Date(),
         };
 
-        await registerUserService.registerUserData(userData);
+        await this.registerUserService.registerUserData(userData);
       } else {
-        await registerUserService.registerHistory(existingUser);
+        await this.registerUserService.registerHistory(existingUser);
       }
 
       CookieService.setCookie(res, 'githubToken', authentication.token);
@@ -97,7 +103,7 @@ export class GitHubAuthController {
     try {
       const { userId } = req;
 
-      const user = await this.userService.getUserById(
+      const user = await this.userRepository.getUserById(
         userId as unknown as bigint,
       );
 
@@ -146,7 +152,7 @@ export class GitHubAuthController {
         );
       }
 
-      const existingUser = await this.userService.getUserById(
+      const existingUser = await this.userRepository.getUserById(
         user.id as unknown as bigint,
       );
 

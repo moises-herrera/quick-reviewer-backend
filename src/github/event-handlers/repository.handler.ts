@@ -1,17 +1,16 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
-import { GitHubWebHookEvent } from '../interfaces/github-webhook-event';
 import { ProjectRepository } from '../repositories/project-repository.repository';
 import { Repository } from '@prisma/client';
+import { RepositoryEvent } from '../interfaces/events';
 
-type EventPayload = EmitterWebhookEvent<'repository'>['payload'];
-
-type RepositoryEvent = GitHubWebHookEvent<EventPayload>;
-
-export class RepositoryHandler extends EventHandler<EventPayload> {
-  private readonly repositoryService = new ProjectRepository();
-
-  constructor(event: RepositoryEvent) {
+export class RepositoryHandler extends EventHandler<
+  RepositoryEvent['payload']
+> {
+  constructor(
+    event: RepositoryEvent,
+    private readonly projectRepository: ProjectRepository,
+  ) {
     super(event);
   }
 
@@ -38,7 +37,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.created'>['payload'],
   ): Promise<void> {
     try {
-      await this.repositoryService.saveRepository({
+      await this.projectRepository.saveRepository({
         id: payload.repository.id as unknown as bigint,
         name: payload.repository.name,
         ownerId: payload.repository.owner.id as unknown as bigint,
@@ -52,7 +51,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.deleted'>['payload'],
   ): Promise<void> {
     try {
-      await this.repositoryService.deleteRepository(payload.repository.id);
+      await this.projectRepository.deleteRepository(payload.repository.id);
     } catch (error) {
       console.error('Error deleting repository:', error);
     }
@@ -62,7 +61,7 @@ export class RepositoryHandler extends EventHandler<EventPayload> {
     payload: EmitterWebhookEvent<'repository.renamed'>['payload'],
   ): Promise<void> {
     try {
-      await this.repositoryService.renameRepository(
+      await this.projectRepository.renameRepository(
         payload.repository.id,
         payload.repository.name,
       );
