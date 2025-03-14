@@ -1,11 +1,14 @@
 import { Repository } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
+import { injectable } from 'inversify';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from 'src/core/interfaces/record-filters';
 import { prisma } from 'src/database/db-connection';
+import { ProjectRepository } from '../../core/repositories/project.repository';
 
-export class ProjectRepository {
+@injectable()
+export class PostgresProjectRepository implements ProjectRepository {
   async saveRepositories(repositories: Repository[]): Promise<void> {
     await prisma.repository.createMany({
       data: repositories,

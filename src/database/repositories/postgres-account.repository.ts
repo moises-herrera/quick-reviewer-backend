@@ -2,8 +2,11 @@ import { prisma } from 'src/database/db-connection';
 import { Account, AccountType, Repository } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { AccountFilters } from 'src/core/interfaces/record-filters';
+import { AccountRepository } from '../../core/repositories/account.repository';
+import { injectable } from 'inversify';
 
-export class AccountRepository {
+@injectable()
+export class PostgresAccountRepository implements AccountRepository {
   async saveAccount({
     repositories,
     ...account

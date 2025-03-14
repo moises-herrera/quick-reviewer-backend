@@ -1,17 +1,18 @@
 import { Octokit } from '@octokit/rest';
 import { User } from '@prisma/client';
 import { prisma } from 'src/database/db-connection';
-import { UserRepository } from '../../database/repositories/user.repository';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
+import { UserRepository } from 'src/core/repositories/user-repository.interface';
 
 @injectable()
 export class RegisterUserService {
   private octokit?: Octokit;
 
   constructor(
-    @inject(UserRepository) private readonly userService: UserRepository,
+    @inject(UserRepository)
+    private readonly userService: UserRepository,
   ) {}
 
   setOctokit(octokit: Octokit): void {

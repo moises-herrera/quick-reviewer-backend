@@ -9,14 +9,14 @@ import { AIReviewParams } from '../interfaces/review-params';
 import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { PullRequestCommentRepository } from '../../database/repositories/pull-request-comment.repository';
 import { PullRequestService } from './pull-request.service';
 import { BOT_USER_REFERENCE } from '../constants/bot';
-import { CodeReviewRepository } from '../../database/repositories/code-review.repository';
 import fs from 'node:fs';
 import { PromptMessage } from 'src/ai/interfaces/message-config';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { inject, injectable } from 'inversify';
+import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
 @injectable()
 export class AIReviewService {

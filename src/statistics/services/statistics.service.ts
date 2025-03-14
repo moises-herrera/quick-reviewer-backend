@@ -1,10 +1,10 @@
 import { injectable, inject } from 'inversify';
-import { PullRequestFiltersType } from '../schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from '../../common/schemas/pull-request-filters.schema';
 import { Metric } from '../interfaces/metric';
-import { PullRequestFiltersWithStateType } from '../schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-request-filters-with-state.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { ChartData } from '../interfaces/chart-data';
-import { PullRequestRepository } from 'src/database/repositories/pull-request.repository';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 @injectable()
 export class StatisticsService {

@@ -3,12 +3,15 @@ import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { prisma } from 'src/database/db-connection';
-import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { PullRequestFiltersWithStateType } from 'src/statistics/schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFilters } from 'src/core/interfaces/record-filters';
+import { injectable } from 'inversify';
+import { PullRequestRepository } from '../../core/repositories/pull-request.repository';
 
-export class PullRequestRepository {
+@injectable()
+export class PostgresPullRequestRepository implements PullRequestRepository {
   async savePullRequest(data: PullRequest): Promise<void> {
     await prisma.pullRequest.create({
       data,
@@ -121,7 +124,11 @@ export class PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo) {
+  }: PullRequestFiltersType & UserBasicInfo): Promise<
+    {
+      id: bigint;
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -150,7 +157,12 @@ export class PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo) {
+  }: PullRequestFiltersType & UserBasicInfo): Promise<
+    {
+      createdAt: Date;
+      closedAt: Date | null;
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -185,7 +197,15 @@ export class PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
+    {
+      createdAt: Date;
+      closedAt: Date | null;
+      reviews: {
+        createdAt: Date;
+      }[];
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -229,7 +249,13 @@ export class PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
+    {
+      reviews: {
+        id: bigint;
+      }[];
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -264,7 +290,20 @@ export class PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo) {
+  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
+    {
+      repositoryId: bigint;
+      repository: {
+        name: string;
+        owner: {
+          name: string;
+        };
+      };
+      reviews: {
+        id: bigint;
+      }[];
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -309,7 +348,17 @@ export class PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo) {
+  }: PullRequestFiltersType & UserBasicInfo): Promise<
+    {
+      repositoryId: bigint;
+      repository: {
+        name: string;
+        owner: {
+          name: string;
+        };
+      };
+    }[]
+  > {
     return prisma.pullRequest.findMany({
       where: {
         repositoryId: {

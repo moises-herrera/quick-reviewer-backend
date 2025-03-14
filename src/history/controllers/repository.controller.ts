@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
-import { ProjectRepository } from '../../database/repositories/project-repository.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
 
 @injectable()
 export class RepositoryController {

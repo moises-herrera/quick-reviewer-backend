@@ -3,10 +3,10 @@ import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
-import { AccountRepository } from '../../database/repositories/account.repository';
 import { prisma } from 'src/database/db-connection';
 import { GitHubHistoryService } from '../services/github-history.service';
 import { InstallationEvent } from '../interfaces/events';
+import { AccountRepository } from 'src/core/repositories/account.repository';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']

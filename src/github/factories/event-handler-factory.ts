@@ -1,8 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { InstallationHandler } from '../event-handlers/installation.handler';
 import { InstallationRepositoriesHandler } from '../event-handlers/installation-repositories.handler';
-import { AccountRepository } from '../../database/repositories/account.repository';
-import { ProjectRepository } from '../../database/repositories/project-repository.repository';
 import { GitHubHistoryService } from '../services/github-history.service';
 import { RepositoryHandler } from '../event-handlers/repository.handler';
 import { PullRequestHandler } from '../event-handlers/pull-request.handler';
@@ -10,11 +8,7 @@ import { IssueCommentHandler } from '../event-handlers/issue-comment.handler';
 import { PullRequestReviewHandler } from '../event-handlers/pull-request-review.handler';
 import { PullRequestReviewCommentHandler } from '../event-handlers/pull-request-review-comment.handler';
 import { PullRequestReviewThreadHandler } from '../event-handlers/pull-request-review-thread.handler';
-import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
-import { PullRequestCommentRepository } from '../../database/repositories/pull-request-comment.repository';
-import { CodeReviewRepository } from '../../database/repositories/code-review.repository';
-import { CodeReviewCommentRepository } from '../../database/repositories/code-review-comment.repository';
 import {
   InstallationEvent,
   InstallationRepositoriesEvent,
@@ -26,6 +20,12 @@ import {
   PullRequestReviewThreadEvent,
 } from '../interfaces/events';
 import { EventHandler } from '../interfaces/event-handler';
+import { AccountRepository } from 'src/core/repositories/account.repository';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
+import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
 type EventTypeMap = {
   installation: InstallationEvent;
@@ -59,7 +59,8 @@ export class GitHubRepositories {
 @injectable()
 export class GitHubServices {
   constructor(
-    @inject(GitHubHistoryService) public readonly historyService: GitHubHistoryService,
+    @inject(GitHubHistoryService)
+    public readonly historyService: GitHubHistoryService,
     @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
   ) {}
 }

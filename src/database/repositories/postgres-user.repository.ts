@@ -3,7 +3,7 @@ import { injectable } from 'inversify';
 import { prisma } from 'src/database/db-connection';
 
 @injectable()
-export class UserRepository {
+export class PostgresUserRepository {
   async getUserById(id: bigint): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where: {

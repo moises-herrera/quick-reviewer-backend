@@ -5,11 +5,14 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
 import { ReviewInfo } from 'src/core/interfaces/review-info';
+import { injectable } from 'inversify';
+import { CodeReviewRepository } from '../../core/repositories/code-review.repository';
 
-export class CodeReviewRepository {
+@injectable()
+export class PostgresCodeReviewRepository implements CodeReviewRepository {
   async saveCodeReview(data: CodeReview): Promise<void> {
     await prisma.codeReview.create({
       data,

@@ -1,12 +1,12 @@
 import { Container } from 'inversify';
-import { CodeReviewCommentRepository } from 'src/database/repositories/code-review-comment.repository';
-import { CodeReviewRepository } from 'src/database/repositories/code-review.repository';
-import { ProjectRepository } from 'src/database/repositories/project-repository.repository';
-import { PullRequestCommentRepository } from 'src/database/repositories/pull-request-comment.repository';
-import { PullRequestRepository } from 'src/database/repositories/pull-request.repository';
-import { AccountRepository } from 'src/database/repositories/account.repository';
+import { PostgresCodeReviewCommentRepository } from 'src/database/repositories/postgres-code-review-comment.repository';
+import { PostgresCodeReviewRepository } from 'src/database/repositories/postgres-code-review.repository';
+import { PostgresProjectRepository } from 'src/database/repositories/postgres-project.repository';
+import { PostgresPullRequestCommentRepository } from 'src/database/repositories/postgres-pull-request-comment.repository';
+import { PostgresPullRequestRepository } from 'src/database/repositories/postgres-pull-request.repository';
+import { PostgresAccountRepository } from 'src/database/repositories/postgres-account.repository';
 import { GitHubHistoryService } from 'src/github/services/github-history.service';
-import { UserRepository } from 'src/database/repositories/user.repository';
+import { PostgresUserRepository } from 'src/database/repositories/postgres-user.repository';
 import { RegisterUserService } from 'src/github/services/register-user.service';
 import { StatisticsService } from 'src/statistics/services/statistics.service';
 import { StatisticsController } from 'src/statistics/controllers/statistics.controller';
@@ -23,39 +23,70 @@ import {
 import { PullRequestService } from 'src/github/services/pull-request.service';
 import { AccountController } from 'src/history/controllers/account.controller';
 import { PullRequestController } from 'src/history/controllers/pull-request.controller';
+import { AccountRepository } from 'src/core/repositories/account.repository';
+import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
+import { UserRepository } from 'src/core/repositories/user-repository.interface';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 export const container = new Container();
 
 // Repositories
-container.bind<AccountRepository>(AccountRepository).toSelf();
-container.bind<ProjectRepository>(ProjectRepository).toSelf();
-container.bind<PullRequestRepository>(PullRequestRepository).toSelf();
 container
-  .bind<PullRequestCommentRepository>(PullRequestCommentRepository)
-  .toSelf();
-container.bind<CodeReviewRepository>(CodeReviewRepository).toSelf();
+  .bind<AccountRepository>(AccountRepository)
+  .to(PostgresAccountRepository);
 container
   .bind<CodeReviewCommentRepository>(CodeReviewCommentRepository)
-  .toSelf();
-container.bind<UserRepository>(UserRepository).toSelf();
+  .to(PostgresCodeReviewCommentRepository);
+container
+  .bind<ProjectRepository>(ProjectRepository)
+  .to(PostgresProjectRepository);
+container
+  .bind<PullRequestRepository>(PullRequestRepository)
+  .to(PostgresPullRequestRepository);
+container
+  .bind<PullRequestCommentRepository>(PullRequestCommentRepository)
+  .to(PostgresPullRequestCommentRepository);
+container
+  .bind<CodeReviewRepository>(CodeReviewRepository)
+  .to(PostgresCodeReviewRepository);
+container.bind<UserRepository>(UserRepository).to(PostgresUserRepository);
 
 // Services
-container.bind<PullRequestService>(PullRequestService).toSelf();
-container.bind<GitHubHistoryService>(GitHubHistoryService).toSelf();
-container.bind<RegisterUserService>(RegisterUserService).toSelf();
-container.bind<StatisticsService>(StatisticsService).toSelf();
-container.bind<AIService>(AIService).toSelf();
-container.bind<AIReviewService>(AIReviewService).toSelf();
+container
+  .bind<GitHubHistoryService>(GitHubHistoryService)
+  .to(GitHubHistoryService);
+container
+  .bind<RegisterUserService>(RegisterUserService)
+  .to(RegisterUserService);
+container.bind<StatisticsService>(StatisticsService).to(StatisticsService);
+container.bind<AIService>(AIService).to(AIService);
+container.bind<AIReviewService>(AIReviewService).to(AIReviewService);
+container.bind<PullRequestService>(PullRequestService).to(PullRequestService);
 
 // Controllers
-container.bind<GitHubAuthController>(GitHubAuthController).toSelf();
-container.bind<AccountController>(AccountController).toSelf();
-container.bind<RepositoryController>(RepositoryController).toSelf();
-container.bind<PullRequestController>(PullRequestController).toSelf();
-container.bind<CodeReviewController>(CodeReviewController).toSelf();
-container.bind<StatisticsController>(StatisticsController).toSelf();
+container
+  .bind<GitHubAuthController>(GitHubAuthController)
+  .to(GitHubAuthController);
+container.bind<AccountController>(AccountController).to(AccountController);
+container
+  .bind<RepositoryController>(RepositoryController)
+  .to(RepositoryController);
+container
+  .bind<PullRequestController>(PullRequestController)
+  .to(PullRequestController);
+container
+  .bind<CodeReviewController>(CodeReviewController)
+  .to(CodeReviewController);
+container
+  .bind<StatisticsController>(StatisticsController)
+  .to(StatisticsController);
 
 // Factories
-container.bind(GitHubRepositories).to(GitHubRepositories);
-container.bind(GitHubServices).to(GitHubServices);
-container.bind<EventHandlerFactory>(EventHandlerFactory).toSelf();
+container.bind<GitHubRepositories>(GitHubRepositories).to(GitHubRepositories);
+container.bind<GitHubServices>(GitHubServices).to(GitHubServices);
+container
+  .bind<EventHandlerFactory>(EventHandlerFactory)
+  .to(EventHandlerFactory);

@@ -1,8 +1,8 @@
-import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { inject, injectable } from 'inversify';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 @injectable()
 export class PullRequestController {

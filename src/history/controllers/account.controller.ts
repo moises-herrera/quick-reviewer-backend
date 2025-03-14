@@ -1,8 +1,8 @@
-import { AccountRepository } from '../../database/repositories/account.repository';
 import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { inject, injectable } from 'inversify';
+import { AccountRepository } from 'src/core/repositories/account.repository';
 
 @injectable()
 export class AccountController {

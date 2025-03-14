@@ -1,12 +1,12 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
-import { PullRequestRepository } from '../../database/repositories/pull-request.repository';
 import { AIReviewService } from '../services/ai-review.service';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from '../interfaces/review-params';
 import { PullRequest } from '@prisma/client';
 import { PullRequestEvent } from '../interfaces/events';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']

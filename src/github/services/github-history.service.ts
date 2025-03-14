@@ -6,8 +6,8 @@ import { Octokit } from 'src/github/interfaces/octokit';
 import { PullRequestFilters } from 'src/core/interfaces/pull-request-filters';
 import { RepositoryAttributes } from 'src/core/interfaces/repository-attributes';
 import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
-import { PullRequestRepository } from 'src/database/repositories/pull-request.repository';
-import { CodeReviewRepository } from 'src/database/repositories/code-review.repository';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 @injectable()
 export class GitHubHistoryService {

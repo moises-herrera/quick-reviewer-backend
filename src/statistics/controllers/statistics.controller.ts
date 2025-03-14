@@ -1,8 +1,8 @@
 import { injectable, inject } from 'inversify';
 import { StatisticsService } from '../services/statistics.service';
 import { StatusCodes } from 'http-status-codes';
-import { PullRequestFiltersType } from '../schemas/pull-request-filters.schema';
-import { PullRequestFiltersWithStateType } from '../schemas/pull-request-filters-with-state.schema';
+import { PullRequestFiltersType } from '../../common/schemas/pull-request-filters.schema';
+import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-request-filters-with-state.schema';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 
 @injectable()

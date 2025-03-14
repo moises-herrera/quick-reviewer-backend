@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
-import { CodeReviewRepository } from 'src/database/repositories/code-review.repository';
-import { PullRequestFiltersType } from 'src/statistics/schemas/pull-request-filters.schema';
+import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
 @injectable()
 export class CodeReviewController {

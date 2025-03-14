@@ -7,13 +7,13 @@ import { CryptoService } from 'src/common/services/crypto.service';
 import { CookieService } from 'src/common/services/cookie.service';
 import { RegisterUserService } from 'src/github/services/register-user.service';
 import { Octokit } from '@octokit/rest';
-import { UserRepository } from 'src/database/repositories/user.repository';
 import { User } from '@prisma/client';
 import {
   AuthHttpHandler,
   HttpHandler,
 } from 'src/common/interfaces/http-handler';
 import { inject } from 'inversify';
+import { UserRepository } from 'src/core/repositories/user-repository.interface';
 
 export class GitHubAuthController {
   constructor(
