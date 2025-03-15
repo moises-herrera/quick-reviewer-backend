@@ -1,5 +1,5 @@
-import { prisma } from '../db-connection';
-import { testAccounts } from './data/test-accounts';
+import { prisma } from 'src/database/db-connection';
+import { testAccounts } from 'src/database/seed/data/test-accounts';
 
 const deleteTestAccounts = async () => {
   await prisma.testAccount.deleteMany({});

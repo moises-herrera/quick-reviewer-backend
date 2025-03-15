@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { envConfig } from 'src/config/env-config';
 
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({
+  datasourceUrl: envConfig.DATABASE_URL,
+});
 
 export const connectToDatabase = async () => {
   try {
