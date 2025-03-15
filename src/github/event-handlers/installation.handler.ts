@@ -13,7 +13,7 @@ export class InstallationHandler extends EventHandler<
 > {
   constructor(
     event: InstallationEvent,
-    private readonly accountService: AccountRepository,
+    private readonly accountRepository: AccountRepository,
     private readonly historyService: HistoryService,
   ) {
     super(event);
@@ -48,7 +48,7 @@ export class InstallationHandler extends EventHandler<
         payload.repositories || [],
       );
 
-      const account = await this.accountService.saveAccount({
+      const account = await this.accountRepository.saveAccount({
         ...mapAccountToCreation(payload.installation.account as AccountData),
         repositories: repositoriesMapped,
       });
@@ -58,6 +58,7 @@ export class InstallationHandler extends EventHandler<
       });
 
       if (isTestAccount) {
+        console.log(isTestAccount);
         await this.historyService.recordHistory(
           account.name,
           repositoriesMapped,
@@ -74,7 +75,7 @@ export class InstallationHandler extends EventHandler<
     if (!payload.installation.account) return;
 
     try {
-      await this.accountService.deleteAccount(payload.installation.account.id);
+      await this.accountRepository.deleteAccount(payload.installation.account.id);
     } catch (error) {
       console.error('Error deleting account:', error);
     }
