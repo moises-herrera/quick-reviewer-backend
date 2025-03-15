@@ -51,15 +51,14 @@ export class GitHubAIReviewService {
   async generatePullRequestSummary({
     repository,
     pullRequest,
-    fullReview = false,
-    includeFileContents = true,
   }: AIReviewParams): Promise<void> {
     const lastComment =
-      await this.pullRequestCommentRepository.getPullRequestComment(
-        pullRequest.id,
-        BOT_USER_REFERENCE,
-        'summary',
-      );
+      await this.pullRequestCommentRepository.getPullRequestComment({
+        pullRequestId: pullRequest.id,
+        user: BOT_USER_REFERENCE,
+        type: 'summary',
+        userType: 'Bot',
+      });
 
     // Check if a comment made by the bot already exists and is for the same commit
     if (
@@ -87,8 +86,8 @@ export class GitHubAIReviewService {
       context = await this.getPullRequestContext({
         repository,
         pullRequest,
-        fullReview,
-        includeFileContents,
+        fullReview: true,
+        includeFileContents: false,
       });
     } catch (error) {
       console.error('Error getting pull request context:', error);
@@ -149,19 +148,17 @@ export class GitHubAIReviewService {
     repository,
     pullRequest,
   }: AIReviewParams): Promise<void> {
-    const lastCodeReview = await this.codeReviewRepository.getCodeReview(
-      pullRequest.id,
-      pullRequest.headSha,
-    );
+    let hasFirstCodeReview = false;
+    const lastCodeReview = await this.codeReviewRepository.getCodeReview({
+      pullRequestId: pullRequest.id,
+      reviewer: BOT_USER_REFERENCE,
+      commitId: pullRequest.headSha,
+      userType: 'Bot',
+    });
 
     // Check if the code review already exists and is for the same commit
     // If it does, we don't need to generate a new one
-    if (
-      lastCodeReview &&
-      lastCodeReview.reviewer === BOT_USER_REFERENCE &&
-      lastCodeReview.userType === 'Bot' &&
-      lastCodeReview?.commitId === pullRequest.headSha
-    ) {
+    if (lastCodeReview) {
       const message = `Already reviewed this pull request.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
       await this.octokit.rest.issues.createComment({
@@ -172,6 +169,14 @@ export class GitHubAIReviewService {
       });
 
       return;
+    } else {
+      const result = await this.codeReviewRepository.getCodeReview({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+
+      hasFirstCodeReview = Boolean(result);
     }
 
     const { owner, name } = repository;
@@ -182,6 +187,8 @@ export class GitHubAIReviewService {
       context = await this.getPullRequestContext({
         repository,
         pullRequest,
+        fullReview: !hasFirstCodeReview,
+        includeFileContents: false,
       });
     } catch (error) {
       console.error('Error getting pull request context:', error);

@@ -3,7 +3,6 @@ import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from 'src/core/interfaces/review-params';
-import { PullRequest } from '@prisma/client';
 import { PullRequestEvent } from '../interfaces/events';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 import { AIReviewService } from 'src/core/services/ai-review.service';
@@ -52,24 +51,14 @@ export class PullRequestHandler extends EventHandler<
     }
   }
 
-  private async reviewPullRequest({
-    pullRequest,
-    repository,
-  }: {
-    pullRequest: PullRequest;
-    repository: { name: string; owner: string };
-  }): Promise<void> {
-    const reviewParams: AIReviewParams = {
-      pullRequest,
-      repository,
-    };
+  private async reviewPullRequest(config: AIReviewParams): Promise<void> {
     await this.aiReviewService.generatePullRequestSummary({
-      ...reviewParams,
+      ...config,
       fullReview: true,
       includeFileContents: true,
     });
 
-    await this.aiReviewService.generatePullRequestReview(reviewParams);
+    await this.aiReviewService.generatePullRequestReview(config);
   }
 
   private async handlePullRequestCreation({
@@ -91,6 +80,8 @@ export class PullRequestHandler extends EventHandler<
             name: repository.name,
             owner: repository.owner.login,
           },
+          fullReview: true,
+          includeFileContents: true,
         });
       }
     } catch (error) {
@@ -195,15 +186,15 @@ export class PullRequestHandler extends EventHandler<
         repository: repository,
       });
 
-      if (!pull_request.draft) {
-        await this.reviewPullRequest({
-          pullRequest: pullRequestMapped,
-          repository: {
-            name: repository.name,
-            owner: repository.owner.login,
-          },
-        });
-      }
+      await this.reviewPullRequest({
+        pullRequest: pullRequestMapped,
+        repository: {
+          name: repository.name,
+          owner: repository.owner.login,
+        },
+        fullReview: true,
+        includeFileContents: true,
+      });
     } catch (error) {
       console.error('Error marking pull request as ready for review:', error);
     }

@@ -58,7 +58,6 @@ export class InstallationHandler extends EventHandler<
       });
 
       if (isTestAccount) {
-        console.log(isTestAccount);
         await this.historyService.recordHistory(
           account.name,
           repositoriesMapped,

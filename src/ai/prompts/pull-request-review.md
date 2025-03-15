@@ -19,4 +19,4 @@ If you find no issues, return an empty array of comments.
 Notes:
 - Only answer with the JSON object.
 - Do not add any other text or explanation.
-- IMPORTANT: Only count the line numbers from the diff hunk because they are valid for comments. So, count the lines with + and - signs, but do not count the lines with no signs.
+- IMPORTANT: Only count the line numbers from the diff hunk because they are valid for comments. So, count all the lines but only use lines from the diff hunk to make comments.

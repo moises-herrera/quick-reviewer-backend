@@ -9,7 +9,7 @@ import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.
 import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
 import { ReviewInfo } from 'src/core/interfaces/review-info';
 import { injectable } from 'inversify';
-import { CodeReviewRepository } from '../../core/repositories/code-review.repository';
+import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
 @injectable()
 export class PostgresCodeReviewRepository implements CodeReviewRepository {
@@ -161,13 +161,12 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
   }
 
   async getCodeReview(
-    pullRequestId: bigint,
-    commitId: string,
+    options: Partial<CodeReview>,
   ): Promise<CodeReview | null> {
     const pullRequestReview = await prisma.codeReview.findFirst({
-      where: {
-        pullRequestId,
-        commitId,
+      where: options,
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 

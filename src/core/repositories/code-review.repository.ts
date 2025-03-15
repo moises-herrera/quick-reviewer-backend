@@ -18,7 +18,6 @@ export abstract class CodeReviewRepository {
     options: PullRequestFiltersType & PaginationOptions & UserBasicInfo,
   ): Promise<PaginatedResponse<ReviewInfo>>;
   abstract getCodeReview(
-    pullRequestId: bigint,
-    commitId: string,
+    options: Partial<CodeReview>,
   ): Promise<CodeReview | null>;
 }

@@ -10,9 +10,7 @@ export abstract class PullRequestCommentRepository {
     comments: PullRequestComment[],
   ): Promise<void>;
   abstract getPullRequestComment(
-    pullRequestId: bigint,
-    user: string,
-    type: string,
+    options: Partial<PullRequestComment>,
   ): Promise<PullRequestComment | null>;
   abstract getPullRequestComments(
     pullRequestId: number | bigint,

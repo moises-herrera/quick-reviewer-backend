@@ -1,7 +1,7 @@
 import { PullRequestComment } from '@prisma/client';
 import { injectable } from 'inversify';
 import { prisma } from 'src/database/db-connection';
-import { PullRequestCommentRepository } from '../../core/repositories/pull-request-comment.repository';
+import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 
 @injectable()
 export class PostgresPullRequestCommentRepository
@@ -22,15 +22,12 @@ export class PostgresPullRequestCommentRepository
   }
 
   async getPullRequestComment(
-    pullRequestId: bigint,
-    user: string,
-    type: string,
+    options: Partial<PullRequestComment>,
   ): Promise<PullRequestComment | null> {
     const pullRequestComment = await prisma.pullRequestComment.findFirst({
-      where: {
-        pullRequestId,
-        user,
-        type,
+      where: options,
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
