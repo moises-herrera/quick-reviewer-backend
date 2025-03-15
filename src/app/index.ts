@@ -1,17 +1,17 @@
 import express from 'express';
 import morgan from 'morgan';
 import { envConfig } from 'src/config/env-config';
-import { gitHubWebhooksMiddleware } from '../github/config/webhooks-config';
+import { gitHubWebhooksMiddleware } from 'src/github/config/webhooks-config';
 import { appRouter } from './app.router';
-import { connectToDatabase } from '../database/db-connection';
+import { connectToDatabase } from 'src/database/db-connection';
 import {
   handleHttpException,
   handleNotFoundRoute,
-} from '../common/middlewares/handle-http-exception.middleware';
-import { sessionMiddleware } from '../common/middlewares/session.middleware';
-import { API_PREFIX } from '../constants/api';
+} from 'src/common/middlewares/handle-http-exception.middleware';
+import { sessionMiddleware } from 'src/common/middlewares/session.middleware';
+import { API_PREFIX } from 'src/constants/api';
 import cors from 'cors';
-import '../common/utils/big-int-serializer';
+import 'src/common/utils/big-int-serializer';
 import cookieParser from 'cookie-parser';
 
 const PORT = envConfig.PORT || 3000;

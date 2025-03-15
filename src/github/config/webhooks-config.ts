@@ -1,8 +1,8 @@
 import { createNodeMiddleware } from '@octokit/webhooks';
-import { gitHubApp } from './github-app';
+import { gitHubApp } from 'src/github/config/github-app';
 import { envConfig } from 'src/config/env-config';
 import { container } from 'src/config/inversify-config';
-import { EventHandlerFactory } from '../factories/event-handler-factory';
+import { EventHandlerFactory } from 'src/github/factories/event-handler-factory';
 
 const handlerFactory = container.get(EventHandlerFactory);
 
