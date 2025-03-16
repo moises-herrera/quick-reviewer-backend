@@ -24,7 +24,6 @@
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.0",
-    "@types/express-session": "^1.18.1",
     "@types/morgan": "^1.9.9",
     "eslint": "^9.21.0",
     "globals": "^16.0.0",

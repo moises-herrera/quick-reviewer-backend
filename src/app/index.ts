@@ -8,7 +8,6 @@ import {
   handleHttpException,
   handleNotFoundRoute,
 } from 'src/common/middlewares/handle-http-exception.middleware';
-import { sessionMiddleware } from 'src/common/middlewares/session.middleware';
 import { API_PREFIX } from 'src/constants/api';
 import cors from 'cors';
 import 'src/common/utils/big-int-serializer';
@@ -35,8 +34,6 @@ app.use(gitHubWebhooksMiddleware as any);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
-
-app.use(sessionMiddleware);
 
 app.use(API_PREFIX, appRouter);
 
