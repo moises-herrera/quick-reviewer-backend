@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { CodeReviewController } from '../controllers/code-review.controller';
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { PullRequestFiltersWithStateSchema } from 'src/common/schemas/pull-request-filters-with-state.schema';
-import { container } from 'src/config/inversify-config';
+import { container } from 'src/config/container-config';
 
 const reviewsRouter = Router();
 const codeReviewController = container.get(CodeReviewController);

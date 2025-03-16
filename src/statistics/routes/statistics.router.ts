@@ -4,7 +4,7 @@ import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middlew
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { PullRequestFiltersSchema } from '../../common/schemas/pull-request-filters.schema';
 import { PullRequestFiltersWithStateSchema } from '../../common/schemas/pull-request-filters-with-state.schema';
-import { container } from 'src/config/inversify-config';
+import { container } from 'src/config/container-config';
 
 const statisticsRouter = Router();
 const statisticsController = container.get(StatisticsController);
