@@ -11,8 +11,6 @@ export const gitHubOAuthMiddleware = (
     const { code, state } = req.query;
     const { oauthState } = req.cookies;
 
-    console.log({ oauthState, code, state });
-
     if (!oauthState || state !== oauthState) {
       throw new HttpException('Invalid state parameter', StatusCodes.FORBIDDEN);
     }

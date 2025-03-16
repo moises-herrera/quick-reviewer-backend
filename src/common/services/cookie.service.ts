@@ -5,7 +5,7 @@ export class CookieService {
   private static readonly defaultCookieSettings: CookieOptions = {
     httpOnly: true,
     secure: envConfig.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: envConfig.NODE_ENV === 'production' ? 'none' : 'strict',
     maxAge: 1000 * 60 * 60,
   };
 
