@@ -41,6 +41,8 @@ export class GitHubAuthController {
 
   getAccessToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
+      res.clearCookie('oauthState');
+
       const { code } = req.query;
       let authentication:
         | Awaited<
