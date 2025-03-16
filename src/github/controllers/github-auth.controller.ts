@@ -1,4 +1,3 @@
-import { OAuthSession } from 'src/common/interfaces/oauth-session';
 import { gitHubAuthApp } from '../config/github-auth-app';
 import { envConfig } from 'src/config/env-config';
 import { HttpException } from 'src/common/exceptions/http-exception';
@@ -23,14 +22,16 @@ export class GitHubAuthController {
     private readonly registerUserService: RegisterUserService,
   ) {}
 
-  getAuthorizationUrl: HttpHandler = async (req, res, next): Promise<void> => {
+  getAuthorizationUrl: HttpHandler = async (_req, res, next): Promise<void> => {
     try {
       const state = CryptoService.generateRandomBytes(16);
       const { url } = gitHubAuthApp.getWebFlowAuthorizationUrl({
         state,
       });
 
-      (req.session as unknown as OAuthSession).oauthState = state;
+      CookieService.setCookie(res, 'oauthState', state, {
+        maxAge: 1000 * 60 * 5, // 5 minutes
+      });
 
       res.redirect(url);
     } catch (error) {

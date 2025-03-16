@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
-import { OAuthSession } from 'src/common/interfaces/oauth-session';
 
 export const gitHubOAuthMiddleware = (
   req: Request,
@@ -10,11 +9,9 @@ export const gitHubOAuthMiddleware = (
 ) => {
   try {
     const { code, state } = req.query;
+    const { oauthState } = req.cookies;
 
-    if (
-      !(req.session as unknown as OAuthSession) ||
-      state !== (req.session as unknown as OAuthSession)?.oauthState
-    ) {
+    if (!oauthState || state !== oauthState) {
       throw new HttpException('Invalid state parameter', StatusCodes.FORBIDDEN);
     }
 
