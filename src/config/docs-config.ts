@@ -112,7 +112,7 @@ const swaggerOptions = {
             pullRequest: { $ref: '#/components/schemas/PullRequest' },
           },
         },
-        dAccountsResponse: {
+        AccountsResponse: {
           type: 'object',
           properties: {
             data: {
