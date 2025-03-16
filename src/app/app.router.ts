@@ -8,7 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 
 const appRouter = Router();
 
-appRouter.use('/', swaggerUi.serve, swaggerUi.setup(docsConfig));
+appRouter.use('/docs', swaggerUi.serve, swaggerUi.setup(docsConfig));
 
 appRouter.get('/health-check', (_req, res) => {
   res.status(StatusCodes.OK).json({ status: 'ok' });

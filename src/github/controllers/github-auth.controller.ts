@@ -13,8 +13,18 @@ import {
 import { inject } from 'inversify';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
 import { RegisterUserService } from 'src/core/services/register-user.service';
-import { GITHUB_ACCESS_TOKEN, GITHUB_REFRESH_TOKEN, OAUTH_STATE } from 'src/github/constants/auth';
+import {
+  GITHUB_ACCESS_TOKEN,
+  GITHUB_REFRESH_TOKEN,
+  OAUTH_STATE,
+} from 'src/github/constants/auth';
 
+/**
+ * @swagger
+ * tags:
+ *   name: GitHub Auth
+ *   description: Endpoints for GitHub authentication
+ */
 export class GitHubAuthController {
   constructor(
     @inject(UserRepository)
@@ -23,6 +33,19 @@ export class GitHubAuthController {
     private readonly registerUserService: RegisterUserService,
   ) {}
 
+  /**
+   * @swagger
+   * /api/github/auth/login:
+   *   get:
+   *     summary: Initiates GitHub OAuth flow
+   *     description: Generates a state token and redirects the user to GitHub authorization page
+   *     tags: [GitHub Auth]
+   *     responses:
+   *       302:
+   *         description: Redirects to GitHub authorization page
+   *       500:
+   *         description: Server error
+   */
   getAuthorizationUrl: HttpHandler = async (_req, res, next): Promise<void> => {
     try {
       const state = CryptoService.generateRandomBytes(16);
@@ -40,6 +63,32 @@ export class GitHubAuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/github/auth/callback:
+   *   get:
+   *     summary: GitHub OAuth callback
+   *     description: Processes the GitHub OAuth callback, exchanges the code for tokens and registers/logs in the user
+   *     tags: [GitHub Auth]
+   *     parameters:
+   *       - in: query
+   *         name: code
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: GitHub OAuth code
+   *       - in: query
+   *         name: state
+   *         schema:
+   *           type: string
+   *         required: false
+   *         description: State token for CSRF protection
+   *     responses:
+   *       302:
+   *         description: Redirects to dashboard on success or login page on error
+   *       500:
+   *         description: Server error
+   */
   getAccessToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       res.clearCookie(OAUTH_STATE);
@@ -103,6 +152,28 @@ export class GitHubAuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/github/auth/check-token:
+   *   get:
+   *     summary: Checks the user's authentication
+   *     description: Verifies if the user is authenticated using the GitHub token
+   *     tags: [GitHub Auth]
+   *     security:
+   *       - githubAuth: []
+   *     responses:
+   *       200:
+   *         description: User is authenticated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       401:
+   *         description: User is not authenticated
+   */
   checkToken: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const { userId } = req;
@@ -119,6 +190,28 @@ export class GitHubAuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/github/auth/refresh-token:
+   *   post:
+   *     summary: Refreshes the GitHub token
+   *     description: Exchanges the refresh token for a new access token
+   *     tags: [GitHub Auth]
+   *     responses:
+   *       200:
+   *         description: Token refreshed successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 user:
+   *                   $ref: '#/components/schemas/User'
+   *       400:
+   *         description: Refresh token not provided or invalid
+   *       404:
+   *         description: User not found
+   */
   refreshToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
       const { githubRefreshToken } = req.cookies;
@@ -175,6 +268,17 @@ export class GitHubAuthController {
     }
   };
 
+  /**
+   * @swagger
+   * /api/github/auth/logout:
+   *   post:
+   *     summary: Logs out the user
+   *     description: Clears the GitHub access and refresh tokens from cookies
+   *     tags: [GitHub Auth]
+   *     responses:
+   *       200:
+   *         description: Logged out successfully
+   */
   logout: HttpHandler = async (_req, res, next): Promise<void> => {
     try {
       res.clearCookie(GITHUB_ACCESS_TOKEN);

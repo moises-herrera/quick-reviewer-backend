@@ -27,8 +27,6 @@ export type EnvConfig = z.infer<typeof EnvSchema>;
 const environmentVariables = parseEnvConfig();
 const { data, error } = EnvSchema.safeParse({
   ...environmentVariables,
-  BACKEND_URL:
-    process.env.BACKEND_URL || `http://localhost:${environmentVariables.PORT}`,
   NODE_ENV: process.env.NODE_ENV || 'development',
 });
 
@@ -36,4 +34,7 @@ if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
 
-export const envConfig: EnvConfig = data;
+export const envConfig = {
+  ...data,
+  BACKEND_URL: process.env.BACKEND_URL || `http://localhost:${data.PORT}`,
+} as const;

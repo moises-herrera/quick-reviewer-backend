@@ -21,7 +21,7 @@ app.set('PORT', PORT);
 
 app.use(
   cors({
-    origin: envConfig.FRONTEND_URL,
+    origin: [envConfig.FRONTEND_URL, envConfig.BACKEND_URL],
     credentials: true,
   }),
 );

@@ -10,7 +10,7 @@ const controller = container.get(GitHubAuthController);
 gitHubRouter.get('/auth/login', controller.getAuthorizationUrl);
 
 gitHubRouter.get(
-  '/oauth/callback',
+  '/auth/callback',
   gitHubOAuthMiddleware,
   controller.getAccessToken,
 );
