@@ -1,11 +1,10 @@
-import { injectable, inject } from 'inversify';
+import { inject } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { StatisticsService } from 'src/core/services/statistics.service';
 
-@injectable()
 export class StatisticsController {
   constructor(
     @inject(StatisticsService)
