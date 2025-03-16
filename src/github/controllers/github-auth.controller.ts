@@ -1,4 +1,4 @@
-import { gitHubAuthApp } from '../config/github-auth-app';
+import { gitHubAuthApp } from 'src/github/config/github-auth-app';
 import { envConfig } from 'src/config/env-config';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
@@ -13,6 +13,7 @@ import {
 import { inject } from 'inversify';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
 import { RegisterUserService } from 'src/core/services/register-user.service';
+import { GITHUB_ACCESS_TOKEN, GITHUB_REFRESH_TOKEN, OAUTH_STATE } from 'src/github/constants/auth';
 
 export class GitHubAuthController {
   constructor(
@@ -29,7 +30,7 @@ export class GitHubAuthController {
         state,
       });
 
-      CookieService.setCookie(res, 'oauthState', state, {
+      CookieService.setCookie(res, OAUTH_STATE, state, {
         maxAge: 1000 * 60 * 5, // 5 minutes
       });
 
@@ -41,7 +42,7 @@ export class GitHubAuthController {
 
   getAccessToken: HttpHandler = async (req, res, next): Promise<void> => {
     try {
-      res.clearCookie('oauthState');
+      res.clearCookie(OAUTH_STATE);
 
       const { code } = req.query;
       let authentication:
@@ -87,10 +88,10 @@ export class GitHubAuthController {
         await this.registerUserService.registerHistory(existingUser);
       }
 
-      CookieService.setCookie(res, 'githubToken', authentication.token);
+      CookieService.setCookie(res, GITHUB_ACCESS_TOKEN, authentication.token);
       CookieService.setCookie(
         res,
-        'githubRefreshToken',
+        GITHUB_REFRESH_TOKEN,
         authentication.refreshToken || '',
         { maxAge: 1000 * 60 * 60 * 24 * 30 },
       );
@@ -133,10 +134,10 @@ export class GitHubAuthController {
         refreshToken: githubRefreshToken,
       });
 
-      CookieService.setCookie(res, 'githubToken', authentication.token);
+      CookieService.setCookie(res, GITHUB_ACCESS_TOKEN, authentication.token);
       CookieService.setCookie(
         res,
-        'githubRefreshToken',
+        GITHUB_REFRESH_TOKEN,
         authentication.refreshToken || '',
         { maxAge: 1000 * 60 * 60 * 24 * 30 },
       );
@@ -176,8 +177,8 @@ export class GitHubAuthController {
 
   logout: HttpHandler = async (_req, res, next): Promise<void> => {
     try {
-      res.clearCookie('githubToken');
-      res.clearCookie('githubRefreshToken');
+      res.clearCookie(GITHUB_ACCESS_TOKEN);
+      res.clearCookie(GITHUB_REFRESH_TOKEN);
       res.status(StatusCodes.OK).json({
         message: 'Logged out successfully',
       });
