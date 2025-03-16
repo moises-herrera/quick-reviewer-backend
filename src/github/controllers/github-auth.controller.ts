@@ -172,22 +172,12 @@ export class GitHubAuthController {
     }
   };
 
-  logout: HttpHandler = async (req, res, next): Promise<void> => {
+  logout: HttpHandler = async (_req, res, next): Promise<void> => {
     try {
-      req.session.destroy((err) => {
-        if (err) {
-          throw new HttpException(
-            'Error destroying session',
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            err,
-          );
-        }
-
-        res.clearCookie('githubToken');
-        res.clearCookie('githubRefreshToken');
-        res.status(StatusCodes.OK).json({
-          message: 'Logged out successfully',
-        });
+      res.clearCookie('githubToken');
+      res.clearCookie('githubRefreshToken');
+      res.status(StatusCodes.OK).json({
+        message: 'Logged out successfully',
       });
     } catch (error) {
       next(error);
