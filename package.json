@@ -10,12 +10,13 @@
     "dev": "cross-env NODE_ENV=development dotenv -e .env.development -- ts-node-dev -r tsconfig-paths/register src/index.ts",
     "start": "cross-env NODE_ENV=production node ./dist/index.js",
     "db:init": "pnpx prisma db push && pnpx prisma generate",
-    "db:init:dev": "dotenv -e .env.development -- pnpm run db-init",
-    "db:view": "dotenv -e .env.development -- pnpx prisma studio",
+    "db:init:dev": "dotenv -e .env.development -- pnpm run db:init",
+    "db:init:test": "dotenv -e .env.test -- pnpm run db:init",
+    "db:view:dev": "dotenv -e .env.development -- pnpx prisma studio",
     "seed": "ts-node-dev -r tsconfig-paths/register src/database/seed/seed-database.ts",
-    "test": "vitest",
-    "test:watch": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test": "dotenv -e .env.test -- vitest run",
+    "test:watch": "dotenv -e .env.test -- vitest",
+    "test:coverage": "dotenv -e .env.test -- vitest run --coverage"
   },
   "keywords": [],
   "author": "",

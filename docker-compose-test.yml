@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: always
+    container_name: integration-tests-db
+    env_file:
+      - path: .env.test
+    ports:
+      - 5433:5432
