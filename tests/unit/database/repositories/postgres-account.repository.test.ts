@@ -1,5 +1,6 @@
-import { Account, Repository } from '@prisma/client';
+import { Account } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
+import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
 import { AccountFilters } from 'src/core/interfaces/record-filters';
 import { DbClient } from 'src/database/db-client';
 import { PostgresAccountRepository } from 'src/database/repositories/postgres-account.repository';
@@ -32,7 +33,7 @@ describe('PostgresAccountRepository', () => {
   });
 
   it('should create a new account with repositories', async () => {
-    const accountData: Account & { repositories: Repository[] } = {
+    const accountData: AccountWithRepositories = {
       id: '1',
       name: 'test-account',
       type: 'User',
@@ -40,7 +41,6 @@ describe('PostgresAccountRepository', () => {
         {
           id: '1',
           name: 'test-repo',
-          ownerId: '1',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -53,6 +53,16 @@ describe('PostgresAccountRepository', () => {
 
     const result = await accountRepository.saveAccount(accountData);
     expect(result).toEqual(accountData);
+    expect(dbClient.account.create).toHaveBeenCalledWith({
+      data: {
+        ...accountData,
+        repositories: {
+          createMany: {
+            data: accountData.repositories,
+          },
+        },
+      },
+    });
   });
 
   it('should get paginated accounts', async () => {
@@ -143,17 +153,30 @@ describe('PostgresAccountRepository', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        id: '2',
+        name: 'test-account-2',
+        type: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ];
+    const ids: string[] = ['1', '2'];
 
     vi.mocked(dbClient.account.findMany).mockResolvedValue(mockedAccounts);
 
-    const result = await accountRepository.getAccountsByIds([1]);
+    const result = await accountRepository.getAccountsByIds(ids);
 
     expect(result).toEqual(mockedAccounts);
+    expect(dbClient.account.findMany).toHaveBeenCalledWith({
+      where: {
+        id: { in: ids },
+      },
+    });
   });
 
   it('should delete an account', async () => {
-    const accountId = 1;
+    const accountId = '1';
 
     vi.mocked(dbClient.account.delete).mockResolvedValue({
       id: '1',

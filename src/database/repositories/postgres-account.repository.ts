@@ -1,9 +1,10 @@
 import { DbClient } from 'src/database/db-client';
-import { Account, AccountType, Repository } from '@prisma/client';
+import { Account, AccountType } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { AccountFilters } from 'src/core/interfaces/record-filters';
 import { AccountRepository } from 'src/core/repositories/account.repository';
 import { inject, injectable } from 'inversify';
+import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
 
 @injectable()
 export class PostgresAccountRepository implements AccountRepository {
@@ -12,9 +13,7 @@ export class PostgresAccountRepository implements AccountRepository {
   async saveAccount({
     repositories,
     ...account
-  }: Account & {
-    repositories: Repository[];
-  }): Promise<Account> {
+  }: AccountWithRepositories): Promise<Account> {
     return this.dbClient.account.create({
       data: {
         ...account,
