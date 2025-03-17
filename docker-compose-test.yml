@@ -6,4 +6,4 @@ services:
     env_file:
       - path: .env.test
     ports:
-      - 5433:5432
+      - 5434:5432
