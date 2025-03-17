@@ -12,7 +12,10 @@
     "db:init": "pnpx prisma db push && pnpx prisma generate",
     "db:init:dev": "dotenv -e .env.development -- pnpm run db-init",
     "db:view": "dotenv -e .env.development -- pnpx prisma studio",
-    "seed": "ts-node-dev -r tsconfig-paths/register src/database/seed/seed-database.ts"
+    "seed": "ts-node-dev -r tsconfig-paths/register src/database/seed/seed-database.ts",
+    "test": "vitest",
+    "test:watch": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -36,7 +39,8 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.25.0",
-    "typescript-transform-paths": "^3.5.3"
+    "typescript-transform-paths": "^3.5.3",
+    "vitest": "^3.0.8"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
