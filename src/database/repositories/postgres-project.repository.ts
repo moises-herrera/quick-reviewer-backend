@@ -1,30 +1,32 @@
 import { Repository } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from 'src/core/interfaces/record-filters';
-import { prisma } from 'src/database/db-connection';
-import { ProjectRepository } from '../../core/repositories/project.repository';
+import { DbClient } from 'src/database/db-client';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
 
 @injectable()
 export class PostgresProjectRepository implements ProjectRepository {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async saveRepositories(repositories: Repository[]): Promise<void> {
-    await prisma.repository.createMany({
+    await this.dbClient.repository.createMany({
       data: repositories,
     });
   }
 
   async saveRepository(repository: Repository): Promise<void> {
-    await prisma.repository.create({
+    await this.dbClient.repository.create({
       data: repository,
     });
   }
 
-  async getRepositories(
+  async getPaginatedRepositories(
     options: RepositoryFilters,
   ): Promise<PaginatedResponse<Repository>> {
-    const existingAccount = await prisma.account.findFirst({
+    const existingAccount = await this.dbClient.account.findFirst({
       where: {
         name: options.ownerName,
         users: {
@@ -41,7 +43,7 @@ export class PostgresProjectRepository implements ProjectRepository {
 
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
-    const repositories = await prisma.repository.findMany({
+    const repositories = await this.dbClient.repository.findMany({
       where: {
         name: {
           contains: options.search,
@@ -60,7 +62,7 @@ export class PostgresProjectRepository implements ProjectRepository {
       },
     });
 
-    const total = await prisma.repository.count({
+    const total = await this.dbClient.repository.count({
       where: {
         name: {
           contains: options.search,
@@ -86,8 +88,18 @@ export class PostgresProjectRepository implements ProjectRepository {
     return response;
   }
 
+  async getRepositoriesByIds(ids: number[]): Promise<Repository[]> {
+    return this.dbClient.repository.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
   async deleteRepositories(ids: number[]): Promise<void> {
-    await prisma.repository.deleteMany({
+    await this.dbClient.repository.deleteMany({
       where: {
         id: {
           in: ids,
@@ -97,7 +109,7 @@ export class PostgresProjectRepository implements ProjectRepository {
   }
 
   async deleteRepository(id: number): Promise<void> {
-    await prisma.repository.delete({
+    await this.dbClient.repository.delete({
       where: {
         id,
       },
@@ -105,7 +117,7 @@ export class PostgresProjectRepository implements ProjectRepository {
   }
 
   async renameRepository(id: number, name: string): Promise<void> {
-    await prisma.repository.update({
+    await this.dbClient.repository.update({
       where: {
         id,
       },

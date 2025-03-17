@@ -2,24 +2,26 @@ import { PullRequest } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { prisma } from 'src/database/db-connection';
+import { DbClient } from 'src/database/db-client';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFilters } from 'src/core/interfaces/record-filters';
-import { injectable } from 'inversify';
-import { PullRequestRepository } from '../../core/repositories/pull-request.repository';
+import { inject, injectable } from 'inversify';
+import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 
 @injectable()
 export class PostgresPullRequestRepository implements PullRequestRepository {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async savePullRequest(data: PullRequest): Promise<void> {
-    await prisma.pullRequest.create({
+    await this.dbClient.pullRequest.create({
       data,
     });
   }
 
   async savePullRequests(data: PullRequest[]): Promise<void> {
-    await prisma.pullRequest.createMany({
+    await this.dbClient.pullRequest.createMany({
       data,
     });
   }
@@ -27,7 +29,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
   async getPullRequestById(
     pullRequestId: number | string,
   ): Promise<PullRequest | null> {
-    const pullRequest = await prisma.pullRequest.findFirst({
+    const pullRequest = await this.dbClient.pullRequest.findFirst({
       where:
         typeof pullRequestId === 'string'
           ? { nodeId: pullRequestId }
@@ -45,7 +47,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     id: number,
     data: Partial<PullRequest>,
   ): Promise<void> {
-    await prisma.pullRequest.update({
+    await this.dbClient.pullRequest.update({
       where: {
         id,
       },
@@ -80,7 +82,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
           },
     } as const;
     const existingRepository =
-      await prisma.repository.findFirst(repositoryFilter);
+      await this.dbClient.repository.findFirst(repositoryFilter);
 
     if (!existingRepository) {
       throw new HttpException('Repository not found', StatusCodes.NOT_FOUND);
@@ -99,7 +101,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         },
       },
     } as const;
-    const pullRequests = await prisma.pullRequest.findMany({
+    const pullRequests = await this.dbClient.pullRequest.findMany({
       ...filter,
       take: options.limit,
       skip: skipRecords,
@@ -107,7 +109,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         createdAt: 'desc',
       },
     });
-    const total = await prisma.pullRequest.count(filter);
+    const total = await this.dbClient.pullRequest.count(filter);
 
     const response: PaginatedResponse<PullRequest> = {
       data: pullRequests,
@@ -129,7 +131,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       id: bigint;
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,
@@ -163,7 +165,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       closedAt: Date | null;
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,
@@ -206,7 +208,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       }[];
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,
@@ -256,7 +258,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       }[];
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,
@@ -304,7 +306,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       }[];
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,
@@ -359,7 +361,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       };
     }[]
   > {
-    return prisma.pullRequest.findMany({
+    return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
           in: repositories,

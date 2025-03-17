@@ -1,11 +1,13 @@
 import { User } from '@prisma/client';
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
+import { inject, injectable } from 'inversify';
+import { DbClient } from 'src/database/db-client';
 
 @injectable()
 export class PostgresUserRepository {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async getUserById(id: bigint): Promise<User | null> {
-    const user = await prisma.user.findUnique({
+    const user = await this.dbClient.user.findUnique({
       where: {
         id,
       },
@@ -15,7 +17,7 @@ export class PostgresUserRepository {
   }
 
   async saveUser(data: User): Promise<User> {
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await this.dbClient.user.findUnique({
       where: {
         id: data.id,
       },
@@ -25,7 +27,7 @@ export class PostgresUserRepository {
       return existingUser;
     }
 
-    const user = await prisma.user.create({
+    const user = await this.dbClient.user.create({
       data,
     });
 
@@ -38,7 +40,7 @@ export class PostgresUserRepository {
       accountId: bigint;
     }[],
   ): Promise<void> {
-    const existingUserAccounts = await prisma.userAccount.findMany({
+    const existingUserAccounts = await this.dbClient.userAccount.findMany({
       where: {
         userId: data[0].userId as unknown as bigint,
       },
@@ -51,7 +53,7 @@ export class PostgresUserRepository {
         ),
     );
 
-    await prisma.userAccount.createMany({
+    await this.dbClient.userAccount.createMany({
       data: filteredData,
     });
   }
@@ -62,7 +64,7 @@ export class PostgresUserRepository {
       repositoryId: bigint;
     }[],
   ): Promise<void> {
-    const existingRepositories = await prisma.userRepository.findMany({
+    const existingRepositories = await this.dbClient.userRepository.findMany({
       where: {
         userId: data[0].userId as unknown as bigint,
       },
@@ -74,7 +76,7 @@ export class PostgresUserRepository {
         ),
     );
 
-    await prisma.userRepository.createMany({
+    await this.dbClient.userRepository.createMany({
       data: filteredData,
     });
   }

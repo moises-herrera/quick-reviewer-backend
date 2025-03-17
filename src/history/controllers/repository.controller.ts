@@ -15,7 +15,7 @@ export class RepositoryController {
       const userId = req.userId as number;
       const ownerName = req.params.ownerName;
       const paginationOptions = parsePaginationOptions(req.query);
-      const response = await this.projectRepository.getRepositories({
+      const response = await this.projectRepository.getPaginatedRepositories({
         ...paginationOptions,
         userId,
         ownerName,

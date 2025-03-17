@@ -1,16 +1,18 @@
 import { CodeReviewComment } from '@prisma/client';
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
+import { inject, injectable } from 'inversify';
+import { DbClient } from 'src/database/db-client';
 import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
 
 @injectable()
 export class PostgresCodeReviewCommentRepository
   implements CodeReviewCommentRepository
 {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async getCodeReviewComments(
     reviewId: number | bigint,
   ): Promise<CodeReviewComment[]> {
-    return prisma.codeReviewComment.findMany({
+    return this.dbClient.codeReviewComment.findMany({
       where: {
         codeReviewId: reviewId,
       },
@@ -21,13 +23,13 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async saveCodeReviewComment(data: CodeReviewComment): Promise<void> {
-    await prisma.codeReviewComment.create({
+    await this.dbClient.codeReviewComment.create({
       data,
     });
   }
 
   async saveCodeReviewComments(data: CodeReviewComment[]): Promise<void> {
-    await prisma.codeReviewComment.createMany({
+    await this.dbClient.codeReviewComment.createMany({
       data,
     });
   }
@@ -36,7 +38,7 @@ export class PostgresCodeReviewCommentRepository
     id: bigint,
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
-    await prisma.codeReviewComment.update({
+    await this.dbClient.codeReviewComment.update({
       where: {
         id,
       },
@@ -45,7 +47,7 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async deleteCodeReviewComment(id: bigint): Promise<void> {
-    await prisma.codeReviewComment.delete({
+    await this.dbClient.codeReviewComment.delete({
       where: {
         id,
       },
@@ -56,7 +58,7 @@ export class PostgresCodeReviewCommentRepository
     ids: number[],
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
-    await prisma.codeReviewComment.updateMany({
+    await this.dbClient.codeReviewComment.updateMany({
       where: {
         id: {
           in: ids,

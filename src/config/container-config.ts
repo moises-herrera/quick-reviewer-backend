@@ -36,10 +36,18 @@ import { RegisterUserService } from 'src/core/services/register-user.service';
 import { StatisticsService } from 'src/core/services/statistics.service';
 import { AIReviewService } from 'src/core/services/ai-review.service';
 import { PullRequestService } from 'src/core/services/pull-request.service';
+import { DbClient } from 'src/database/db-client';
+import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
+import { PostgresTestAccountRepository } from 'src/database/repositories/postgres-test-account.repository';
 
 export const container = new Container();
 
+container.bind<DbClient>(DbClient).toSelf().inSingletonScope();
+
 // Repositories
+container
+  .bind<TestAccountRepository>(TestAccountRepository)
+  .to(PostgresTestAccountRepository);
 container
   .bind<AccountRepository>(AccountRepository)
   .to(PostgresAccountRepository);

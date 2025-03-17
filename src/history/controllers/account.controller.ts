@@ -14,7 +14,7 @@ export class AccountController {
     try {
       const userId = req.userId as number;
       const paginationOptions = parsePaginationOptions(req.query);
-      const response = await this.accountRepository.getAccounts({
+      const response = await this.accountRepository.getPaginatedAccounts({
         ...paginationOptions,
         userId,
       });
