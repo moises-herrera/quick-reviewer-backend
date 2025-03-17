@@ -74,12 +74,12 @@ export class GitHubAuthController {
       const { data: user } = await octokit.request('GET /user');
 
       const existingUser = await this.userRepository.getUserById(
-        user.id as unknown as bigint,
+        user.id.toString(),
       );
 
       if (!existingUser) {
         const userData: User = {
-          id: user.id as unknown as bigint,
+          id: user.id.toString(),
           name: user.name,
           username: user.login,
           email: user.notification_email ?? null,
@@ -111,9 +111,7 @@ export class GitHubAuthController {
     try {
       const { userId } = req;
 
-      const user = await this.userRepository.getUserById(
-        userId as unknown as bigint,
-      );
+      const user = await this.userRepository.getUserById(userId as string);
 
       res.status(StatusCodes.OK).json({
         user,
@@ -161,7 +159,7 @@ export class GitHubAuthController {
       }
 
       const existingUser = await this.userRepository.getUserById(
-        user.id as unknown as bigint,
+        user.id.toString(),
       );
 
       if (!existingUser) {

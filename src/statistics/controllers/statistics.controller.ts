@@ -21,7 +21,7 @@ export class StatisticsController {
         await this.statisticsService.getPullRequestAverageCreationCountByRepository(
           {
             ...(req.body as PullRequestFiltersType),
-            userId: req.userId as number,
+            userId: req.userId as string,
           },
         );
 
@@ -40,7 +40,7 @@ export class StatisticsController {
       const response =
         await this.statisticsService.getPullRequestAverageCompletionTime({
           ...(req.body as PullRequestFiltersType),
-          userId: req.userId as number,
+          userId: req.userId as string,
         });
 
       res.status(StatusCodes.OK).json(response);
@@ -58,7 +58,7 @@ export class StatisticsController {
       const response = await this.statisticsService.getInitialReviewAverageTime(
         {
           ...(req.body as PullRequestFiltersWithStateType),
-          userId: req.userId as number,
+          userId: req.userId as string,
         },
       );
 
@@ -77,7 +77,7 @@ export class StatisticsController {
       const response =
         await this.statisticsService.getPullRequestAverageReviewCount({
           ...(req.body as PullRequestFiltersWithStateType),
-          userId: req.userId as number,
+          userId: req.userId as string,
         });
 
       res.status(StatusCodes.OK).json(response);
@@ -95,7 +95,7 @@ export class StatisticsController {
       const response =
         await this.statisticsService.getPullRequestReviewCountByRepository({
           ...(req.body as PullRequestFiltersWithStateType),
-          userId: req.userId as number,
+          userId: req.userId as string,
         });
 
       res.status(StatusCodes.OK).json(response);
@@ -113,7 +113,7 @@ export class StatisticsController {
       const response =
         await this.statisticsService.getPullRequestCountByRepository({
           ...(req.body as PullRequestFiltersWithStateType),
-          userId: req.userId as number,
+          userId: req.userId as string,
         });
 
       res.status(StatusCodes.OK).json(response);

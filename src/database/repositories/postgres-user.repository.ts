@@ -6,7 +6,7 @@ import { DbClient } from 'src/database/db-client';
 export class PostgresUserRepository {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
-  async getUserById(id: bigint): Promise<User | null> {
+  async getUserById(id: string): Promise<User | null> {
     const user = await this.dbClient.user.findUnique({
       where: {
         id,
@@ -36,13 +36,13 @@ export class PostgresUserRepository {
 
   async saveUserAccounts(
     data: {
-      userId: bigint;
-      accountId: bigint;
+      userId: string;
+      accountId: string;
     }[],
   ): Promise<void> {
     const existingUserAccounts = await this.dbClient.userAccount.findMany({
       where: {
-        userId: data[0].userId as unknown as bigint,
+        userId: data[0].userId,
       },
     });
 
@@ -60,13 +60,13 @@ export class PostgresUserRepository {
 
   async saveUserRepositories(
     data: {
-      userId: bigint;
-      repositoryId: bigint;
+      userId: string;
+      repositoryId: string;
     }[],
   ): Promise<void> {
     const existingRepositories = await this.dbClient.userRepository.findMany({
       where: {
-        userId: data[0].userId as unknown as bigint,
+        userId: data[0].userId,
       },
     });
     const filteredData = data.filter(

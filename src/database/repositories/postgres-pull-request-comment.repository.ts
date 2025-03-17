@@ -39,7 +39,7 @@ export class PostgresPullRequestCommentRepository
   }
 
   async getPullRequestComments(
-    pullRequestId: bigint,
+    pullRequestId: string,
   ): Promise<PullRequestComment[]> {
     const pullRequestComments = await this.dbClient.pullRequestComment.findMany(
       {
@@ -53,7 +53,7 @@ export class PostgresPullRequestCommentRepository
   }
 
   async updatePullRequestComment(
-    id: bigint,
+    id: string,
     data: Partial<PullRequestComment>,
   ): Promise<void> {
     await this.dbClient.pullRequestComment.update({
@@ -64,7 +64,7 @@ export class PostgresPullRequestCommentRepository
     });
   }
 
-  async deletePullRequestComment(id: bigint): Promise<void> {
+  async deletePullRequestComment(id: string): Promise<void> {
     await this.dbClient.pullRequestComment.delete({
       where: {
         id,

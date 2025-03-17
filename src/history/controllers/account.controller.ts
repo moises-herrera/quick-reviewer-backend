@@ -12,7 +12,7 @@ export class AccountController {
 
   getAllAccounts: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const paginationOptions = parsePaginationOptions(req.query);
       const response = await this.accountRepository.getPaginatedAccounts({
         ...paginationOptions,
@@ -26,7 +26,7 @@ export class AccountController {
 
   getOrganizations: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const paginationOptions = parsePaginationOptions(req.query);
       const response = await this.accountRepository.getOrganizations({
         ...paginationOptions,
@@ -40,7 +40,7 @@ export class AccountController {
 
   getUsers: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const paginationOptions = parsePaginationOptions(req.query);
       const response = await this.accountRepository.getUsers({
         ...paginationOptions,

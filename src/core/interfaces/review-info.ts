@@ -1,5 +1,5 @@
 export interface ReviewInfo {
-  id: number;
+  id: string;
   createdAt: Date;
   reviewer: string;
   status: string;
@@ -7,7 +7,7 @@ export interface ReviewInfo {
 }
 
 export interface PullRequest {
-  id: number;
+  id: string;
   number: number;
   title: string;
   state: string;
@@ -16,12 +16,12 @@ export interface PullRequest {
 }
 
 export interface Repository {
-  id: number;
+  id: string;
   name: string;
   owner: Owner;
 }
 
 export interface Owner {
-  id: number;
+  id: string;
   name: string;
 }

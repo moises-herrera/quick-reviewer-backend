@@ -61,8 +61,8 @@ export class GitHubRegisterUserService implements RegisterUserService {
       );
 
       const existingAccounts = await this.accountRepository.getAccountsByIds([
-        user.id as unknown as number,
-        ...accounts.map(({ organization }) => organization.id),
+        user.id.toString(),
+        ...accounts.map(({ organization }) => organization.id.toString()),
       ]);
 
       if (!existingAccounts.length) return;
@@ -104,7 +104,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       const existingRepositories =
         await this.projectRepository.getRepositoriesByIds(
-          repositories.map(({ id }) => id),
+          repositories.map(({ id }) => id.toString()),
         );
 
       if (!existingRepositories.length) return;

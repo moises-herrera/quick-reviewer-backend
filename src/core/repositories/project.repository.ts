@@ -10,8 +10,8 @@ export abstract class ProjectRepository {
   abstract getPaginatedRepositories(
     options: RepositoryFilters,
   ): Promise<PaginatedResponse<Repository>>;
-  abstract getRepositoriesByIds(ids: number[]): Promise<Repository[]>;
-  abstract deleteRepositories(ids: number[]): Promise<void>;
-  abstract deleteRepository(id: number): Promise<void>;
-  abstract renameRepository(id: number, name: string): Promise<void>;
+  abstract getRepositoriesByIds(ids: string[]): Promise<Repository[]>;
+  abstract deleteRepositories(ids: string[]): Promise<void>;
+  abstract deleteRepository(id: string): Promise<void>;
+  abstract renameRepository(id: string, name: string): Promise<void>;
 }

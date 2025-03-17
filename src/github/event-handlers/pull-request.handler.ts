@@ -98,12 +98,15 @@ export class PullRequestHandler extends EventHandler<
         pullRequest: pull_request,
         repository: repository,
       });
-      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
-        state: pullRequestMapped.state,
-        title: pullRequestMapped.title,
-        body: pullRequestMapped.body,
-        updatedAt: new Date(pull_request.updated_at || Date.now()),
-      });
+      await this.pullRequestRepository.updatePullRequest(
+        pull_request.id.toString(),
+        {
+          state: pullRequestMapped.state,
+          title: pullRequestMapped.title,
+          body: pullRequestMapped.body,
+          updatedAt: new Date(pull_request.updated_at || Date.now()),
+        },
+      );
     } catch (error) {
       console.error('Error updating pull request:', error);
     }
@@ -113,13 +116,16 @@ export class PullRequestHandler extends EventHandler<
     pull_request,
   }: EmitterWebhookEvent<'pull_request.closed'>['payload']): Promise<void> {
     try {
-      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
-        state: pull_request.state,
-        closedAt: new Date(pull_request.closed_at || Date.now()),
-        mergedAt: pull_request.merged
-          ? new Date(pull_request.merged_at || Date.now())
-          : null,
-      });
+      await this.pullRequestRepository.updatePullRequest(
+        pull_request.id.toString(),
+        {
+          state: pull_request.state,
+          closedAt: new Date(pull_request.closed_at || Date.now()),
+          mergedAt: pull_request.merged
+            ? new Date(pull_request.merged_at || Date.now())
+            : null,
+        },
+      );
     } catch (error) {
       console.error('Error closing pull request:', error);
     }
@@ -130,7 +136,7 @@ export class PullRequestHandler extends EventHandler<
   ): Promise<void> {
     try {
       await this.pullRequestRepository.updatePullRequest(
-        payload.pull_request.id,
+        payload.pull_request.id.toString(),
         {
           state: payload.pull_request.state,
           closedAt: null,
@@ -147,15 +153,18 @@ export class PullRequestHandler extends EventHandler<
     try {
       const { pull_request, repository } = payload;
 
-      await this.pullRequestRepository.updatePullRequest(pull_request.id, {
-        state: pull_request.state,
-        updatedAt: new Date(pull_request.updated_at || Date.now()),
-        additions: pull_request.additions,
-        deletions: pull_request.deletions,
-        changedFiles: pull_request.changed_files,
-        baseSha: pull_request.base.sha,
-        headSha: pull_request.head.sha,
-      });
+      await this.pullRequestRepository.updatePullRequest(
+        pull_request.id.toString(),
+        {
+          state: pull_request.state,
+          updatedAt: new Date(pull_request.updated_at || Date.now()),
+          additions: pull_request.additions,
+          deletions: pull_request.deletions,
+          changedFiles: pull_request.changed_files,
+          baseSha: pull_request.base.sha,
+          headSha: pull_request.head.sha,
+        },
+      );
 
       const pullRequestMapped = mapPullRequestWithRepository({
         pullRequest: pull_request,

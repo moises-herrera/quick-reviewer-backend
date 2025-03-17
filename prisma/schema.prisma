@@ -20,14 +20,14 @@ enum AccountType {
 }
 
 model TestAccount {
-  id BigInt @id
+  id String @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Account {
-  id BigInt @id
+  id String @id
   name String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -37,18 +37,18 @@ model Account {
 }
 
 model Repository {
-  id BigInt @id
+  id String @id
   name String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   pullRequests PullRequest[]
-  ownerId BigInt
+  ownerId String
   owner Account @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   users UserRepository[]
 }
 
 model PullRequest {
-  id BigInt @id
+  id String @id
   nodeId String @unique
   number Int
   title String
@@ -63,7 +63,7 @@ model PullRequest {
   additions Int
   deletions Int
   changedFiles Int
-  repositoryId BigInt
+  repositoryId String
   headSha String
   baseSha String
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
@@ -72,8 +72,8 @@ model PullRequest {
 }
 
 model PullRequestComment {
-  id BigInt @id
-  pullRequestId BigInt
+  id String @id
+  pullRequestId String
   body String
   user String
   userType AccountType @default(User)
@@ -85,8 +85,8 @@ model PullRequestComment {
 }
 
 model CodeReview {
-  id BigInt @id
-  pullRequestId BigInt
+  id String @id
+  pullRequestId String
   reviewer String
   body String?
   status String
@@ -97,8 +97,8 @@ model CodeReview {
 }
 
 model CodeReviewComment {
-  id BigInt @id
-  codeReviewId BigInt
+  id String @id
+  codeReviewId String
   body String
   path String
   diffHunk String?
@@ -108,11 +108,11 @@ model CodeReviewComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   resolvedAt DateTime?
-  replyToId BigInt?
+  replyToId String?
 }
 
 model User {
-  id BigInt @id
+  id String @id
   name String?
   username String @unique
   email String? @unique
@@ -124,8 +124,8 @@ model User {
 
 model UserAccount {
   id String @id @default(uuid())
-  userId BigInt
-  accountId BigInt
+  userId String
+  accountId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -134,8 +134,8 @@ model UserAccount {
 
 model UserRepository {
   id String @id @default(uuid())
-  userId BigInt
-  repositoryId BigInt
+  userId String
+  repositoryId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

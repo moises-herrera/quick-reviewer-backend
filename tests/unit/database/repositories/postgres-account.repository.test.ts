@@ -23,7 +23,7 @@ describe('PostgresAccountRepository', () => {
     page: 1,
     limit: 10,
     search: 'test',
-    userId: 1,
+    userId: '1',
   };
 
   beforeEach(() => {
@@ -33,14 +33,14 @@ describe('PostgresAccountRepository', () => {
 
   it('should create a new account with repositories', async () => {
     const accountData: Account & { repositories: Repository[] } = {
-      id: 1n,
+      id: '1',
       name: 'test-account',
       type: 'User',
       repositories: [
         {
-          id: 1n,
+          id: '1',
           name: 'test-repo',
-          ownerId: 1n,
+          ownerId: '1',
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -58,7 +58,7 @@ describe('PostgresAccountRepository', () => {
   it('should get paginated accounts', async () => {
     const mockedAccounts: Account[] = [
       {
-        id: 1n,
+        id: '1',
         name: 'test-account',
         type: 'User',
         createdAt: new Date(),
@@ -85,7 +85,7 @@ describe('PostgresAccountRepository', () => {
   it('should get organizations', async () => {
     const mockedAccounts: Account[] = [
       {
-        id: 1n,
+        id: '1',
         name: 'test-account',
         type: 'Organization',
         createdAt: new Date(),
@@ -111,7 +111,7 @@ describe('PostgresAccountRepository', () => {
   it('should get users', async () => {
     const mockedAccounts: Account[] = [
       {
-        id: 1n,
+        id: '1',
         name: 'test-account',
         type: 'User',
         createdAt: new Date(),
@@ -137,7 +137,7 @@ describe('PostgresAccountRepository', () => {
   it('should get accounts by IDs', async () => {
     const mockedAccounts: Account[] = [
       {
-        id: 1n,
+        id: '1',
         name: 'test-account',
         type: 'Organization',
         createdAt: new Date(),
@@ -156,7 +156,7 @@ describe('PostgresAccountRepository', () => {
     const accountId = 1;
 
     vi.mocked(dbClient.account.delete).mockResolvedValue({
-      id: 1n,
+      id: '1',
       name: 'test-account',
       type: 'User',
       createdAt: new Date(),

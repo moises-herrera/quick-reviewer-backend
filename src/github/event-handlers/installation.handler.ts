@@ -75,7 +75,7 @@ export class InstallationHandler extends EventHandler<
 
     try {
       await this.accountRepository.deleteAccount(
-        payload.installation.account.id,
+        payload.installation.account.id.toString(),
       );
     } catch (error) {
       console.error('Error deleting account:', error);

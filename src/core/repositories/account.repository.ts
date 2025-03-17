@@ -18,6 +18,6 @@ export abstract class AccountRepository {
     options: AccountFilters,
     type?: AccountType,
   ): Promise<PaginatedResponse<Account>>;
-  abstract getAccountsByIds(ids: number[]): Promise<Account[]>;
-  abstract deleteAccount(id: number): Promise<void>;
+  abstract getAccountsByIds(ids: string[]): Promise<Account[]>;
+  abstract deleteAccount(id: string): Promise<void>;
 }

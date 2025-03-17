@@ -44,7 +44,7 @@ export class InstallationRepositoriesHandler extends EventHandler<
           ({
             id: data.id,
             name: data.full_name,
-            ownerId: payload.installation.account?.id as unknown as bigint,
+            ownerId: payload.installation.account?.id.toString(),
           }) as unknown as Repository,
       ) || [];
 
@@ -55,7 +55,9 @@ export class InstallationRepositoriesHandler extends EventHandler<
     payload: EmitterWebhookEvent<'installation_repositories.removed'>['payload'],
   ): Promise<void> {
     if (!payload.repositories_removed.length) return;
-    const repositoriesIds = payload.repositories_removed.map(({ id }) => id);
+    const repositoriesIds = payload.repositories_removed.map(({ id }) =>
+      id.toString(),
+    );
 
     await this.repositoryService.deleteRepositories(repositoriesIds);
   }

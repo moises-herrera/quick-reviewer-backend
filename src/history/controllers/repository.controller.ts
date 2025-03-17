@@ -12,7 +12,7 @@ export class RepositoryController {
 
   getRepositories: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const ownerName = req.params.ownerName;
       const paginationOptions = parsePaginationOptions(req.query);
       const response = await this.projectRepository.getPaginatedRepositories({

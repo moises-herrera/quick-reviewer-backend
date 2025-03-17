@@ -32,7 +32,7 @@ export class PullRequestReviewHandler extends EventHandler<
     try {
       await this.codeReviewRepository.saveCodeReview({
         ...mapCodeReviewToCreation(payload.review as CodeReviewData),
-        pullRequestId: payload.pull_request.id as unknown as bigint,
+        pullRequestId: payload.pull_request.id.toString(),
       });
     } catch (error) {
       console.error('Error creating pull request review:', error);

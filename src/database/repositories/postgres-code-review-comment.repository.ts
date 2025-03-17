@@ -9,9 +9,7 @@ export class PostgresCodeReviewCommentRepository
 {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
-  async getCodeReviewComments(
-    reviewId: number | bigint,
-  ): Promise<CodeReviewComment[]> {
+  async getCodeReviewComments(reviewId: string): Promise<CodeReviewComment[]> {
     return this.dbClient.codeReviewComment.findMany({
       where: {
         codeReviewId: reviewId,
@@ -35,7 +33,7 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async updateCodeReviewComment(
-    id: bigint,
+    id: string,
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
     await this.dbClient.codeReviewComment.update({
@@ -46,7 +44,7 @@ export class PostgresCodeReviewCommentRepository
     });
   }
 
-  async deleteCodeReviewComment(id: bigint): Promise<void> {
+  async deleteCodeReviewComment(id: string): Promise<void> {
     await this.dbClient.codeReviewComment.delete({
       where: {
         id,
@@ -55,7 +53,7 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async updateCodeReviewComments(
-    ids: number[],
+    ids: string[],
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
     await this.dbClient.codeReviewComment.updateMany({

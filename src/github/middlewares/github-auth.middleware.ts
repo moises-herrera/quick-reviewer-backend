@@ -36,7 +36,7 @@ export const gitHubAuthMiddleware = async (
 
       const userService = container.get(UserRepository);
       const existingUser = await userService.getUserById(
-        user.id as unknown as bigint,
+        user.id.toString(),
       );
 
       if (!existingUser) {
@@ -46,7 +46,7 @@ export const gitHubAuthMiddleware = async (
         );
       }
 
-      (req as AuthRequest).userId = user?.id as number;
+      (req as AuthRequest).userId = user?.id.toString();
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

@@ -2,7 +2,7 @@ import { changeMonths } from 'src/common/utils/date-helper';
 import { z } from 'zod';
 
 export const PullRequestFiltersWithStateSchema = z.object({
-  repositories: z.array(z.number()),
+  repositories: z.array(z.string()),
   status: z.enum(['open', 'closed']).optional(),
   startDate: z
     .string()

@@ -56,7 +56,7 @@ export class GitHubHistoryService implements HistoryService {
         owner,
         name,
         pullRequestNumber: number,
-        pullRequestId: id as unknown as bigint,
+        pullRequestId: id.toString(),
       });
     });
 
@@ -149,7 +149,7 @@ export class GitHubHistoryService implements HistoryService {
       });
 
       return {
-        id: id as unknown as bigint,
+        id: id.toString(),
         nodeId,
         number,
         title,
@@ -163,7 +163,7 @@ export class GitHubHistoryService implements HistoryService {
         updatedAt: new Date(updatedAt),
         closedAt: closedAt ? new Date(closedAt) : null,
         mergedAt: mergedAt ? new Date(mergedAt) : null,
-        repositoryId: repositoryId as unknown as bigint,
+        repositoryId: repositoryId.toString(),
         baseSha,
         headSha,
       } as PullRequest;

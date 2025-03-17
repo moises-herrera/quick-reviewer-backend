@@ -2,7 +2,7 @@ import { changeMonths } from 'src/common/utils/date-helper';
 import { z } from 'zod';
 
 export const PullRequestFiltersSchema = z.object({
-  repositories: z.array(z.number()),
+  repositories: z.array(z.string()),
   startDate: z
     .string()
     .optional()

@@ -13,9 +13,12 @@ export class DbClient extends PrismaClient {
   async connectToDatabase(): Promise<void> {
     try {
       await this.$connect();
-      console.log('Connected to the database');
+      console.log(`Connected to the database at ${envConfig.DATABASE_URL}`);
     } catch (error) {
-      console.log('Error connecting to the database:', error);
+      console.log(
+        `Error connecting to the database at ${envConfig.DATABASE_URL}:`,
+        error,
+      );
       process.exit(1);
     }
   }

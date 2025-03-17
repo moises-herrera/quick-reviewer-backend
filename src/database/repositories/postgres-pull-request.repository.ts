@@ -26,14 +26,18 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     });
   }
 
-  async getPullRequestById(
-    pullRequestId: number | string,
-  ): Promise<PullRequest | null> {
+  async getPullRequestById(pullRequestId: string): Promise<PullRequest | null> {
     const pullRequest = await this.dbClient.pullRequest.findFirst({
-      where:
-        typeof pullRequestId === 'string'
-          ? { nodeId: pullRequestId }
-          : { id: pullRequestId },
+      where: {
+        OR: [
+          {
+            id: pullRequestId,
+          },
+          {
+            nodeId: pullRequestId,
+          },
+        ],
+      },
     });
 
     if (!pullRequest) {
@@ -44,7 +48,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
   }
 
   async updatePullRequest(
-    id: number,
+    id: string,
     data: Partial<PullRequest>,
   ): Promise<void> {
     await this.dbClient.pullRequest.update({
@@ -62,7 +66,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     const repositoryFilter = {
       where: isRepositoryId
         ? {
-            id: Number(options.repositoryName),
+            id: options.repositoryName,
             users: {
               some: {
                 userId: options.userId,
@@ -128,7 +132,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     endDate,
   }: PullRequestFiltersType & UserBasicInfo): Promise<
     {
-      id: bigint;
+      id: string;
     }[]
   > {
     return this.dbClient.pullRequest.findMany({
@@ -254,7 +258,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
   }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
     {
       reviews: {
-        id: bigint;
+        id: string;
       }[];
     }[]
   > {
@@ -294,7 +298,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     endDate,
   }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
     {
-      repositoryId: bigint;
+      repositoryId: string;
       repository: {
         name: string;
         owner: {
@@ -302,7 +306,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         };
       };
       reviews: {
-        id: bigint;
+        id: string;
       }[];
     }[]
   > {
@@ -352,7 +356,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     endDate,
   }: PullRequestFiltersType & UserBasicInfo): Promise<
     {
-      repositoryId: bigint;
+      repositoryId: string;
       repository: {
         name: string;
         owner: {

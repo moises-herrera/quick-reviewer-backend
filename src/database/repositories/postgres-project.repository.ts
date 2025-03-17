@@ -88,7 +88,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     return response;
   }
 
-  async getRepositoriesByIds(ids: number[]): Promise<Repository[]> {
+  async getRepositoriesByIds(ids: string[]): Promise<Repository[]> {
     return this.dbClient.repository.findMany({
       where: {
         id: {
@@ -98,7 +98,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     });
   }
 
-  async deleteRepositories(ids: number[]): Promise<void> {
+  async deleteRepositories(ids: string[]): Promise<void> {
     await this.dbClient.repository.deleteMany({
       where: {
         id: {
@@ -108,7 +108,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     });
   }
 
-  async deleteRepository(id: number): Promise<void> {
+  async deleteRepository(id: string): Promise<void> {
     await this.dbClient.repository.delete({
       where: {
         id,
@@ -116,7 +116,7 @@ export class PostgresProjectRepository implements ProjectRepository {
     });
   }
 
-  async renameRepository(id: number, name: string): Promise<void> {
+  async renameRepository(id: string, name: string): Promise<void> {
     await this.dbClient.repository.update({
       where: {
         id,

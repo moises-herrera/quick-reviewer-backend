@@ -87,7 +87,7 @@ export class PostgresAccountRepository implements AccountRepository {
     return response;
   }
 
-  async getAccountsByIds(ids: number[]): Promise<Account[]> {
+  async getAccountsByIds(ids: string[]): Promise<Account[]> {
     return this.dbClient.account.findMany({
       where: {
         id: {
@@ -97,7 +97,7 @@ export class PostgresAccountRepository implements AccountRepository {
     });
   }
 
-  async deleteAccount(id: number): Promise<void> {
+  async deleteAccount(id: string): Promise<void> {
     await this.dbClient.account.delete({
       where: {
         id,

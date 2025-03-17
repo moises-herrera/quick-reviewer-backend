@@ -10,7 +10,6 @@ import {
 } from 'src/common/middlewares/handle-http-exception.middleware';
 import { API_PREFIX } from 'src/constants/api';
 import cors from 'cors';
-import 'src/common/utils/big-int-serializer';
 import cookieParser from 'cookie-parser';
 import { container } from 'src/config/container-config';
 
