@@ -1,0 +1,9 @@
+services:
+  app:
+    image: moisesh21/quick-reviewer-backend:1.0.0
+    container_name: quick-reviewer-backend
+    restart: always
+    env_file:
+      - path: .env
+    ports:
+      - 3000:3000
