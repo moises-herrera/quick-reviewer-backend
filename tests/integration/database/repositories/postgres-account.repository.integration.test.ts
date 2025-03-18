@@ -8,69 +8,47 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 describe('PostgresAccountRepository', () => {
   const dbClient = new DbClient();
   let accountRepository: PostgresAccountRepository;
+  const user: User = {
+    id: '1',
+    name: 'test-user',
+    username: 'test-username',
+    email: 'test@email.com',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const accounts: Account[] = [
+    {
+      id: '001',
+      name: 'test-account0',
+      type: 'User',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '002',
+      name: 'test-account2',
+      type: 'User',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '003',
+      name: 'test-account3',
+      type: 'Organization',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: '004',
+      name: 'test-account4',
+      type: 'Organization',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
 
   beforeAll(async () => {
     await dbClient.connectToDatabase();
-
-    const accounts: Account[] = [
-      {
-        id: '001',
-        name: 'test-account0',
-        type: 'User',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: '002',
-        name: 'test-account2',
-        type: 'User',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: '003',
-        name: 'test-account3',
-        type: 'Organization',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: '004',
-        name: 'test-account4',
-        type: 'Organization',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    await dbClient.account.createMany({ data: accounts });
-
-    const user: User = {
-      id: '1',
-      name: 'test-user',
-      username: 'test-username',
-      email: 'test@email.com',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    await dbClient.user.create({ data: user });
-    await dbClient.userAccount.createMany({
-      data: [
-        {
-          userId: user.id,
-          accountId: accounts[0].id,
-        },
-        {
-          userId: user.id,
-          accountId: accounts[1].id,
-        },
-        {
-          userId: user.id,
-          accountId: accounts[2].id,
-        },
-      ],
-    });
   });
 
   beforeEach(() => {
@@ -141,7 +119,28 @@ describe('PostgresAccountRepository', () => {
     });
   });
 
-  describe('Get accounts paginated', () => {
+  describe('Get accounts', () => {
+    beforeAll(async () => {
+      await dbClient.account.createMany({ data: accounts });
+      await dbClient.user.create({ data: user });
+      await dbClient.userAccount.createMany({
+        data: [
+          {
+            userId: user.id,
+            accountId: accounts[0].id,
+          },
+          {
+            userId: user.id,
+            accountId: accounts[1].id,
+          },
+          {
+            userId: user.id,
+            accountId: accounts[2].id,
+          },
+        ],
+      });
+    });
+
     it('should get paginated accounts for the current user', async () => {
       const filters: AccountFilters = {
         search: '',
@@ -270,9 +269,7 @@ describe('PostgresAccountRepository', () => {
       expect(result).toBeDefined();
       expect(result).toEqual(expectedResult);
     });
-  });
 
-  describe('Get accounts', () => {
     it('should get accounts by ids', async () => {
       const ids: string[] = ['001', '002'];
 
@@ -294,7 +291,15 @@ describe('PostgresAccountRepository', () => {
 
   describe('Delete account', () => {
     it('should delete an account', async () => {
-      const accountId = '001';
+      await dbClient.account.create({
+        data: {
+          ...accounts[0],
+          id: '800',
+          name: 'test-account8',
+        },
+      });
+
+      const accountId = '800';
 
       await accountRepository.deleteAccount(accountId);
 
@@ -303,6 +308,8 @@ describe('PostgresAccountRepository', () => {
       });
 
       expect(accountFound).toBeNull();
+
+      await dbClient.account.deleteMany({});
     });
   });
 });

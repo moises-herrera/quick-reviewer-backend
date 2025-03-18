@@ -32,6 +32,10 @@ describe('PostgresAccountRepository', () => {
     accountRepository = new PostgresAccountRepository(dbClient);
   });
 
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should create a new account with repositories', async () => {
     const accountData: AccountWithRepositories = {
       id: '1',

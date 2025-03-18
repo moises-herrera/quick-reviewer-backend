@@ -11,15 +11,15 @@ import { ProjectRepository } from 'src/core/repositories/project.repository';
 export class PostgresProjectRepository implements ProjectRepository {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
-  async saveRepositories(repositories: Repository[]): Promise<void> {
-    await this.dbClient.repository.createMany({
-      data: repositories,
+  async saveRepository(repository: Repository): Promise<Repository> {
+    return this.dbClient.repository.create({
+      data: repository,
     });
   }
 
-  async saveRepository(repository: Repository): Promise<void> {
-    await this.dbClient.repository.create({
-      data: repository,
+  async saveRepositories(repositories: Repository[]): Promise<void> {
+    await this.dbClient.repository.createMany({
+      data: repositories,
     });
   }
 
@@ -98,12 +98,13 @@ export class PostgresProjectRepository implements ProjectRepository {
     });
   }
 
-  async deleteRepositories(ids: string[]): Promise<void> {
-    await this.dbClient.repository.deleteMany({
+  async renameRepository(id: string, name: string): Promise<Repository> {
+    return this.dbClient.repository.update({
       where: {
-        id: {
-          in: ids,
-        },
+        id,
+      },
+      data: {
+        name,
       },
     });
   }
@@ -116,13 +117,12 @@ export class PostgresProjectRepository implements ProjectRepository {
     });
   }
 
-  async renameRepository(id: string, name: string): Promise<void> {
-    await this.dbClient.repository.update({
+  async deleteRepositories(ids: string[]): Promise<void> {
+    await this.dbClient.repository.deleteMany({
       where: {
-        id,
-      },
-      data: {
-        name,
+        id: {
+          in: ids,
+        },
       },
     });
   }
