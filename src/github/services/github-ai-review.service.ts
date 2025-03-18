@@ -23,12 +23,12 @@ export class GitHubAIReviewService {
   private octokit: Octokit = {} as Octokit;
 
   private readonly summaryPrompt = fs.readFileSync(
-    'src/ai/prompts/pull-request-summary.md',
+    `${__dirname}/../../ai/prompts/pull-request-summary.md`,
     'utf8',
   );
 
   private readonly reviewPrompt = fs.readFileSync(
-    'src/ai/prompts/pull-request-review.md',
+    `${__dirname}/../../ai/prompts/pull-request-review.md`,
     'utf8',
   );
 

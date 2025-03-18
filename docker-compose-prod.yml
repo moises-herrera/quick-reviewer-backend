@@ -1,6 +1,9 @@
 services:
   app:
     image: moisesh21/quick-reviewer-backend:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: quick-reviewer-backend
     restart: always
     env_file:

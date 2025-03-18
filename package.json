@@ -5,6 +5,7 @@
   "scripts": {
     "tsc": "tsc",
     "build": "rimraf ./dist && tsc && tsc-alias",
+    "post-build": "cp -r src/ai/prompts dist/ai/prompts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\" --fix",
     "dev": "cross-env NODE_ENV=development dotenv -e .env.development -- ts-node-dev -r tsconfig-paths/register src/index.ts",
