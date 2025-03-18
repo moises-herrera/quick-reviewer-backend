@@ -280,15 +280,37 @@ describe('PostgresProjectRepository', () => {
   it('should throw an error if repository not found', async () => {
     const repositoryId = '1';
 
-    vi.mocked(dbClient.repository.delete).mockRejectedValue(new Error('Not found'));
-
-    await expect(projectRepository.deleteRepository(repositoryId)).rejects.toThrow(
-      'Not found',
+    vi.mocked(dbClient.repository.delete).mockRejectedValue(
+      new Error('Not found'),
     );
+
+    await expect(
+      projectRepository.deleteRepository(repositoryId),
+    ).rejects.toThrow('Not found');
 
     expect(dbClient.repository.delete).toHaveBeenCalledWith({
       where: {
         id: repositoryId,
+      },
+    });
+  });
+
+  it('should throw an error if repositories not found', async () => {
+    const repositoryIds = ['1', '2'];
+
+    vi.mocked(dbClient.repository.deleteMany).mockRejectedValue(
+      new Error('Not found'),
+    );
+
+    await expect(
+      projectRepository.deleteRepositories(repositoryIds),
+    ).rejects.toThrow('Not found');
+
+    expect(dbClient.repository.deleteMany).toHaveBeenCalledWith({
+      where: {
+        id: {
+          in: repositoryIds,
+        },
       },
     });
   });

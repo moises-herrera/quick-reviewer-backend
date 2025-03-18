@@ -311,5 +311,13 @@ describe('PostgresAccountRepository', () => {
 
       await dbClient.account.deleteMany({});
     });
+
+    it('should throw an error if account not found', async () => {
+      const accountId = '999';
+
+      await expect(
+        accountRepository.deleteAccount(accountId),
+      ).rejects.toThrowError();
+    });
   });
 });
