@@ -1,19 +1,20 @@
-import { prisma } from 'src/database/db-connection';
-import { Account, AccountType, Repository } from '@prisma/client';
+import { DbClient } from 'src/database/db-client';
+import { Account, AccountType } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { AccountFilters } from 'src/core/interfaces/record-filters';
-import { AccountRepository } from '../../core/repositories/account.repository';
-import { injectable } from 'inversify';
+import { AccountRepository } from 'src/core/repositories/account.repository';
+import { inject, injectable } from 'inversify';
+import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
 
 @injectable()
 export class PostgresAccountRepository implements AccountRepository {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async saveAccount({
     repositories,
     ...account
-  }: Account & {
-    repositories: Repository[];
-  }): Promise<Account> {
-    return prisma.account.create({
+  }: AccountWithRepositories): Promise<Account> {
+    return this.dbClient.account.create({
       data: {
         ...account,
         repositories: {
@@ -28,21 +29,21 @@ export class PostgresAccountRepository implements AccountRepository {
   async getOrganizations(
     options: AccountFilters,
   ): Promise<PaginatedResponse<Account>> {
-    return this.getAccounts(options, 'Organization');
+    return this.getPaginatedAccounts(options, 'Organization');
   }
 
   async getUsers(options: AccountFilters): Promise<PaginatedResponse<Account>> {
-    return this.getAccounts(options, 'User');
+    return this.getPaginatedAccounts(options, 'User');
   }
 
-  async getAccounts(
+  async getPaginatedAccounts(
     options: AccountFilters,
     type?: AccountType,
   ): Promise<PaginatedResponse<Account>> {
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
 
-    const accounts = await prisma.account.findMany({
+    const accounts = await this.dbClient.account.findMany({
       where: {
         type,
         name: {
@@ -61,7 +62,7 @@ export class PostgresAccountRepository implements AccountRepository {
       },
     });
 
-    const total = await prisma.account.count({
+    const total = await this.dbClient.account.count({
       where: {
         type,
         name: {
@@ -85,8 +86,18 @@ export class PostgresAccountRepository implements AccountRepository {
     return response;
   }
 
-  async deleteAccount(id: number): Promise<void> {
-    await prisma.account.delete({
+  async getAccountsByIds(ids: string[]): Promise<Account[]> {
+    return this.dbClient.account.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+  }
+
+  async deleteAccount(id: string): Promise<void> {
+    await this.dbClient.account.delete({
       where: {
         id,
       },

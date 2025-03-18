@@ -26,6 +26,7 @@ import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-c
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 import { HistoryService } from 'src/core/services/history.service';
 import { AIReviewService } from 'src/core/services/ai-review.service';
+import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
 
 type EventTypeMap = {
   installation: InstallationEvent;
@@ -53,6 +54,8 @@ export class Repositories {
     public readonly codeReviewRepository: CodeReviewRepository,
     @inject(CodeReviewCommentRepository)
     public readonly codeReviewCommentRepository: CodeReviewCommentRepository,
+    @inject(TestAccountRepository)
+    public readonly testAccountRepository: TestAccountRepository,
   ) {}
 }
 
@@ -87,6 +90,7 @@ export class EventHandlerFactory {
       new InstallationHandler(
         event,
         this.repositories.accountRepository,
+        this.repositories.testAccountRepository,
         this.services.historyService,
       );
 

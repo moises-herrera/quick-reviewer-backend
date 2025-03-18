@@ -11,10 +11,10 @@ export abstract class PullRequestRepository {
   abstract savePullRequest(data: PullRequest): Promise<void>;
   abstract savePullRequests(data: PullRequest[]): Promise<void>;
   abstract getPullRequestById(
-    pullRequestId: number | string,
+    pullRequestId: string,
   ): Promise<PullRequest | null>;
   abstract updatePullRequest(
-    id: number,
+    id: string,
     data: Partial<PullRequest>,
   ): Promise<void>;
   abstract getPullRequests(
@@ -24,7 +24,7 @@ export abstract class PullRequestRepository {
     options: PullRequestFiltersType & UserBasicInfo,
   ): Promise<
     {
-      id: bigint;
+      id: string;
     }[]
   >;
   abstract findPullRequestsForAverageCompletionTime(
@@ -46,7 +46,7 @@ export abstract class PullRequestRepository {
   ): Promise<
     {
       reviews: {
-        id: bigint;
+        id: string;
       }[];
     }[]
   >;
@@ -54,7 +54,7 @@ export abstract class PullRequestRepository {
     options: PullRequestFiltersWithStateType & UserBasicInfo,
   ): Promise<
     {
-      repositoryId: bigint;
+      repositoryId: string;
       repository: {
         name: string;
         owner: {
@@ -62,7 +62,7 @@ export abstract class PullRequestRepository {
         };
       };
       reviews: {
-        id: bigint;
+        id: string;
       }[];
     }[]
   >;
@@ -70,7 +70,7 @@ export abstract class PullRequestRepository {
     options: PullRequestFiltersType & UserBasicInfo,
   ): Promise<
     {
-      repositoryId: bigint;
+      repositoryId: string;
       repository: {
         name: string;
         owner: {

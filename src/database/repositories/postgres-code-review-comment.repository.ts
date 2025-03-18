@@ -1,16 +1,16 @@
 import { CodeReviewComment } from '@prisma/client';
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
+import { inject, injectable } from 'inversify';
+import { DbClient } from 'src/database/db-client';
 import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
 
 @injectable()
 export class PostgresCodeReviewCommentRepository
   implements CodeReviewCommentRepository
 {
-  async getCodeReviewComments(
-    reviewId: number | bigint,
-  ): Promise<CodeReviewComment[]> {
-    return prisma.codeReviewComment.findMany({
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
+  async getCodeReviewComments(reviewId: string): Promise<CodeReviewComment[]> {
+    return this.dbClient.codeReviewComment.findMany({
       where: {
         codeReviewId: reviewId,
       },
@@ -21,22 +21,22 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async saveCodeReviewComment(data: CodeReviewComment): Promise<void> {
-    await prisma.codeReviewComment.create({
+    await this.dbClient.codeReviewComment.create({
       data,
     });
   }
 
   async saveCodeReviewComments(data: CodeReviewComment[]): Promise<void> {
-    await prisma.codeReviewComment.createMany({
+    await this.dbClient.codeReviewComment.createMany({
       data,
     });
   }
 
   async updateCodeReviewComment(
-    id: bigint,
+    id: string,
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
-    await prisma.codeReviewComment.update({
+    await this.dbClient.codeReviewComment.update({
       where: {
         id,
       },
@@ -44,8 +44,8 @@ export class PostgresCodeReviewCommentRepository
     });
   }
 
-  async deleteCodeReviewComment(id: bigint): Promise<void> {
-    await prisma.codeReviewComment.delete({
+  async deleteCodeReviewComment(id: string): Promise<void> {
+    await this.dbClient.codeReviewComment.delete({
       where: {
         id,
       },
@@ -53,10 +53,10 @@ export class PostgresCodeReviewCommentRepository
   }
 
   async updateCodeReviewComments(
-    ids: number[],
+    ids: string[],
     data: Partial<CodeReviewComment>,
   ): Promise<void> {
-    await prisma.codeReviewComment.updateMany({
+    await this.dbClient.codeReviewComment.updateMany({
       where: {
         id: {
           in: ids,

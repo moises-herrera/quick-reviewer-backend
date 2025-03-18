@@ -1,22 +1,24 @@
 import { PullRequestComment } from '@prisma/client';
-import { injectable } from 'inversify';
-import { prisma } from 'src/database/db-connection';
+import { inject, injectable } from 'inversify';
+import { DbClient } from 'src/database/db-client';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 
 @injectable()
 export class PostgresPullRequestCommentRepository
   implements PullRequestCommentRepository
 {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async savePullRequestComment(
     data: PullRequestComment,
   ): Promise<PullRequestComment> {
-    return prisma.pullRequestComment.create({
+    return this.dbClient.pullRequestComment.create({
       data,
     });
   }
 
   async savePullRequestComments(data: PullRequestComment[]): Promise<void> {
-    await prisma.pullRequestComment.createMany({
+    await this.dbClient.pullRequestComment.createMany({
       data,
     });
   }
@@ -24,33 +26,37 @@ export class PostgresPullRequestCommentRepository
   async getPullRequestComment(
     options: Partial<PullRequestComment>,
   ): Promise<PullRequestComment | null> {
-    const pullRequestComment = await prisma.pullRequestComment.findFirst({
-      where: options,
-      orderBy: {
-        createdAt: 'desc',
+    const pullRequestComment = await this.dbClient.pullRequestComment.findFirst(
+      {
+        where: options,
+        orderBy: {
+          createdAt: 'desc',
+        },
       },
-    });
+    );
 
     return pullRequestComment;
   }
 
   async getPullRequestComments(
-    pullRequestId: bigint,
+    pullRequestId: string,
   ): Promise<PullRequestComment[]> {
-    const pullRequestComments = await prisma.pullRequestComment.findMany({
-      where: {
-        pullRequestId,
+    const pullRequestComments = await this.dbClient.pullRequestComment.findMany(
+      {
+        where: {
+          pullRequestId,
+        },
       },
-    });
+    );
 
     return pullRequestComments;
   }
 
   async updatePullRequestComment(
-    id: bigint,
+    id: string,
     data: Partial<PullRequestComment>,
   ): Promise<void> {
-    await prisma.pullRequestComment.update({
+    await this.dbClient.pullRequestComment.update({
       where: {
         id,
       },
@@ -58,8 +64,8 @@ export class PostgresPullRequestCommentRepository
     });
   }
 
-  async deletePullRequestComment(id: bigint): Promise<void> {
-    await prisma.pullRequestComment.delete({
+  async deletePullRequestComment(id: string): Promise<void> {
+    await this.dbClient.pullRequestComment.delete({
       where: {
         id,
       },

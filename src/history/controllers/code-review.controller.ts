@@ -17,7 +17,7 @@ export class CodeReviewController {
     next,
   ): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const { ownerName, repositoryName, pullRequestNumber } = req.params;
       const options = parsePaginationOptions(req.query);
       const response = await this.codeReviewRepository.getCodeReviews({
@@ -45,7 +45,7 @@ export class CodeReviewController {
         await this.codeReviewRepository.getCodeReviewsDetailedInfo({
           ...(req.body as PullRequestFiltersType),
           ...options,
-          userId: req.userId as number,
+          userId: req.userId as string,
         });
 
       res.status(StatusCodes.OK).json(response);

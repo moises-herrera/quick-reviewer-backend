@@ -3,7 +3,7 @@ import { CodeReviewData } from '../interfaces/code-review-data';
 
 export const mapCodeReviewToCreation = (data: CodeReviewData): CodeReview => {
   return {
-    id: data.id as unknown as bigint,
+    id: data.id.toString(),
     reviewer: data.user.login,
     body: data.body,
     status: data.state.toUpperCase(),

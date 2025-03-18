@@ -9,12 +9,12 @@ export const mapPullRequestComment = (
     updated_at?: string | number | Date;
   },
   options?: {
-    pullRequestId?: bigint;
+    pullRequestId?: string;
     commitId?: string;
   },
 ): Partial<PullRequestComment> => {
   return {
-    id: data.id as unknown as bigint,
+    id: data.id.toString(),
     body: data.body,
     user: data.user?.login,
     userType: data.user?.type as AccountType,

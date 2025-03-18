@@ -132,7 +132,7 @@ export class IssueCommentHandler extends EventHandler<
       }
 
       await this.pullRequestCommentRepository.updatePullRequestComment(
-        payload.comment.id as unknown as bigint,
+        payload.comment.id.toString(),
         mapPullRequestComment(payload.comment),
       );
     } catch (error) {
@@ -145,7 +145,7 @@ export class IssueCommentHandler extends EventHandler<
   ): Promise<void> {
     try {
       await this.pullRequestCommentRepository.deletePullRequestComment(
-        payload.comment.id as unknown as bigint,
+        payload.comment.id.toString(),
       );
     } catch (error) {
       console.error('Error handling issue comment deleted:', error);

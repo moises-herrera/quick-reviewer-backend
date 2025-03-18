@@ -12,7 +12,7 @@ export class PullRequestController {
 
   getPullRequests: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
-      const userId = req.userId as number;
+      const userId = req.userId as string;
       const { ownerName, repositoryName } = req.params;
       const options = parsePaginationOptions(req.query);
       const response = await this.pullRequestRepository.getPullRequests({

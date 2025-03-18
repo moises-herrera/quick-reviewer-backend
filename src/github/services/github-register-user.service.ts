@@ -1,11 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import { User } from '@prisma/client';
-import { prisma } from 'src/database/db-connection';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { UserRepository } from 'src/core/repositories/user-repository.interface';
 import { RegisterUserService } from 'src/core/services/register-user.service';
+import { AccountRepository } from 'src/core/repositories/account.repository';
+import { ProjectRepository } from 'src/core/repositories/project.repository';
 
 @injectable()
 export class GitHubRegisterUserService implements RegisterUserService {
@@ -14,6 +15,10 @@ export class GitHubRegisterUserService implements RegisterUserService {
   constructor(
     @inject(UserRepository)
     private readonly userService: UserRepository,
+    @inject(AccountRepository)
+    private readonly accountRepository: AccountRepository,
+    @inject(ProjectRepository)
+    private readonly projectRepository: ProjectRepository,
   ) {}
 
   setGitProvider(octokit: Octokit): void {
@@ -55,18 +60,10 @@ export class GitHubRegisterUserService implements RegisterUserService {
         'GET /user/memberships/orgs',
       );
 
-      const existingAccounts = await prisma.account.findMany({
-        where: {
-          id: {
-            in: [
-              user.id,
-              ...(accounts.map(
-                (account) => account.organization.id,
-              ) as unknown as bigint[]),
-            ],
-          },
-        },
-      });
+      const existingAccounts = await this.accountRepository.getAccountsByIds([
+        user.id.toString(),
+        ...accounts.map(({ organization }) => organization.id.toString()),
+      ]);
 
       if (!existingAccounts.length) return;
 
@@ -104,13 +101,11 @@ export class GitHubRegisterUserService implements RegisterUserService {
       );
 
       if (!repositories.length) return;
-      const existingRepositories = await prisma.repository.findMany({
-        where: {
-          id: {
-            in: repositories.map((repository) => repository.id),
-          },
-        },
-      });
+
+      const existingRepositories =
+        await this.projectRepository.getRepositoriesByIds(
+          repositories.map(({ id }) => id.toString()),
+        );
 
       if (!existingRepositories.length) return;
 

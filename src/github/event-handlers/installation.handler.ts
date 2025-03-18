@@ -3,10 +3,10 @@ import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
 import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
-import { prisma } from 'src/database/db-connection';
 import { InstallationEvent } from '../interfaces/events';
 import { AccountRepository } from 'src/core/repositories/account.repository';
 import { HistoryService } from 'src/core/services/history.service';
+import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']
@@ -14,6 +14,7 @@ export class InstallationHandler extends EventHandler<
   constructor(
     event: InstallationEvent,
     private readonly accountRepository: AccountRepository,
+    private readonly testAccountRepository: TestAccountRepository,
     private readonly historyService: HistoryService,
   ) {
     super(event);
@@ -53,9 +54,8 @@ export class InstallationHandler extends EventHandler<
         repositories: repositoriesMapped,
       });
 
-      const isTestAccount = await prisma.testAccount.findFirst({
-        where: { name: account.name },
-      });
+      const isTestAccount =
+        await this.testAccountRepository.findTestAccountByName(account.name);
 
       if (isTestAccount) {
         await this.historyService.recordHistory(
@@ -74,7 +74,9 @@ export class InstallationHandler extends EventHandler<
     if (!payload.installation.account) return;
 
     try {
-      await this.accountRepository.deleteAccount(payload.installation.account.id);
+      await this.accountRepository.deleteAccount(
+        payload.installation.account.id.toString(),
+      );
     } catch (error) {
       console.error('Error deleting account:', error);
     }

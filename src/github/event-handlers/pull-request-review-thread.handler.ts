@@ -32,7 +32,7 @@ export class PullRequestReviewThreadHandler extends EventHandler<
     payload: EmitterWebhookEvent<'pull_request_review_thread.resolved'>['payload'],
   ): Promise<void> {
     await this.codeReviewCommentRepository.updateCodeReviewComments(
-      payload.thread.comments.map(({ id }) => id),
+      payload.thread.comments.map(({ id }) => id.toString()),
       {
         resolvedAt: new Date(),
       },
@@ -43,7 +43,7 @@ export class PullRequestReviewThreadHandler extends EventHandler<
     payload: EmitterWebhookEvent<'pull_request_review_thread.unresolved'>['payload'],
   ): Promise<void> {
     await this.codeReviewCommentRepository.updateCodeReviewComments(
-      payload.thread.comments.map(({ id }) => id),
+      payload.thread.comments.map(({ id }) => id.toString()),
       {
         resolvedAt: null,
       },

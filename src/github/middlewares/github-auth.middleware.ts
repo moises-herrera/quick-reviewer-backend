@@ -4,7 +4,8 @@ import { gitHubAuthApp } from '../config/github-auth-app';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { handleHttpException } from 'src/common/middlewares/handle-http-exception.middleware';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { PostgresUserRepository } from 'src/database/repositories/postgres-user.repository';
+import { container } from 'src/config/container-config';
+import { UserRepository } from 'src/core/repositories/user-repository.interface';
 
 export const gitHubAuthMiddleware = async (
   req: Request,
@@ -33,9 +34,9 @@ export const gitHubAuthMiddleware = async (
         );
       }
 
-      const userService = new PostgresUserRepository();
+      const userService = container.get(UserRepository);
       const existingUser = await userService.getUserById(
-        user.id as unknown as bigint,
+        user.id.toString(),
       );
 
       if (!existingUser) {
@@ -45,7 +46,7 @@ export const gitHubAuthMiddleware = async (
         );
       }
 
-      (req as AuthRequest).userId = user?.id as number;
+      (req as AuthRequest).userId = user?.id.toString();
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

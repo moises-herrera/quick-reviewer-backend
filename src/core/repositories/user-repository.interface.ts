@@ -3,12 +3,12 @@ import { injectable } from 'inversify';
 
 @injectable()
 export abstract class UserRepository {
-  abstract getUserById(id: bigint): Promise<User | null>;
+  abstract getUserById(id: string): Promise<User | null>;
   abstract saveUser(data: User): Promise<User>;
   abstract saveUserAccounts(
-    data: { userId: bigint; accountId: bigint }[],
+    data: { userId: string; accountId: string }[],
   ): Promise<void>;
   abstract saveUserRepositories(
-    data: { userId: bigint; repositoryId: bigint }[],
+    data: { userId: string; repositoryId: string }[],
   ): Promise<void>;
 }

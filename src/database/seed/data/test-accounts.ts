@@ -2,19 +2,19 @@ import { TestAccount } from '@prisma/client';
 
 export const testAccounts: TestAccount[] = [
   {
-    id: 1n,
+    id: '1',
     name: 'rithmXO',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: 2n,
+    id: '2',
     name: 'moises-herrera',
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: 3n,
+    id: '3',
     name: 'nest-e-commerce',
     createdAt: new Date(),
     updatedAt: new Date(),

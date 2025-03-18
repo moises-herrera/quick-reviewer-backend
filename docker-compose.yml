@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:17-alpine
     restart: always
+    container_name: development-db
     env_file:
       - path: .env.development
     ports:

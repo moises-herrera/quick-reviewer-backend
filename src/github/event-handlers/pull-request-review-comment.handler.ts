@@ -45,7 +45,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<
     comment,
   }: EmitterWebhookEvent<'pull_request_review_comment.edited'>['payload']): Promise<void> {
     await this.codeReviewCommentRepository.updateCodeReviewComment(
-      comment.id as unknown as bigint,
+      comment.id.toString(),
       {
         body: comment.body,
         updatedAt: new Date(comment.updated_at),
@@ -57,7 +57,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<
     payload: EmitterWebhookEvent<'pull_request_review_comment.deleted'>['payload'],
   ): Promise<void> {
     await this.codeReviewCommentRepository.deleteCodeReviewComment(
-      payload.comment.id as unknown as bigint,
+      payload.comment.id.toString(),
     );
   }
 }

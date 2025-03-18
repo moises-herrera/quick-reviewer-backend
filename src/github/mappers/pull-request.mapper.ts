@@ -28,7 +28,7 @@ export const mapPullRequestWithRepository = ({
   repository: EmitterWebhookEvent<'pull_request.opened'>['payload']['repository'];
 }): PullRequest => {
   return {
-    id: id as unknown as bigint,
+    id: id.toString(),
     nodeId: node_id,
     number,
     title,
@@ -38,7 +38,7 @@ export const mapPullRequestWithRepository = ({
     additions,
     deletions,
     changedFiles: changed_files,
-    repositoryId: repository.id as unknown as bigint,
+    repositoryId: repository.id.toString(),
     author: user?.login || '',
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),

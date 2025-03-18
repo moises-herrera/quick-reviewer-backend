@@ -1,4 +1,4 @@
-import { prisma } from 'src/database/db-connection';
+import { DbClient } from 'src/database/db-client';
 import { CodeReview } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { HttpException } from 'src/common/exceptions/http-exception';
@@ -8,19 +8,21 @@ import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
 import { ReviewInfo } from 'src/core/interfaces/review-info';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 
 @injectable()
 export class PostgresCodeReviewRepository implements CodeReviewRepository {
+  constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
+
   async saveCodeReview(data: CodeReview): Promise<void> {
-    await prisma.codeReview.create({
+    await this.dbClient.codeReview.create({
       data,
     });
   }
 
   async saveCodeReviews(data: CodeReview[]): Promise<void> {
-    await prisma.codeReview.createMany({
+    await this.dbClient.codeReview.createMany({
       data,
     });
   }
@@ -28,7 +30,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
   async getCodeReviews(
     options: PullRequestReviewFilters,
   ): Promise<PaginatedResponse<CodeReview>> {
-    const existingPullRequest = await prisma.pullRequest.findFirst({
+    const existingPullRequest = await this.dbClient.pullRequest.findFirst({
       where: {
         number: options.pullRequestNumber,
         repository: {
@@ -60,7 +62,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
         },
       },
     } as const;
-    const pullRequestReviews = await prisma.codeReview.findMany({
+    const pullRequestReviews = await this.dbClient.codeReview.findMany({
       ...pullRequestReviewFilter,
       take: options.limit,
       skip: skipRecords,
@@ -68,7 +70,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
         createdAt: 'desc',
       },
     });
-    const total = await prisma.codeReview.count(pullRequestReviewFilter);
+    const total = await this.dbClient.codeReview.count(pullRequestReviewFilter);
 
     const response: PaginatedResponse<CodeReview> = {
       data: pullRequestReviews,
@@ -108,7 +110,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
         lte: new Date(endDate),
       },
     };
-    const reviews = await prisma.codeReview.findMany({
+    const reviews = await this.dbClient.codeReview.findMany({
       where: filter,
       select: {
         id: true,
@@ -144,7 +146,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
       take: limit,
     });
 
-    const totalReviews = await prisma.codeReview.count({
+    const totalReviews = await this.dbClient.codeReview.count({
       where: filter,
     });
 
@@ -163,7 +165,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
   async getCodeReview(
     options: Partial<CodeReview>,
   ): Promise<CodeReview | null> {
-    const pullRequestReview = await prisma.codeReview.findFirst({
+    const pullRequestReview = await this.dbClient.codeReview.findFirst({
       where: options,
       orderBy: {
         createdAt: 'desc',

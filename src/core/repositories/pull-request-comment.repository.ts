@@ -13,11 +13,11 @@ export abstract class PullRequestCommentRepository {
     options: Partial<PullRequestComment>,
   ): Promise<PullRequestComment | null>;
   abstract getPullRequestComments(
-    pullRequestId: number | bigint,
+    pullRequestId: string,
   ): Promise<PullRequestComment[]>;
   abstract updatePullRequestComment(
-    id: bigint,
+    id: string,
     data: Partial<PullRequestComment>,
   ): Promise<void>;
-  abstract deletePullRequestComment(id: bigint): Promise<void>;
+  abstract deletePullRequestComment(id: string): Promise<void>;
 }

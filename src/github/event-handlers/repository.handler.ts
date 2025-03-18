@@ -38,9 +38,9 @@ export class RepositoryHandler extends EventHandler<
   ): Promise<void> {
     try {
       await this.projectRepository.saveRepository({
-        id: payload.repository.id as unknown as bigint,
+        id: payload.repository.id.toString(),
         name: payload.repository.name,
-        ownerId: payload.repository.owner.id as unknown as bigint,
+        ownerId: payload.repository.owner.id.toString(),
       } as unknown as Repository);
     } catch (error) {
       console.error('Error creating repository:', error);
@@ -51,7 +51,9 @@ export class RepositoryHandler extends EventHandler<
     payload: EmitterWebhookEvent<'repository.deleted'>['payload'],
   ): Promise<void> {
     try {
-      await this.projectRepository.deleteRepository(payload.repository.id);
+      await this.projectRepository.deleteRepository(
+        payload.repository.id.toString(),
+      );
     } catch (error) {
       console.error('Error deleting repository:', error);
     }
@@ -62,7 +64,7 @@ export class RepositoryHandler extends EventHandler<
   ): Promise<void> {
     try {
       await this.projectRepository.renameRepository(
-        payload.repository.id,
+        payload.repository.id.toString(),
         payload.repository.name,
       );
     } catch (error) {
