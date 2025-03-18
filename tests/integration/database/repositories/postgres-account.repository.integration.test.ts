@@ -1,4 +1,5 @@
 import { DbClient } from 'src/database/db-client';
+import { Container } from 'inversify';
 import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
 import { PostgresAccountRepository } from 'src/database/repositories/postgres-account.repository';
 import { AccountFilters } from 'src/core/interfaces/record-filters';
@@ -6,10 +7,12 @@ import { Account, User } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 
 describe('PostgresAccountRepository', () => {
-  const dbClient = new DbClient();
+  let container: Container;
+  let dbClient: DbClient;
   let accountRepository: PostgresAccountRepository;
+
   const user: User = {
-    id: '1',
+    id: '001-test-user-id',
     name: 'test-user',
     username: 'test-username',
     email: 'test@email.com',
@@ -48,25 +51,38 @@ describe('PostgresAccountRepository', () => {
   ];
 
   beforeAll(async () => {
+    container = new Container();
+    container.bind<DbClient>(DbClient).toSelf().inSingletonScope();
+    container
+      .bind<PostgresAccountRepository>(PostgresAccountRepository)
+      .toSelf();
+    dbClient = container.get<DbClient>(DbClient);
+
     await dbClient.connectToDatabase();
   });
 
-  beforeEach(() => {
-    accountRepository = new PostgresAccountRepository(dbClient);
+  beforeEach(async () => {
+    await dbClient.userAccount.deleteMany({});
+    await dbClient.repository.deleteMany({});
+    await dbClient.account.deleteMany({});
+    await dbClient.user.deleteMany({});
+
+    accountRepository = container.get<PostgresAccountRepository>(
+      PostgresAccountRepository,
+    );
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await dbClient.account.deleteMany({});
     await dbClient.userAccount.deleteMany({});
     await dbClient.user.deleteMany({});
+  });
+
+  afterAll(async () => {
     await dbClient.$disconnect();
   });
 
   describe('Create account', () => {
-    afterEach(async () => {
-      await dbClient.account.deleteMany({});
-    });
-
     it('should create a new account', async () => {
       const accountData: AccountWithRepositories = {
         id: '12345678901234567890',
@@ -120,9 +136,9 @@ describe('PostgresAccountRepository', () => {
   });
 
   describe('Get accounts', () => {
-    beforeAll(async () => {
-      await dbClient.account.createMany({ data: accounts });
+    beforeEach(async () => {
       await dbClient.user.create({ data: user });
+      await dbClient.account.createMany({ data: accounts });
       await dbClient.userAccount.createMany({
         data: [
           {
@@ -146,7 +162,7 @@ describe('PostgresAccountRepository', () => {
         search: '',
         page: 1,
         limit: 10,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getPaginatedAccounts(filters);
@@ -167,7 +183,7 @@ describe('PostgresAccountRepository', () => {
         search: 'test-account3',
         page: 1,
         limit: 10,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getPaginatedAccounts(filters);
@@ -188,7 +204,7 @@ describe('PostgresAccountRepository', () => {
         search: 'test-account3',
         page: 1,
         limit: 10,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getPaginatedAccounts(
@@ -212,7 +228,7 @@ describe('PostgresAccountRepository', () => {
         search: 'test-account',
         page: 1,
         limit: 1,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getPaginatedAccounts(filters);
@@ -233,7 +249,7 @@ describe('PostgresAccountRepository', () => {
         search: '',
         page: 1,
         limit: 10,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getOrganizations(filters);
@@ -254,7 +270,7 @@ describe('PostgresAccountRepository', () => {
         search: '',
         page: 1,
         limit: 10,
-        userId: '1',
+        userId: user.id,
       };
 
       const result = await accountRepository.getUsers(filters);
@@ -291,25 +307,23 @@ describe('PostgresAccountRepository', () => {
 
   describe('Delete account', () => {
     it('should delete an account', async () => {
-      await dbClient.account.create({
-        data: {
-          ...accounts[0],
-          id: '800',
-          name: 'test-account8',
-        },
-      });
+      const testAccount: Account = {
+        id: '800',
+        name: 'test-account8',
+        type: 'User',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-      const accountId = '800';
+      await dbClient.account.create({ data: testAccount });
 
-      await accountRepository.deleteAccount(accountId);
+      await accountRepository.deleteAccount(testAccount.id);
 
       const accountFound = await dbClient.account.findUnique({
-        where: { id: accountId },
+        where: { id: testAccount.id },
       });
 
       expect(accountFound).toBeNull();
-
-      await dbClient.account.deleteMany({});
     });
 
     it('should throw an error if account not found', async () => {
