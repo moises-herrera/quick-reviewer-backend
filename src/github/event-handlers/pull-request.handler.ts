@@ -52,12 +52,7 @@ export class PullRequestHandler extends EventHandler<
   }
 
   private async reviewPullRequest(config: AIReviewParams): Promise<void> {
-    await this.aiReviewService.generatePullRequestSummary({
-      ...config,
-      fullReview: true,
-      includeFileContents: true,
-    });
-
+    await this.aiReviewService.generatePullRequestSummary(config);
     await this.aiReviewService.generatePullRequestReview(config);
   }
 
@@ -68,7 +63,7 @@ export class PullRequestHandler extends EventHandler<
     try {
       const pullRequestMapped = mapPullRequestWithRepository({
         pullRequest: pull_request,
-        repository: repository,
+        repositoryId: repository.id,
       });
 
       await this.pullRequestRepository.savePullRequest(pullRequestMapped);
@@ -80,8 +75,6 @@ export class PullRequestHandler extends EventHandler<
             name: repository.name,
             owner: repository.owner.login,
           },
-          fullReview: true,
-          includeFileContents: true,
         });
       }
     } catch (error) {
@@ -96,26 +89,25 @@ export class PullRequestHandler extends EventHandler<
     try {
       const pullRequestMapped = mapPullRequestWithRepository({
         pullRequest: pull_request,
-        repository: repository,
+        repositoryId: repository.id,
       });
-      await this.pullRequestRepository.updatePullRequest(
-        pull_request.id.toString(),
-        {
-          state: pullRequestMapped.state,
-          title: pullRequestMapped.title,
-          body: pullRequestMapped.body,
-          updatedAt: new Date(pull_request.updated_at || Date.now()),
-        },
-      );
+
+      await this.pullRequestRepository.updatePullRequest(pullRequestMapped.id, {
+        state: pullRequestMapped.state,
+        title: pullRequestMapped.title,
+        body: pullRequestMapped.body,
+        updatedAt: pullRequestMapped.updatedAt,
+      });
     } catch (error) {
       console.error('Error updating pull request:', error);
     }
   }
 
-  private async handlePullRequestClosure({
-    pull_request,
-  }: EmitterWebhookEvent<'pull_request.closed'>['payload']): Promise<void> {
+  private async handlePullRequestClosure(
+    payload: EmitterWebhookEvent<'pull_request.closed'>['payload'],
+  ): Promise<void> {
     try {
+      const { pull_request } = payload;
       await this.pullRequestRepository.updatePullRequest(
         pull_request.id.toString(),
         {
@@ -153,22 +145,18 @@ export class PullRequestHandler extends EventHandler<
     try {
       const { pull_request, repository } = payload;
 
-      await this.pullRequestRepository.updatePullRequest(
-        pull_request.id.toString(),
-        {
-          state: pull_request.state,
-          updatedAt: new Date(pull_request.updated_at || Date.now()),
-          additions: pull_request.additions,
-          deletions: pull_request.deletions,
-          changedFiles: pull_request.changed_files,
-          baseSha: pull_request.base.sha,
-          headSha: pull_request.head.sha,
-        },
-      );
-
       const pullRequestMapped = mapPullRequestWithRepository({
         pullRequest: pull_request,
-        repository: repository,
+        repositoryId: repository.id,
+      });
+      await this.pullRequestRepository.updatePullRequest(pullRequestMapped.id, {
+        state: pullRequestMapped.state,
+        updatedAt: pullRequestMapped.updatedAt,
+        additions: pullRequestMapped.additions,
+        deletions: pullRequestMapped.deletions,
+        changedFiles: pullRequestMapped.changedFiles,
+        baseSha: pullRequestMapped.baseSha,
+        headSha: pullRequestMapped.headSha,
       });
 
       if (!pull_request.draft) {
@@ -185,14 +173,15 @@ export class PullRequestHandler extends EventHandler<
     }
   }
 
-  private async handlePullRequestReadyForReview({
-    pull_request,
-    repository,
-  }: EmitterWebhookEvent<'pull_request.ready_for_review'>['payload']): Promise<void> {
+  private async handlePullRequestReadyForReview(
+    payload: EmitterWebhookEvent<'pull_request.ready_for_review'>['payload'],
+  ): Promise<void> {
     try {
+      const { pull_request, repository } = payload;
+
       const pullRequestMapped = mapPullRequestWithRepository({
         pullRequest: pull_request,
-        repository: repository,
+        repositoryId: repository.id,
       });
 
       await this.reviewPullRequest({
@@ -201,8 +190,6 @@ export class PullRequestHandler extends EventHandler<
           name: repository.name,
           owner: repository.owner.login,
         },
-        fullReview: true,
-        includeFileContents: true,
       });
     } catch (error) {
       console.error('Error marking pull request as ready for review:', error);
