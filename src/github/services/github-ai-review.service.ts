@@ -4,7 +4,7 @@ import {
 } from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { Octokit } from '../interfaces/octokit';
-import { AIReviewParams } from '../../core/interfaces/review-params';
+import { AIReviewContextParams } from '../../core/interfaces/review-params';
 import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
@@ -51,7 +51,7 @@ export class GitHubAIReviewService {
   async generatePullRequestSummary({
     repository,
     pullRequest,
-  }: AIReviewParams): Promise<void> {
+  }: AIReviewContextParams): Promise<void> {
     const lastComment =
       await this.pullRequestCommentRepository.getPullRequestComment({
         pullRequestId: pullRequest.id,
@@ -61,11 +61,7 @@ export class GitHubAIReviewService {
       });
 
     // Check if a comment made by the bot already exists and is for the same commit
-    if (
-      lastComment &&
-      lastComment.userType === 'Bot' &&
-      lastComment.commitId === pullRequest.headSha
-    ) {
+    if (lastComment && lastComment.commitId === pullRequest.headSha) {
       const message = `There are no changes since the last review, so there is no need to update the summary.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
       await this.octokit.rest.issues.createComment({
@@ -86,8 +82,8 @@ export class GitHubAIReviewService {
       context = await this.getPullRequestContext({
         repository,
         pullRequest,
-        fullReview: true,
-        includeFileContents: false,
+        lastCommitReviewed: lastComment?.commitId,
+        readAllCodeLines: false,
       });
     } catch (error) {
       console.error('Error getting pull request context:', error);
@@ -97,7 +93,7 @@ export class GitHubAIReviewService {
     const summary = await this.summarizePullRequest({
       ...context,
       additionalContext: lastComment?.body
-        ? `Last pull request summary generated (check if it is necessary to update the summary): ${lastComment.body}`
+        ? `Last pull request summary generated (in the table only modify the summary of latest changed files): ${lastComment.body}`
         : '',
     });
 
@@ -126,14 +122,10 @@ export class GitHubAIReviewService {
           ...commentOptions,
           comment_id: Number(lastComment.id),
         });
-        const comment = mapPullRequestComment(data, {
-          pullRequestId: pullRequest.id,
-          commitId: pullRequest.headSha,
-        }) as PullRequestComment;
         await this.pullRequestCommentRepository.updatePullRequestComment(
           lastComment.id,
           {
-            body: comment.body,
+            body: data.body,
             updatedAt: new Date(),
             commitId: pullRequest.headSha,
           },
@@ -147,18 +139,16 @@ export class GitHubAIReviewService {
   async generatePullRequestReview({
     repository,
     pullRequest,
-  }: AIReviewParams): Promise<void> {
-    let hasFirstCodeReview = false;
-    const lastCodeReview = await this.codeReviewRepository.getCodeReview({
+  }: AIReviewContextParams): Promise<void> {
+    const lastCodeReview = await this.codeReviewRepository.getLastCodeReview({
       pullRequestId: pullRequest.id,
       reviewer: BOT_USER_REFERENCE,
-      commitId: pullRequest.headSha,
       userType: 'Bot',
     });
 
     // Check if the code review already exists and is for the same commit
     // If it does, we don't need to generate a new one
-    if (lastCodeReview) {
+    if (lastCodeReview && lastCodeReview.commitId === pullRequest.headSha) {
       const message = `Already reviewed this pull request.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
       await this.octokit.rest.issues.createComment({
@@ -169,14 +159,6 @@ export class GitHubAIReviewService {
       });
 
       return;
-    } else {
-      const result = await this.codeReviewRepository.getCodeReview({
-        pullRequestId: pullRequest.id,
-        reviewer: BOT_USER_REFERENCE,
-        userType: 'Bot',
-      });
-
-      hasFirstCodeReview = Boolean(result);
     }
 
     const { owner, name } = repository;
@@ -187,8 +169,8 @@ export class GitHubAIReviewService {
       context = await this.getPullRequestContext({
         repository,
         pullRequest,
-        fullReview: !hasFirstCodeReview,
-        includeFileContents: false,
+        lastCommitReviewed: lastCodeReview?.commitId,
+        readAllCodeLines: false,
       });
     } catch (error) {
       console.error('Error getting pull request context:', error);
@@ -214,9 +196,8 @@ export class GitHubAIReviewService {
   private async getPullRequestContext({
     repository,
     pullRequest,
-    fullReview = false,
-    includeFileContents = false,
-  }: AIReviewParams): Promise<PullRequestContext> {
+    lastCommitReviewed,
+  }: AIReviewContextParams): Promise<PullRequestContext> {
     const { owner, name } = repository;
     const { number: pullNumber, headSha } = pullRequest;
     let changedFiles:
@@ -225,7 +206,7 @@ export class GitHubAIReviewService {
         >
       | undefined = undefined;
 
-    if (fullReview) {
+    if (!lastCommitReviewed) {
       const { data } = await this.octokit.rest.pulls.listFiles({
         owner,
         repo: name,
@@ -236,10 +217,12 @@ export class GitHubAIReviewService {
     } else {
       const {
         data: { files },
-      } = await this.octokit.rest.repos.getCommit({
+      } = await this.octokit.rest.repos.compareCommitsWithBasehead({
         owner,
         repo: name,
-        ref: headSha,
+        base: lastCommitReviewed,
+        head: headSha,
+        basehead: `${lastCommitReviewed}...${headSha}`,
       });
 
       if (!files) {
@@ -252,23 +235,10 @@ export class GitHubAIReviewService {
     const filteredChangedFiles = changedFiles.filter(({ filename }) =>
       isExtensionSupported(filename),
     );
-    let fileContents: Map<string, string> | undefined = undefined;
-
-    if (includeFileContents) {
-      const result = await this.pullRequestService.getFilesContent(
-        owner,
-        name,
-        filteredChangedFiles,
-        headSha,
-      );
-
-      fileContents = result.fileContents;
-    }
 
     const context: PullRequestContext = {
       pullRequest,
       changedFiles: filteredChangedFiles,
-      fileContents,
     };
 
     return context;
@@ -315,13 +285,11 @@ export class GitHubAIReviewService {
   private buildReviewPrompt({
     pullRequest,
     changedFiles,
-    fileContents,
   }: PullRequestContext): string {
     const prompt = `
       ${this.buildContextPrompt({
         pullRequest,
         changedFiles,
-        fileContents,
       })}
 
       # Instructions for the review
@@ -339,7 +307,6 @@ export class GitHubAIReviewService {
   private async summarizePullRequest({
     pullRequest,
     changedFiles,
-    fileContents,
     additionalContext = '',
   }: PullRequestContext & {
     additionalContext?: string;
@@ -347,7 +314,6 @@ export class GitHubAIReviewService {
     const prompt = this.buildContextPrompt({
       pullRequest,
       changedFiles,
-      fileContents,
     });
     const messages: PromptMessage[] = [{ role: 'user', content: prompt }];
 
@@ -371,12 +337,10 @@ export class GitHubAIReviewService {
   private async reviewPullRequest({
     pullRequest,
     changedFiles,
-    fileContents,
   }: PullRequestContext): Promise<AIPullRequestReview> {
     const prompt = this.buildReviewPrompt({
       pullRequest,
       changedFiles,
-      fileContents,
     });
 
     const completion = await this.aiService.sendMessage({

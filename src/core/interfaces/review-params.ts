@@ -6,6 +6,14 @@ export interface AIReviewParams {
     name: string;
     owner: string;
   };
-  fullReview?: boolean;
-  includeFileContents?: boolean;
+}
+
+export interface AIReviewContextParams extends AIReviewParams {
+  pullRequest: PullRequest;
+  repository: {
+    name: string;
+    owner: string;
+  };
+  lastCommitReviewed?: string | null;
+  readAllCodeLines?: boolean;
 }

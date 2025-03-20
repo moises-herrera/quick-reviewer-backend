@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { AIReviewParams } from 'src/core/interfaces/review-params';
+import { AIReviewContextParams } from 'src/core/interfaces/review-params';
 
 @injectable()
 export abstract class AIReviewService {
@@ -7,11 +7,11 @@ export abstract class AIReviewService {
   abstract generatePullRequestSummary({
     repository,
     pullRequest,
-    fullReview,
-    includeFileContents,
-  }: AIReviewParams): Promise<void>;
+    readAllFiles,
+    readAllCodeLines,
+  }: AIReviewContextParams): Promise<void>;
   abstract generatePullRequestReview({
     repository,
     pullRequest,
-  }: AIReviewParams): Promise<void>;
+  }: AIReviewContextParams): Promise<void>;
 }
