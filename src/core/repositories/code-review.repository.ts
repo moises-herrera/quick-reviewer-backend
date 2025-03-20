@@ -17,7 +17,7 @@ export abstract class CodeReviewRepository {
   abstract getCodeReviewsDetailedInfo(
     options: PullRequestFiltersType & PaginationOptions & UserBasicInfo,
   ): Promise<PaginatedResponse<ReviewInfo>>;
-  abstract getCodeReview(
+  abstract getLastCodeReview(
     options: Partial<CodeReview>,
   ): Promise<CodeReview | null>;
 }

@@ -162,7 +162,7 @@ export class PostgresCodeReviewRepository implements CodeReviewRepository {
     return response;
   }
 
-  async getCodeReview(
+  async getLastCodeReview(
     options: Partial<CodeReview>,
   ): Promise<CodeReview | null> {
     const pullRequestReview = await this.dbClient.codeReview.findFirst({
