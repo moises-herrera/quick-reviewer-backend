@@ -1,18 +1,19 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { EventHandler } from '../interfaces/event-handler';
+import { EventHandler } from 'src/github/interfaces/event-handler';
 import {
   REVIEW_PULL_REQUEST_COMMAND,
   SUMMARIZE_PULL_REQUEST_COMMAND,
-} from '../constants/commands';
-import { Octokit } from '../interfaces/octokit';
-import { AIReviewParams } from '../../core/interfaces/review-params';
+} from 'src/github/constants/commands';
+import { Octokit } from 'src/github/interfaces/octokit';
+import { AIReviewParams } from 'src/core/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
-import { BOT_USER_REFERENCE, BOT_USERNAME } from '../constants/bot';
-import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { IssueCommentEvent } from '../interfaces/events';
+import { BOT_USER_REFERENCE, BOT_USERNAME } from 'src/github/constants/bot';
+import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
+import { IssueCommentEvent } from 'src/github/interfaces/events';
 import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 import { AIReviewService } from 'src/core/services/ai-review.service';
+import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']
@@ -74,34 +75,49 @@ export class IssueCommentHandler extends EventHandler<
     };
 
     if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestSummary({
-        ...defaultParams,
-        fullReview: true,
-        includeFileContents: true,
-      });
+      await this.aiReviewService.generatePullRequestSummary(defaultParams);
     } else if (payload.comment.body === REVIEW_PULL_REQUEST_COMMAND) {
       await this.aiReviewService.generatePullRequestReview(defaultParams);
     }
+  }
+
+  private async getPullRequestFromPayload(
+    payload:
+      | EmitterWebhookEvent<'issue_comment.created'>['payload']
+      | EmitterWebhookEvent<'issue_comment.edited'>['payload'],
+  ): Promise<PullRequest> {
+    let pullRequest = await this.pullRequestRepository.getPullRequestById(
+      payload.issue.node_id,
+    );
+
+    if (!pullRequest) {
+      const { data } = await (this.octokit as Octokit).rest.pulls.get({
+        owner: payload.repository.owner.login,
+        repo: payload.repository.name,
+        pull_number: payload.issue.number,
+      });
+      pullRequest = await this.pullRequestRepository.savePullRequest(
+        mapPullRequestWithRepository({
+          pullRequest: data,
+          repositoryId: payload.repository.id,
+        }),
+      );
+    }
+
+    return pullRequest;
   }
 
   private async handleIssueCommentCreated(
     payload: EmitterWebhookEvent<'issue_comment.created'>['payload'],
   ): Promise<void> {
     try {
-      const pullRequest = await this.pullRequestRepository.getPullRequestById(
-        payload.issue.node_id,
-      );
-
-      if (!pullRequest) {
-        console.error('Pull request not found');
-        return;
-      }
-
-      await this.handleComment(payload, pullRequest);
-
       if (payload.comment.user?.login === BOT_USER_REFERENCE) {
         return;
       }
+
+      const pullRequest = await this.getPullRequestFromPayload(payload);
+
+      await this.handleComment(payload, pullRequest);
 
       await this.pullRequestCommentRepository.savePullRequestComment({
         ...mapPullRequestComment(payload.comment),
@@ -116,20 +132,13 @@ export class IssueCommentHandler extends EventHandler<
     payload: EmitterWebhookEvent<'issue_comment.edited'>['payload'],
   ): Promise<void> {
     try {
-      const pullRequest = await this.pullRequestRepository.getPullRequestById(
-        payload.issue.node_id,
-      );
-
-      if (!pullRequest) {
-        console.error('Pull request not found');
-        return;
-      }
-
-      await this.handleComment(payload, pullRequest);
-
       if (payload.comment.user?.login === BOT_USER_REFERENCE) {
         return;
       }
+
+      const pullRequest = await this.getPullRequestFromPayload(payload);
+
+      await this.handleComment(payload, pullRequest);
 
       await this.pullRequestCommentRepository.updatePullRequestComment(
         payload.comment.id.toString(),
@@ -140,12 +149,12 @@ export class IssueCommentHandler extends EventHandler<
     }
   }
 
-  private async handleIssueCommentDeleted(
-    payload: EmitterWebhookEvent<'issue_comment.deleted'>['payload'],
-  ): Promise<void> {
+  private async handleIssueCommentDeleted({
+    comment,
+  }: EmitterWebhookEvent<'issue_comment.deleted'>['payload']): Promise<void> {
     try {
       await this.pullRequestCommentRepository.deletePullRequestComment(
-        payload.comment.id.toString(),
+        comment.id.toString(),
       );
     } catch (error) {
       console.error('Error handling issue comment deleted:', error);

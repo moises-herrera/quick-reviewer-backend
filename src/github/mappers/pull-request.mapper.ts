@@ -20,12 +20,12 @@ export const mapPullRequestWithRepository = ({
     base: { sha: baseSha },
     head: { sha: headSha },
   },
-  repository,
+  repositoryId,
 }: {
   pullRequest:
     | EmitterWebhookEvent<'pull_request.opened'>['payload']['pull_request']
     | EmitterWebhookEvent<'pull_request.synchronize'>['payload']['pull_request'];
-  repository: EmitterWebhookEvent<'pull_request.opened'>['payload']['repository'];
+  repositoryId: number | string;
 }): PullRequest => {
   return {
     id: id.toString(),
@@ -38,7 +38,7 @@ export const mapPullRequestWithRepository = ({
     additions,
     deletions,
     changedFiles: changed_files,
-    repositoryId: repository.id.toString(),
+    repositoryId: repositoryId.toString(),
     author: user?.login || '',
     createdAt: new Date(created_at),
     updatedAt: new Date(updated_at),
