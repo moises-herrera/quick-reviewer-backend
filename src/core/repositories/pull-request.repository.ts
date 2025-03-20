@@ -8,7 +8,7 @@ import { injectable } from 'inversify';
 
 @injectable()
 export abstract class PullRequestRepository {
-  abstract savePullRequest(data: PullRequest): Promise<void>;
+  abstract savePullRequest(data: PullRequest): Promise<PullRequest>;
   abstract savePullRequests(data: PullRequest[]): Promise<void>;
   abstract getPullRequestById(
     pullRequestId: string,

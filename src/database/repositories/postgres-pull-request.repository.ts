@@ -14,8 +14,8 @@ import { PullRequestRepository } from 'src/core/repositories/pull-request.reposi
 export class PostgresPullRequestRepository implements PullRequestRepository {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
-  async savePullRequest(data: PullRequest): Promise<void> {
-    await this.dbClient.pullRequest.create({
+  async savePullRequest(data: PullRequest): Promise<PullRequest> {
+    return this.dbClient.pullRequest.create({
       data,
     });
   }
@@ -39,10 +39,6 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         ],
       },
     });
-
-    if (!pullRequest) {
-      throw new HttpException('Pull request not found', StatusCodes.NOT_FOUND);
-    }
 
     return pullRequest;
   }
