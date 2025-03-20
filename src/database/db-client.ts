@@ -1,10 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { envConfig } from 'src/config/env-config';
+import { LoggerService } from 'src/core/services/logger.service';
 
 @injectable()
 export class DbClient extends PrismaClient {
-  constructor() {
+  constructor(
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
+  ) {
     super({
       datasourceUrl: envConfig.DATABASE_URL,
     });
@@ -13,9 +17,11 @@ export class DbClient extends PrismaClient {
   async connectToDatabase(): Promise<void> {
     try {
       await this.$connect();
-      console.log(`Connected to the database`);
+      this.loggerService.log(`Connected to the database`);
     } catch (error) {
-      console.log(`Error connecting to the database:`, error);
+      this.loggerService.logException(error, {
+        message: 'Error connecting to the database',
+      });
       process.exit(1);
     }
   }

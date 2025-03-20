@@ -7,6 +7,7 @@ import { InstallationEvent } from '../interfaces/events';
 import { AccountRepository } from 'src/core/repositories/account.repository';
 import { HistoryService } from 'src/core/services/history.service';
 import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
+import { LoggerService } from 'src/core/services/logger.service';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']
@@ -16,6 +17,7 @@ export class InstallationHandler extends EventHandler<
     private readonly accountRepository: AccountRepository,
     private readonly testAccountRepository: TestAccountRepository,
     private readonly historyService: HistoryService,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
 
@@ -64,7 +66,9 @@ export class InstallationHandler extends EventHandler<
         );
       }
     } catch (error) {
-      console.error('Error creating account:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating account',
+      });
     }
   }
 
@@ -78,7 +82,9 @@ export class InstallationHandler extends EventHandler<
         payload.installation.account.id.toString(),
       );
     } catch (error) {
-      console.error('Error deleting account:', error);
+      this.loggerService.logException(error, {
+        message: 'Error deleting account',
+      });
     }
   }
 }

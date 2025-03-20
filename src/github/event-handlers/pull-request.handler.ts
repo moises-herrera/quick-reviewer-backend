@@ -6,6 +6,7 @@ import { AIReviewParams } from 'src/core/interfaces/review-params';
 import { PullRequestEvent } from '../interfaces/events';
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 import { AIReviewService } from 'src/core/services/ai-review.service';
+import { LoggerService } from 'src/core/services/logger.service';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']
@@ -14,6 +15,7 @@ export class PullRequestHandler extends EventHandler<
     event: PullRequestEvent,
     private readonly pullRequestRepository: PullRequestRepository,
     private readonly aiReviewService: AIReviewService,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
 
@@ -78,7 +80,9 @@ export class PullRequestHandler extends EventHandler<
         });
       }
     } catch (error) {
-      console.error('Error creating pull request:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating pull request',
+      });
     }
   }
 
@@ -99,7 +103,9 @@ export class PullRequestHandler extends EventHandler<
         updatedAt: pullRequestMapped.updatedAt,
       });
     } catch (error) {
-      console.error('Error updating pull request:', error);
+      this.loggerService.logException(error, {
+        message: 'Error updating pull request',
+      });
     }
   }
 
@@ -119,7 +125,9 @@ export class PullRequestHandler extends EventHandler<
         },
       );
     } catch (error) {
-      console.error('Error closing pull request:', error);
+      this.loggerService.logException(error, {
+        message: 'Error closing pull request',
+      });
     }
   }
 
@@ -135,7 +143,9 @@ export class PullRequestHandler extends EventHandler<
         },
       );
     } catch (error) {
-      console.error('Error reopening pull request:', error);
+      this.loggerService.logException(error, {
+        message: 'Error reopening pull request',
+      });
     }
   }
 
@@ -169,7 +179,9 @@ export class PullRequestHandler extends EventHandler<
         });
       }
     } catch (error) {
-      console.error('Error synchronizing pull request:', error);
+      this.loggerService.logException(error, {
+        message: 'Error synchronizing pull request',
+      });
     }
   }
 
@@ -192,7 +204,9 @@ export class PullRequestHandler extends EventHandler<
         },
       });
     } catch (error) {
-      console.error('Error marking pull request as ready for review:', error);
+      this.loggerService.logException(error, {
+        message: 'Error marking pull request as ready for review',
+      });
     }
   }
 }

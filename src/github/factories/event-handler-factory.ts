@@ -27,6 +27,7 @@ import { CodeReviewRepository } from 'src/core/repositories/code-review.reposito
 import { HistoryService } from 'src/core/services/history.service';
 import { AIReviewService } from 'src/core/services/ai-review.service';
 import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
+import { LoggerService } from 'src/core/services/logger.service';
 
 type EventTypeMap = {
   installation: InstallationEvent;
@@ -65,6 +66,7 @@ export class Services {
     @inject(HistoryService)
     public readonly historyService: HistoryService,
     @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
+    @inject(LoggerService) public readonly loggerService: LoggerService,
   ) {}
 }
 
@@ -92,6 +94,7 @@ export class EventHandlerFactory {
         this.repositories.accountRepository,
         this.repositories.testAccountRepository,
         this.services.historyService,
+        this.services.loggerService,
       );
 
     this.handlerCreators['installation_repositories'] = (
@@ -103,13 +106,18 @@ export class EventHandlerFactory {
       );
 
     this.handlerCreators['repository'] = (event: RepositoryEvent) =>
-      new RepositoryHandler(event, this.repositories.projectRepository);
+      new RepositoryHandler(
+        event,
+        this.repositories.projectRepository,
+        this.services.loggerService,
+      );
 
     this.handlerCreators['pull_request'] = (event: PullRequestEvent) =>
       new PullRequestHandler(
         event,
         this.repositories.pullRequestRepository,
         this.services.aiReviewService,
+        this.services.loggerService,
       );
 
     this.handlerCreators['issue_comment'] = (event: IssueCommentEvent) =>
@@ -118,6 +126,7 @@ export class EventHandlerFactory {
         this.repositories.pullRequestRepository,
         this.repositories.pullRequestCommentRepository,
         this.services.aiReviewService,
+        this.services.loggerService,
       );
 
     this.handlerCreators['pull_request_review'] = (
@@ -126,6 +135,7 @@ export class EventHandlerFactory {
       new PullRequestReviewHandler(
         event,
         this.repositories.codeReviewRepository,
+        this.services.loggerService,
       );
 
     this.handlerCreators['pull_request_review_comment'] = (

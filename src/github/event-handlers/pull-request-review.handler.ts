@@ -4,6 +4,7 @@ import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
 import { CodeReviewData } from '../interfaces/code-review-data';
 import { PullRequestReviewEvent } from '../interfaces/events';
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { LoggerService } from 'src/core/services/logger.service';
 
 export class PullRequestReviewHandler extends EventHandler<
   PullRequestReviewEvent['payload']
@@ -11,6 +12,7 @@ export class PullRequestReviewHandler extends EventHandler<
   constructor(
     event: PullRequestReviewEvent,
     private readonly codeReviewRepository: CodeReviewRepository,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
   }
@@ -35,7 +37,9 @@ export class PullRequestReviewHandler extends EventHandler<
         pullRequestId: payload.pull_request.id.toString(),
       });
     } catch (error) {
-      console.error('Error creating pull request review:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating pull request review',
+      });
     }
   }
 }

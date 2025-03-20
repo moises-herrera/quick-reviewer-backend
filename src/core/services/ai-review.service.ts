@@ -1,17 +1,9 @@
 import { injectable } from 'inversify';
-import { AIReviewContextParams } from 'src/core/interfaces/review-params';
+import { AIReviewParams } from 'src/core/interfaces/review-params';
 
 @injectable()
 export abstract class AIReviewService {
   abstract setGitProvider(gitProvider: unknown): void;
-  abstract generatePullRequestSummary({
-    repository,
-    pullRequest,
-    readAllFiles,
-    readAllCodeLines,
-  }: AIReviewContextParams): Promise<void>;
-  abstract generatePullRequestReview({
-    repository,
-    pullRequest,
-  }: AIReviewContextParams): Promise<void>;
+  abstract generatePullRequestSummary(params: AIReviewParams): Promise<void>;
+  abstract generatePullRequestReview(params: AIReviewParams): Promise<void>;
 }

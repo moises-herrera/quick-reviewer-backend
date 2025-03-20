@@ -24,7 +24,7 @@ seedDatabase()
     console.log('Database seeded successfully');
   })
   .catch((error) => {
-    console.error('Error seeding database:', error);
+    console.error('Error seeding database:', { error });
   })
   .finally(async () => {
     await dbClient.$disconnect();

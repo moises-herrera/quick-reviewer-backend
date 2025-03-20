@@ -39,10 +39,16 @@ import { PullRequestService } from 'src/core/services/pull-request.service';
 import { DbClient } from 'src/database/db-client';
 import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
 import { PostgresTestAccountRepository } from 'src/database/repositories/postgres-test-account.repository';
+import { LoggerService } from 'src/core/services/logger.service';
+import { AppLoggerService } from 'src/common/services/app-logger.service';
 
 export const container = new Container();
 
 container.bind<DbClient>(DbClient).toSelf().inSingletonScope();
+container
+  .bind<LoggerService>(LoggerService)
+  .to(AppLoggerService)
+  .inSingletonScope();
 
 // Repositories
 container

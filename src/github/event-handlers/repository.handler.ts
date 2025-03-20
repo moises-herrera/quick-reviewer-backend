@@ -3,6 +3,7 @@ import { EventHandler } from '../interfaces/event-handler';
 import { Repository } from '@prisma/client';
 import { RepositoryEvent } from '../interfaces/events';
 import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { LoggerService } from 'src/core/services/logger.service';
 
 export class RepositoryHandler extends EventHandler<
   RepositoryEvent['payload']
@@ -10,6 +11,7 @@ export class RepositoryHandler extends EventHandler<
   constructor(
     event: RepositoryEvent,
     private readonly projectRepository: ProjectRepository,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
   }
@@ -43,7 +45,9 @@ export class RepositoryHandler extends EventHandler<
         ownerId: payload.repository.owner.id.toString(),
       } as unknown as Repository);
     } catch (error) {
-      console.error('Error creating repository:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating repository',
+      });
     }
   }
 
@@ -55,7 +59,9 @@ export class RepositoryHandler extends EventHandler<
         payload.repository.id.toString(),
       );
     } catch (error) {
-      console.error('Error deleting repository:', error);
+      this.loggerService.logException(error, {
+        message: 'Error deleting repository',
+      });
     }
   }
 
@@ -68,7 +74,9 @@ export class RepositoryHandler extends EventHandler<
         payload.repository.name,
       );
     } catch (error) {
-      console.error('Error editing repository:', error);
+      this.loggerService.logException(error, {
+        message: 'Error editing repository',
+      });
     }
   }
 }

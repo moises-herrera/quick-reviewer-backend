@@ -14,6 +14,7 @@ import { PullRequestCommentRepository } from 'src/core/repositories/pull-request
 import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
 import { AIReviewService } from 'src/core/services/ai-review.service';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
+import { LoggerService } from 'src/core/services/logger.service';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']
@@ -23,6 +24,7 @@ export class IssueCommentHandler extends EventHandler<
     private readonly pullRequestRepository: PullRequestRepository,
     private readonly pullRequestCommentRepository: PullRequestCommentRepository,
     private readonly aiReviewService: AIReviewService,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
 
@@ -62,7 +64,7 @@ export class IssueCommentHandler extends EventHandler<
     }
 
     if (!payload.issue.pull_request) {
-      console.error('Not a pull request comment');
+      this.loggerService.logException('Not a pull request comment');
       return;
     }
 
@@ -124,7 +126,9 @@ export class IssueCommentHandler extends EventHandler<
         pullRequestId: pullRequest.id,
       } as PullRequestComment);
     } catch (error) {
-      console.error('Error handling issue comment created:', error);
+      this.loggerService.logException(error, {
+        message: 'Error handling issue comment created',
+      });
     }
   }
 
@@ -145,7 +149,9 @@ export class IssueCommentHandler extends EventHandler<
         mapPullRequestComment(payload.comment),
       );
     } catch (error) {
-      console.error('Error handling issue comment edited:', error);
+      this.loggerService.logException(error, {
+        message: 'Error handling issue comment edited',
+      });
     }
   }
 
@@ -157,7 +163,9 @@ export class IssueCommentHandler extends EventHandler<
         comment.id.toString(),
       );
     } catch (error) {
-      console.error('Error handling issue comment deleted:', error);
+      this.loggerService.logException(error, {
+        message: 'Error handling issue comment deleted',
+      });
     }
   }
 }

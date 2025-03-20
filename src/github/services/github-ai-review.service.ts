@@ -4,7 +4,10 @@ import {
 } from 'src/common/utils/language-support';
 import { PullRequestContext } from '../interfaces/pull-request-context';
 import { Octokit } from '../interfaces/octokit';
-import { AIReviewContextParams } from '../../core/interfaces/review-params';
+import {
+  AIReviewContextParams,
+  AIReviewParams,
+} from '../../core/interfaces/review-params';
 import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
@@ -17,6 +20,7 @@ import { PullRequestCommentRepository } from 'src/core/repositories/pull-request
 import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
 import { AIService } from 'src/core/services/ai.service';
 import { PullRequestService } from 'src/core/services/pull-request.service';
+import { LoggerService } from 'src/core/services/logger.service';
 
 @injectable()
 export class GitHubAIReviewService {
@@ -41,6 +45,8 @@ export class GitHubAIReviewService {
     private readonly pullRequestCommentRepository: PullRequestCommentRepository,
     @inject(CodeReviewRepository)
     private readonly codeReviewRepository: CodeReviewRepository,
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
   ) {}
 
   setGitProvider(gitProvider: Octokit): void {
@@ -51,7 +57,7 @@ export class GitHubAIReviewService {
   async generatePullRequestSummary({
     repository,
     pullRequest,
-  }: AIReviewContextParams): Promise<void> {
+  }: AIReviewParams): Promise<void> {
     const lastComment =
       await this.pullRequestCommentRepository.getPullRequestComment({
         pullRequestId: pullRequest.id,
@@ -86,7 +92,9 @@ export class GitHubAIReviewService {
         readAllCodeLines: false,
       });
     } catch (error) {
-      console.error('Error getting pull request context:', error);
+      this.loggerService.logException(error, {
+        message: 'Error getting pull request context',
+      });
       return;
     }
 
@@ -132,14 +140,16 @@ export class GitHubAIReviewService {
         );
       }
     } catch (error) {
-      console.log('Error creating AI summary:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating AI summary',
+      });
     }
   }
 
   async generatePullRequestReview({
     repository,
     pullRequest,
-  }: AIReviewContextParams): Promise<void> {
+  }: AIReviewParams): Promise<void> {
     const lastCodeReview = await this.codeReviewRepository.getLastCodeReview({
       pullRequestId: pullRequest.id,
       reviewer: BOT_USER_REFERENCE,
@@ -173,7 +183,9 @@ export class GitHubAIReviewService {
         readAllCodeLines: false,
       });
     } catch (error) {
-      console.error('Error getting pull request context:', error);
+      this.loggerService.logException(error, {
+        message: 'Error getting pull request context',
+      });
       return;
     }
 
@@ -189,7 +201,9 @@ export class GitHubAIReviewService {
         comments,
       });
     } catch (error) {
-      console.log('Error creating AI review:', error);
+      this.loggerService.logException(error, {
+        message: 'Error creating AI review',
+      });
     }
   }
 
