@@ -33,6 +33,7 @@ export const handleHttpException = (
       path: req.path,
       method: req.method,
       userId: 'userId' in req ? req.userId : undefined,
+      timestamp: httpException.timestamp,
       ...(error instanceof Error && {
         name: error.name,
         stack: error.stack,
