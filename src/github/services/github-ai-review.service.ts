@@ -1,18 +1,18 @@
+import fs from 'node:fs';
 import {
   getLanguageFromFilename,
   isExtensionSupported,
 } from 'src/common/utils/language-support';
-import { PullRequestContext } from '../interfaces/pull-request-context';
-import { Octokit } from '../interfaces/octokit';
+import { PullRequestContext } from 'src/github/interfaces/pull-request-context';
+import { Octokit } from 'src/github/interfaces/octokit';
 import {
   AIReviewContextParams,
   AIReviewParams,
-} from '../../core/interfaces/review-params';
-import { AIPullRequestReview } from '../interfaces/ai-pull-request-review';
+} from 'src/core/interfaces/review-params';
+import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
-import { mapPullRequestComment } from '../mappers/pull-request-comment.mapper';
-import { BOT_USER_REFERENCE } from '../constants/bot';
-import fs from 'node:fs';
+import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
+import { BOT_USER_REFERENCE } from 'src/github/constants/bot';
 import { PromptMessage } from 'src/core/interfaces/ai-message-config';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { inject, injectable } from 'inversify';

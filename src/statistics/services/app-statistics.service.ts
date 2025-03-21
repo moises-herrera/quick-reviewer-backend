@@ -60,14 +60,14 @@ export class AppStatisticsService implements StatisticsService {
       return {
         name: this.pullRequestAverageCompletionTime,
         value: 0,
-        unit: 'hours',
+        unit: 'seconds',
       };
     }
 
     const completionTimes = pullRequests.map((pullRequest) => {
       const createdAt = pullRequest.createdAt.getTime();
       const closedAt = (pullRequest.closedAt as Date).getTime();
-      return (closedAt - createdAt) / (1000 * 60 * 60);
+      return (closedAt - createdAt) / 1000;
     });
 
     const totalCompletionTime = completionTimes.reduce(
@@ -78,7 +78,7 @@ export class AppStatisticsService implements StatisticsService {
     return {
       name: this.pullRequestAverageCompletionTime,
       value: totalCompletionTime / completionTimes.length,
-      unit: 'hours',
+      unit: 'seconds',
     };
   }
 
@@ -94,7 +94,7 @@ export class AppStatisticsService implements StatisticsService {
       return {
         name: this.pullRequestInitialAverageTime,
         value: 0,
-        unit: 'hours',
+        unit: 'seconds',
       };
     }
 
@@ -108,7 +108,7 @@ export class AppStatisticsService implements StatisticsService {
         return 0;
       }
 
-      return (reviewSubmittedAt - createdAt) / (1000 * 60 * 60);
+      return (reviewSubmittedAt - createdAt) / 1000;
     });
 
     const totalInitialReviewTime = initialReviewTimes.reduce(
@@ -119,7 +119,7 @@ export class AppStatisticsService implements StatisticsService {
     return {
       name: this.pullRequestInitialAverageTime,
       value: totalInitialReviewTime / initialReviewTimes.length,
-      unit: 'hours',
+      unit: 'seconds',
     };
   }
 
