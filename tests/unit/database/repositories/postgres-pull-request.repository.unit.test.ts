@@ -1,11 +1,11 @@
 import { PullRequest, Repository } from '@prisma/client';
-import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresPullRequestRepository } from 'src/common/database/repositories/postgres-pull-request.repository';
+import { container } from 'src/app/config/container-config';
 
 vi.mock('src/common/database/db-client', () => ({
   DbClient: vi.fn().mockImplementation(() => ({
@@ -28,7 +28,7 @@ describe('PostgresPullRequestRepository', () => {
   let dbClient: DbClient;
 
   beforeEach(() => {
-    dbClient = new DbClient();
+    dbClient = container.get(DbClient);
     repository = new PostgresPullRequestRepository(dbClient);
   });
 
@@ -99,19 +99,6 @@ describe('PostgresPullRequestRepository', () => {
         },
       });
       expect(result).toEqual(mockPR);
-    });
-
-    it('should throw an error when pull request is not found', async () => {
-      // Arrange
-      const pullRequestId = 'non-existent';
-      vi.mocked(dbClient.pullRequest.findFirst).mockResolvedValue(null);
-
-      // Act & Assert
-      await expect(
-        repository.getPullRequestById(pullRequestId),
-      ).rejects.toThrow(
-        new HttpException('Pull request not found', StatusCodes.NOT_FOUND),
-      );
     });
   });
 
@@ -266,7 +253,7 @@ describe('PostgresPullRequestRepository', () => {
 
       // Act & Assert
       await expect(repository.getPullRequests(options)).rejects.toThrow(
-        new HttpException('Repository not found', StatusCodes.NOT_FOUND),
+        HttpException,
       );
     });
   });

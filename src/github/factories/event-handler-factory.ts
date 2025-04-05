@@ -24,10 +24,10 @@ import { ProjectRepository } from 'src/common/database/abstracts/project.reposit
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
-import { HistoryService } from 'src/github/abstracts/history.service';
-import { AIReviewService } from 'src/github/abstracts/ai-review.service';
+import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 type EventTypeMap = {
   installation: InstallationEvent;

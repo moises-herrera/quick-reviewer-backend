@@ -12,9 +12,9 @@ import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.m
 import { IssueCommentEvent } from 'src/github/interfaces/events';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { AIReviewService } from 'src/github/abstracts/ai-review.service';
+import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']

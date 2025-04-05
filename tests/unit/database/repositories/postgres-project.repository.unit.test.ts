@@ -1,8 +1,9 @@
 import { Account, Repository } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { RepositoryFilters } from 'src/core/interfaces/record-filters';
+import { RepositoryFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresProjectRepository } from 'src/common/database/repositories/postgres-project.repository';
+import { container } from 'src/app/config/container-config';
 
 vi.mock('src/common/database/db-client', () => ({
   DbClient: vi.fn().mockImplementation(() => ({
@@ -27,7 +28,7 @@ describe('PostgresProjectRepository', () => {
   let projectRepository: PostgresProjectRepository;
 
   beforeEach(() => {
-    dbClient = new DbClient();
+    dbClient = container.get(DbClient);
     projectRepository = new PostgresProjectRepository(dbClient);
   });
 

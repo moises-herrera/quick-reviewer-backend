@@ -1,9 +1,10 @@
 import { Account } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
-import { AccountFilters } from 'src/core/interfaces/record-filters';
+import { AccountWithRepositories } from 'src/github/interfaces/account-with-repositories';
+import { AccountFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresAccountRepository } from 'src/common/database/repositories/postgres-account.repository';
+import { container } from 'src/app/config/container-config';
 
 vi.mock('src/common/database/db-client', () => ({
   DbClient: vi.fn().mockImplementation(() => ({
@@ -28,7 +29,7 @@ describe('PostgresAccountRepository', () => {
   };
 
   beforeEach(() => {
-    dbClient = new DbClient();
+    dbClient = container.get(DbClient);
     accountRepository = new PostgresAccountRepository(dbClient);
   });
 
