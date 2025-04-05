@@ -4,18 +4,7 @@ import { AccountWithRepositories } from 'src/github/interfaces/account-with-repo
 import { AccountFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresAccountRepository } from 'src/common/database/repositories/postgres-account.repository';
-import { container } from 'src/app/config/container-config';
-
-vi.mock('src/common/database/db-client', () => ({
-  DbClient: vi.fn().mockImplementation(() => ({
-    account: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      count: vi.fn(),
-      delete: vi.fn(),
-    },
-  })),
-}));
+import { MockDbClient } from 'tests/mocks/mock-db-client';
 
 describe('PostgresAccountRepository', () => {
   let accountRepository: PostgresAccountRepository;
@@ -29,7 +18,7 @@ describe('PostgresAccountRepository', () => {
   };
 
   beforeEach(() => {
-    dbClient = container.get(DbClient);
+    dbClient = new MockDbClient() as unknown as DbClient;
     accountRepository = new PostgresAccountRepository(dbClient);
   });
 

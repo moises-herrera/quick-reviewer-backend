@@ -5,30 +5,14 @@ import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresPullRequestRepository } from 'src/common/database/repositories/postgres-pull-request.repository';
-import { container } from 'src/app/config/container-config';
-
-vi.mock('src/common/database/db-client', () => ({
-  DbClient: vi.fn().mockImplementation(() => ({
-    pullRequest: {
-      create: vi.fn(),
-      createMany: vi.fn(),
-      findFirst: vi.fn(),
-      findMany: vi.fn(),
-      update: vi.fn(),
-      count: vi.fn(),
-    },
-    repository: {
-      findFirst: vi.fn(),
-    },
-  })),
-}));
+import { MockDbClient } from 'tests/mocks/mock-db-client';
 
 describe('PostgresPullRequestRepository', () => {
   let repository: PostgresPullRequestRepository;
   let dbClient: DbClient;
 
   beforeEach(() => {
-    dbClient = container.get(DbClient);
+    dbClient = new MockDbClient() as unknown as DbClient;
     repository = new PostgresPullRequestRepository(dbClient);
   });
 
