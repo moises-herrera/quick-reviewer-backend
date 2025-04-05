@@ -45,4 +45,10 @@ export class MockDbClient {
     createMany: vi.fn(),
     findMany: vi.fn(),
   };
+
+  testAccount = {
+    createMany: vi.fn(),
+    findFirst: vi.fn(),
+    deleteMany: vi.fn(),
+  };
 }
