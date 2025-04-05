@@ -2,8 +2,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from '../exceptions/http-exception';
-import { container } from 'src/config/container-config';
-import { LoggerService } from 'src/core/services/logger.service';
+import { container } from 'src/app/config/container-config';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 export const getHttpException = (error: unknown) => {
   const httpException =

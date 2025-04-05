@@ -1,7 +1,7 @@
 import { PullRequestComment } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { DbClient } from 'src/database/db-client';
-import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
+import { DbClient } from 'src/common/database/db-client';
+import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 
 @injectable()
 export class PostgresPullRequestCommentRepository

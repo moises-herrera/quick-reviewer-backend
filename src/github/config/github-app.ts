@@ -1,5 +1,5 @@
 import { App } from 'octokit';
-import { envConfig } from 'src/config/env-config';
+import { envConfig } from 'src/app/config/env-config';
 
 export const gitHubApp = new App({
   appId: envConfig.GITHUB_APP_ID,

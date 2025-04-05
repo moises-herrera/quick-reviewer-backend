@@ -1,8 +1,8 @@
 import { isExtensionSupported } from 'src/common/utils/language-support';
 import { injectable } from 'inversify';
-import { PullRequestFile } from 'src/core/interfaces/pull-request-file';
+import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 import { Octokit } from '@octokit/rest';
-import { PullRequestService } from 'src/core/services/pull-request.service';
+import { PullRequestService } from 'src/github/abstracts/pull-request.service';
 
 @injectable()
 export class GitHubPullRequestService implements PullRequestService {

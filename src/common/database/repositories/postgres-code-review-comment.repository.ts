@@ -1,7 +1,7 @@
 import { CodeReviewComment } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { DbClient } from 'src/database/db-client';
-import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
+import { DbClient } from 'src/common/database/db-client';
+import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 
 @injectable()
 export class PostgresCodeReviewCommentRepository

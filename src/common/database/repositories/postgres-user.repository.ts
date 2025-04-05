@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { DbClient } from 'src/database/db-client';
+import { DbClient } from 'src/common/database/db-client';
 
 @injectable()
 export class PostgresUserRepository {

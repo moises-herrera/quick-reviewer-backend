@@ -1,7 +1,7 @@
 import { Repository } from '@prisma/client';
 import { injectable } from 'inversify';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { RepositoryFilters } from 'src/core/interfaces/record-filters';
+import { RepositoryFilters } from 'src/github/interfaces/record-filters';
 
 @injectable()
 export abstract class ProjectRepository {

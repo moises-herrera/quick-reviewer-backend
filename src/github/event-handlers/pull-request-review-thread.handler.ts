@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { PullRequestReviewThreadEvent } from '../interfaces/events';
-import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
+import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 
 export class PullRequestReviewThreadHandler extends EventHandler<
   PullRequestReviewThreadEvent['payload']

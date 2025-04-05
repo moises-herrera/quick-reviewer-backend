@@ -3,7 +3,7 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
-import { PullRequestFilters } from 'src/core/interfaces/record-filters';
+import { PullRequestFilters } from 'src/github/interfaces/record-filters';
 import { injectable } from 'inversify';
 
 @injectable()

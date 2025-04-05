@@ -1,10 +1,10 @@
-import { DbClient } from 'src/database/db-client';
+import { DbClient } from 'src/common/database/db-client';
 import { Account, AccountType } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { AccountFilters } from 'src/core/interfaces/record-filters';
-import { AccountRepository } from 'src/core/repositories/account.repository';
+import { AccountFilters } from 'src/github/interfaces/record-filters';
+import { AccountRepository } from 'src/common/database/abstracts/account.repository';
 import { inject, injectable } from 'inversify';
-import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
+import { AccountWithRepositories } from 'src/github/interfaces/account-with-repositories';
 
 @injectable()
 export class PostgresAccountRepository implements AccountRepository {

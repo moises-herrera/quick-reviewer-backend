@@ -3,7 +3,7 @@ import { EventHandler } from '../interfaces/event-handler';
 import { Repository } from '@prisma/client';
 import { injectable } from 'inversify';
 import { InstallationRepositoriesEvent } from '../interfaces/events';
-import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 
 @injectable()
 export class InstallationRepositoriesHandler extends EventHandler<

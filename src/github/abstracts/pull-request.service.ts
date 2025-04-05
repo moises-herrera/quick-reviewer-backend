@@ -1,4 +1,4 @@
-import { PullRequestFile } from 'src/core/interfaces/pull-request-file';
+import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 
 export abstract class PullRequestService {
   abstract setGitProvider(gitProvider: unknown): void;

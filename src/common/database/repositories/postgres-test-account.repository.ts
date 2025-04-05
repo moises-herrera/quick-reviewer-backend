@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
+import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
 import { DbClient } from '../db-client';
 import { TestAccount } from '@prisma/client';
 

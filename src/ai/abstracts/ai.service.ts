@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { AIMessageConfig } from 'src/core/interfaces/ai-message-config';
+import { AIMessageConfig } from 'src/ai/interfaces/ai-message-config';
 
 @injectable()
 export abstract class AIService {

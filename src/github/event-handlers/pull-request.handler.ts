@@ -2,11 +2,11 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { Octokit } from '../interfaces/octokit';
-import { AIReviewParams } from 'src/core/interfaces/review-params';
+import { AIReviewParams } from 'src/github/interfaces/review-params';
 import { PullRequestEvent } from '../interfaces/events';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
-import { AIReviewService } from 'src/core/services/ai-review.service';
-import { LoggerService } from 'src/core/services/logger.service';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { AIReviewService } from 'src/github/abstracts/ai-review.service';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']

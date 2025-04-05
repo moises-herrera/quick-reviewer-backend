@@ -1,14 +1,14 @@
 import { CodeReview, PullRequest, Repository } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { CodeReviewAttributes } from 'src/core/interfaces/code-review-attributes';
+import { CodeReviewAttributes } from 'src/github/interfaces/code-review-attributes';
 import { CodeReviewData } from 'src/github/interfaces/code-review-data';
 import { Octokit } from 'src/github/interfaces/octokit';
-import { PullRequestFilters } from 'src/core/interfaces/pull-request-filters';
-import { RepositoryAttributes } from 'src/core/interfaces/repository-attributes';
+import { PullRequestFilters } from 'src/github/interfaces/pull-request-filters';
+import { RepositoryAttributes } from 'src/github/interfaces/repository-attributes';
 import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
-import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
-import { HistoryService } from 'src/core/services/history.service';
+import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { HistoryService } from 'src/github/abstracts/history.service';
 
 @injectable()
 export class GitHubHistoryService implements HistoryService {

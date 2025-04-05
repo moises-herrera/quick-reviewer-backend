@@ -1,10 +1,10 @@
 import { Account, Repository } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from 'src/core/interfaces/record-filters';
-import { DbClient } from 'src/database/db-client';
-import { PostgresProjectRepository } from 'src/database/repositories/postgres-project.repository';
+import { DbClient } from 'src/common/database/db-client';
+import { PostgresProjectRepository } from 'src/common/database/repositories/postgres-project.repository';
 
-vi.mock('src/database/db-client', () => ({
+vi.mock('src/common/database/db-client', () => ({
   DbClient: vi.fn().mockImplementation(() => ({
     account: {
       findFirst: vi.fn(),

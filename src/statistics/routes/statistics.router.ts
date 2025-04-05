@@ -4,7 +4,7 @@ import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middlew
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { PullRequestFiltersSchema } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestFiltersWithStateSchema } from 'src/common/schemas/pull-request-filters-with-state.schema';
-import { container } from 'src/config/container-config';
+import { container } from 'src/app/config/container-config';
 
 /**
  * @swagger

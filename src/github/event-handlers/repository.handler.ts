@@ -2,8 +2,8 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { Repository } from '@prisma/client';
 import { RepositoryEvent } from '../interfaces/events';
-import { ProjectRepository } from 'src/core/repositories/project.repository';
-import { LoggerService } from 'src/core/services/logger.service';
+import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 export class RepositoryHandler extends EventHandler<
   RepositoryEvent['payload']

@@ -2,13 +2,13 @@ import { PullRequest } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { DbClient } from 'src/database/db-client';
+import { DbClient } from 'src/common/database/db-client';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
-import { PullRequestFilters } from 'src/core/interfaces/record-filters';
+import { PullRequestFilters } from 'src/github/interfaces/record-filters';
 import { inject, injectable } from 'inversify';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 
 @injectable()
 export class PostgresPullRequestRepository implements PullRequestRepository {

@@ -1,6 +1,6 @@
-import { container } from 'src/config/container-config';
-import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
-import { testAccounts } from 'src/database/seed/data/test-accounts';
+import { container } from 'src/app/config/container-config';
+import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
+import { testAccounts } from 'src/common/database/seed/data/test-accounts';
 import { DbClient } from '../db-client';
 
 const dbClient = container.get(DbClient);

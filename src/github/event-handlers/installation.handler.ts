@@ -4,10 +4,10 @@ import { mapAccountToCreation } from '../mappers/account.mapper';
 import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
 import { InstallationEvent } from '../interfaces/events';
-import { AccountRepository } from 'src/core/repositories/account.repository';
-import { HistoryService } from 'src/core/services/history.service';
-import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
-import { LoggerService } from 'src/core/services/logger.service';
+import { AccountRepository } from 'src/common/database/abstracts/account.repository';
+import { HistoryService } from 'src/github/abstracts/history.service';
+import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']

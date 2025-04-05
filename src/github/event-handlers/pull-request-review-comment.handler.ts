@@ -2,7 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { EventHandler } from '../interfaces/event-handler';
 import { mapCodeReviewCommentToCreation } from '../mappers/code-review-comment.mapper';
 import { PullRequestReviewCommentEvent } from '../interfaces/events';
-import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
+import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 
 export class PullRequestReviewCommentHandler extends EventHandler<
   PullRequestReviewCommentEvent['payload']

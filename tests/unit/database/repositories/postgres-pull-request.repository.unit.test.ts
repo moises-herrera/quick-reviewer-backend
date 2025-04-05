@@ -4,10 +4,10 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
-import { DbClient } from 'src/database/db-client';
-import { PostgresPullRequestRepository } from 'src/database/repositories/postgres-pull-request.repository';
+import { DbClient } from 'src/common/database/db-client';
+import { PostgresPullRequestRepository } from 'src/common/database/repositories/postgres-pull-request.repository';
 
-vi.mock('src/database/db-client', () => ({
+vi.mock('src/common/database/db-client', () => ({
   DbClient: vi.fn().mockImplementation(() => ({
     pullRequest: {
       create: vi.fn(),

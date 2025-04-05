@@ -3,8 +3,8 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
-import { ReviewInfo } from 'src/core/interfaces/review-info';
-import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
+import { ReviewInfo } from 'src/github/interfaces/review-info';
+import { PullRequestReviewFilters } from 'src/github/interfaces/record-filters';
 import { injectable } from 'inversify';
 
 @injectable()

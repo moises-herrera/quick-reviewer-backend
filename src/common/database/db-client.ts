@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { envConfig } from 'src/config/env-config';
-import { LoggerService } from 'src/core/services/logger.service';
+import { envConfig } from 'src/app/config/env-config';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 @injectable()
 export class DbClient extends PrismaClient {

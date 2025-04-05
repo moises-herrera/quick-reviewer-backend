@@ -1,7 +1,7 @@
 import { Account, AccountType, Repository } from '@prisma/client';
 import { injectable } from 'inversify';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { AccountFilters } from 'src/core/interfaces/record-filters';
+import { AccountFilters } from 'src/github/interfaces/record-filters';
 
 @injectable()
 export abstract class AccountRepository {

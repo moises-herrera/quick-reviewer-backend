@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { RepositoryFilters } from 'src/core/interfaces/record-filters';
-import { DbClient } from 'src/database/db-client';
-import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { RepositoryFilters } from 'src/github/interfaces/record-filters';
+import { DbClient } from 'src/common/database/db-client';
+import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 
 @injectable()
 export class PostgresProjectRepository implements ProjectRepository {

@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
-import { StatisticsService } from 'src/core/services/statistics.service';
+import { StatisticsService } from 'src/statistics/abstracts/statistics.service';
 
 export class StatisticsController {
   constructor(

@@ -1,4 +1,4 @@
-import { DbClient } from 'src/database/db-client';
+import { DbClient } from 'src/common/database/db-client';
 import { CodeReview } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { HttpException } from 'src/common/exceptions/http-exception';
@@ -6,10 +6,10 @@ import { StatusCodes } from 'http-status-codes';
 import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
-import { PullRequestReviewFilters } from 'src/core/interfaces/record-filters';
-import { ReviewInfo } from 'src/core/interfaces/review-info';
+import { PullRequestReviewFilters } from 'src/github/interfaces/record-filters';
+import { ReviewInfo } from 'src/github/interfaces/review-info';
 import { inject, injectable } from 'inversify';
-import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
+import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 
 @injectable()
 export class PostgresCodeReviewRepository implements CodeReviewRepository {

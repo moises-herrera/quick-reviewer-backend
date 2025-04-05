@@ -5,16 +5,16 @@ import {
   SUMMARIZE_PULL_REQUEST_COMMAND,
 } from 'src/github/constants/commands';
 import { Octokit } from 'src/github/interfaces/octokit';
-import { AIReviewParams } from 'src/core/interfaces/review-params';
+import { AIReviewParams } from 'src/github/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from 'src/github/constants/bot';
 import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
 import { IssueCommentEvent } from 'src/github/interfaces/events';
-import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
-import { AIReviewService } from 'src/core/services/ai-review.service';
+import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { AIReviewService } from 'src/github/abstracts/ai-review.service';
 import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
-import { LoggerService } from 'src/core/services/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.service';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']
