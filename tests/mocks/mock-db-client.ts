@@ -27,6 +27,33 @@ export class MockDbClient {
     count: vi.fn(),
   };
 
+  pullRequestComment = {
+    create: vi.fn(),
+    createMany: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  };
+
+  codeReview = {
+    create: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
+    count: vi.fn(),
+  };
+
+  codeReviewComment = {
+    create: vi.fn(),
+    findFirst: vi.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
+  };
+
   user = {
     create: vi.fn(),
     findMany: vi.fn(),
