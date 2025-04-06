@@ -39,6 +39,7 @@ export class MockDbClient {
 
   codeReview = {
     create: vi.fn(),
+    createMany: vi.fn(),
     findFirst: vi.fn(),
     findMany: vi.fn(),
     update: vi.fn(),
