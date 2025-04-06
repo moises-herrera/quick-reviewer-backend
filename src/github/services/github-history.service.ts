@@ -8,7 +8,7 @@ import { RepositoryAttributes } from 'src/github/interfaces/repository-attribute
 import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { HistoryService } from 'src/github/abstracts/history.service';
+import { HistoryService } from 'src/github/abstracts/history.abstract';
 
 @injectable()
 export class GitHubHistoryService implements HistoryService {

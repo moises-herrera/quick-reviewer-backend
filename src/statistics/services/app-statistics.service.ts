@@ -5,7 +5,7 @@ import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-reque
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { ChartData } from '../interfaces/chart-data';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { StatisticsService } from 'src/statistics/abstracts/statistics.service';
+import { StatisticsService } from 'src/statistics/abstracts/statistics.abstract';
 
 @injectable()
 export class AppStatisticsService implements StatisticsService {

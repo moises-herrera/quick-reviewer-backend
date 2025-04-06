@@ -5,8 +5,8 @@ import { Octokit } from '../interfaces/octokit';
 import { AIReviewParams } from 'src/github/interfaces/review-params';
 import { PullRequestEvent } from '../interfaces/events';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { AIReviewService } from 'src/github/abstracts/ai-review.service';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']

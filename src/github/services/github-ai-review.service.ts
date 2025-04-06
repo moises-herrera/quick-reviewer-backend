@@ -19,8 +19,8 @@ import { inject, injectable } from 'inversify';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
-import { PullRequestService } from 'src/github/abstracts/pull-request.service';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
 export class GitHubAIReviewService {

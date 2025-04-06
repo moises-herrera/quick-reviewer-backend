@@ -1,33 +1,16 @@
 import { Account, Repository } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
-import { RepositoryFilters } from 'src/core/interfaces/record-filters';
+import { RepositoryFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresProjectRepository } from 'src/common/database/repositories/postgres-project.repository';
-
-vi.mock('src/common/database/db-client', () => ({
-  DbClient: vi.fn().mockImplementation(() => ({
-    account: {
-      findFirst: vi.fn(),
-    },
-    repository: {
-      createMany: vi.fn(),
-      create: vi.fn(),
-      findMany: vi.fn(),
-      count: vi.fn(),
-      findFirst: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-      delete: vi.fn(),
-    },
-  })),
-}));
+import { MockDbClient } from 'tests/mocks/mock-db-client';
 
 describe('PostgresProjectRepository', () => {
   let dbClient: DbClient;
   let projectRepository: PostgresProjectRepository;
 
   beforeEach(() => {
-    dbClient = new DbClient();
+    dbClient = new MockDbClient() as unknown as DbClient;
     projectRepository = new PostgresProjectRepository(dbClient);
   });
 

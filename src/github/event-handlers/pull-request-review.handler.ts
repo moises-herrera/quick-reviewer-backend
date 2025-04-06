@@ -4,7 +4,7 @@ import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
 import { CodeReviewData } from '../interfaces/code-review-data';
 import { PullRequestReviewEvent } from '../interfaces/events';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class PullRequestReviewHandler extends EventHandler<
   PullRequestReviewEvent['payload']

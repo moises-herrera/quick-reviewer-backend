@@ -3,7 +3,7 @@ import { EventHandler } from '../interfaces/event-handler';
 import { Repository } from '@prisma/client';
 import { RepositoryEvent } from '../interfaces/events';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class RepositoryHandler extends EventHandler<
   RepositoryEvent['payload']

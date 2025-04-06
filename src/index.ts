@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { app } from 'src/app';
 import { container } from './app/config/container-config';
-import { LoggerService } from './common/abstracts/logger.service';
+import { LoggerService } from './common/abstracts/logger.abstract';
 
 const logger = container.get(LoggerService);
 

@@ -5,9 +5,9 @@ import { EventHandler } from '../interfaces/event-handler';
 import { AccountData } from '../interfaces/account-data';
 import { InstallationEvent } from '../interfaces/events';
 import { AccountRepository } from 'src/common/database/abstracts/account.repository';
-import { HistoryService } from 'src/github/abstracts/history.service';
+import { HistoryService } from 'src/github/abstracts/history.abstract';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class InstallationHandler extends EventHandler<
   InstallationEvent['payload']

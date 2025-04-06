@@ -4,7 +4,7 @@ import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
 import { UserRepository } from 'src/common/database/abstracts/user-repository.interface';
-import { RegisterUserService } from 'src/github/abstracts/register-user.service';
+import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
 import { AccountRepository } from 'src/common/database/abstracts/account.repository';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 

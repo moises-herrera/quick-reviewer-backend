@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import fs from 'node:fs';
 import path from 'node:path';
 import { envConfig } from 'src/app/config/env-config';
-import { LoggerService } from 'src/common/abstracts/logger.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import winston from 'winston';
 import 'winston-daily-rotate-file';
 
