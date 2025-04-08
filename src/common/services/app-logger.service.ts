@@ -67,7 +67,7 @@ export class AppLoggerService implements LoggerService {
   }
 
   log(message: string, meta: Record<string, unknown> = {}): void {
-    this.logger.info(message, meta);
+    this.info(message, meta);
   }
 
   info(message: string, meta: Record<string, unknown> = {}): void {
