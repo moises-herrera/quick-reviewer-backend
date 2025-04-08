@@ -17,16 +17,19 @@ export const PullRequestFiltersWithStateSchema = z.object({
       }
       return date;
     }),
-  endDate: z.string().transform((value) => {
-    if (!value) {
-      return new Date();
-    }
-    const date = new Date(value);
-    if (isNaN(date.getTime())) {
-      throw new Error('Invalid end date');
-    }
-    return date;
-  }),
+  endDate: z
+    .string()
+    .optional()
+    .transform((value) => {
+      if (!value) {
+        return new Date();
+      }
+      const date = new Date(value);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid end date');
+      }
+      return date;
+    }),
 });
 
 export type PullRequestFiltersWithStateType = z.infer<
