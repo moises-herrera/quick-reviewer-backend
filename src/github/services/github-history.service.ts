@@ -9,6 +9,7 @@ import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
 export class GitHubHistoryService implements HistoryService {
@@ -19,6 +20,8 @@ export class GitHubHistoryService implements HistoryService {
     private readonly pullRequestRepository: PullRequestRepository,
     @inject(CodeReviewRepository)
     private readonly codeReviewRepository: CodeReviewRepository,
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
   ) {}
 
   setGitProvider(octokit: Octokit) {
@@ -46,7 +49,7 @@ export class GitHubHistoryService implements HistoryService {
   private async savePullRequestsHistoryByRepository({
     owner,
     name,
-  }: RepositoryAttributes) {
+  }: RepositoryAttributes): Promise<void> {
     const pullRequests = await this.getPullRequestHistory({ owner, name });
 
     await this.pullRequestRepository.savePullRequests(pullRequests);
@@ -123,6 +126,7 @@ export class GitHubHistoryService implements HistoryService {
     if (pullRequestNumbers.length === 0) {
       return [];
     }
+
     const pullRequestsPromises: Promise<PullRequest>[] = pullRequestNumbers.map(
       async (number) => {
         const {
@@ -210,8 +214,11 @@ export class GitHubHistoryService implements HistoryService {
 
       return codeReviewsMapped;
     } catch (error) {
-      console.error(
-        `Error fetching reviews for PR #${pullRequestNumber}: ${error instanceof Error ? error.message : error}`,
+      this.loggerService.error(
+        `Error fetching reviews for PR #${pullRequestNumber} in ${owner}/${name}`,
+        {
+          error,
+        },
       );
       return [];
     }
