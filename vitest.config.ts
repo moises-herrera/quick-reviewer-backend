@@ -35,6 +35,7 @@ export default defineConfig({
         'src/github/abstracts/**/*.ts',
         'src/github/config/github-app.ts',
         'src/github/interfaces/**/*.ts',
+        'src/github/constants/**/*.ts',
         'src/statistics/abstracts/**/*.ts',
         'src/**/*.abstract.ts',
       ],

@@ -14,23 +14,19 @@ describe('ValidateDataMiddleware', () => {
 
   describe('validateBody', () => {
     it('should call next if the body is valid', () => {
-      const mockSchema = {
-        parse: vi.fn().mockReturnValue({
-          repositories: ['repo1', 'repo2'],
-          startDate: new Date(),
-          endDate: new Date(),
-        }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as unknown as z.ZodObject<any, any>;
-      const handler = validateBody(mockSchema);
-      const spyNext = vi.fn();
-      const body: PullRequestFiltersType = {
+      const parsedValue: PullRequestFiltersType = {
         repositories: ['repo1', 'repo2'],
         startDate: new Date(),
         endDate: new Date(),
       };
+      const mockSchema = {
+        parse: vi.fn().mockReturnValue(parsedValue),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as unknown as z.ZodObject<any, any>;
+      const handler = validateBody(mockSchema);
+      const spyNext = vi.fn();
       const req = {
-        body,
+        body: parsedValue,
       } as Request;
       const res = {
         status: vi.fn().mockReturnThis(),
@@ -39,7 +35,7 @@ describe('ValidateDataMiddleware', () => {
 
       handler(req, res, spyNext);
 
-      expect(req.body).toEqual(body);
+      expect(req.body).toEqual(parsedValue);
       expect(spyNext).toHaveBeenCalledTimes(1);
     });
 

@@ -22,9 +22,10 @@ export class HttpException extends Error {
     if (originalError instanceof Error && originalError.stack) {
       const currentStack = this.stack || '';
       const originalStack = originalError.stack;
+      const splittedStack = originalStack.split('\n');
 
-      const errorLine = originalStack.split('\n')[0];
-      const stackDetails = originalStack.split('\n').slice(1).join('\n');
+      const errorLine = splittedStack[0];
+      const stackDetails = splittedStack.slice(1).join('\n');
 
       this.stack = `${currentStack}\nCaused by: ${errorLine}\n${stackDetails}`;
     }
