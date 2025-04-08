@@ -33,6 +33,8 @@ export default defineConfig({
         'src/common/database/abstracts/**/*.ts',
         'src/ai/abstracts/**/*.ts',
         'src/github/abstracts/**/*.ts',
+        'src/github/config/github-app.ts',
+        'src/github/interfaces/**/*.ts',
         'src/statistics/abstracts/**/*.ts',
         'src/**/*.abstract.ts',
       ],
