@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { EventHandler } from '../interfaces/event-handler';
-import { mapCodeReviewCommentToCreation } from '../mappers/code-review-comment.mapper';
-import { PullRequestReviewCommentEvent } from '../interfaces/events';
+import { EventHandler } from 'src/github/interfaces/event-handler';
+import { CodeReviewCommentMapper } from 'src/github/mappers/code-review-comment.mapper';
+import { PullRequestReviewCommentEvent } from 'src/github/interfaces/events';
 import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 
 export class PullRequestReviewCommentHandler extends EventHandler<
@@ -37,7 +37,7 @@ export class PullRequestReviewCommentHandler extends EventHandler<
     comment,
   }: EmitterWebhookEvent<'pull_request_review_comment.created'>['payload']): Promise<void> {
     await this.codeReviewCommentRepository.saveCodeReviewComment(
-      mapCodeReviewCommentToCreation(comment),
+      CodeReviewCommentMapper.mapCodeReviewCommentToCreation(comment),
     );
   }
 

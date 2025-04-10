@@ -1,9 +1,9 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { mapRepositoriesToCreation } from '../mappers/repository.mapper';
-import { mapAccountToCreation } from '../mappers/account.mapper';
-import { EventHandler } from '../interfaces/event-handler';
-import { AccountData } from '../interfaces/account-data';
-import { InstallationEvent } from '../interfaces/events';
+import { RepositoryMapper } from 'src/github/mappers/repository.mapper';
+import { AccountMapper } from 'src/github/mappers/account.mapper';
+import { EventHandler } from 'src/github/interfaces/event-handler';
+import { AccountData } from 'src/github/interfaces/account-data';
+import { InstallationEvent } from 'src/github/interfaces/events';
 import { AccountRepository } from 'src/common/database/abstracts/account.repository';
 import { HistoryService } from 'src/github/abstracts/history.abstract';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
@@ -47,12 +47,14 @@ export class InstallationHandler extends EventHandler<
     if (!payload.installation.account) return;
 
     try {
-      const repositoriesMapped = mapRepositoriesToCreation(
+      const repositoriesMapped = RepositoryMapper.mapManyToCreation(
         payload.repositories || [],
       );
 
       const account = await this.accountRepository.saveAccount({
-        ...mapAccountToCreation(payload.installation.account as AccountData),
+        ...AccountMapper.mapToCreation(
+          payload.installation.account as AccountData,
+        ),
         repositories: repositoriesMapped,
       });
 

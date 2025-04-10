@@ -1,8 +1,8 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { EventHandler } from '../interfaces/event-handler';
-import { mapCodeReviewToCreation } from '../mappers/code-review.mapper';
-import { CodeReviewData } from '../interfaces/code-review-data';
-import { PullRequestReviewEvent } from '../interfaces/events';
+import { EventHandler } from 'src/github/interfaces/event-handler';
+import { CodeReviewMapper } from 'src/github/mappers/code-review.mapper';
+import { CodeReviewData } from 'src/github/interfaces/code-review-data';
+import { PullRequestReviewEvent } from 'src/github/interfaces/events';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
@@ -33,7 +33,9 @@ export class PullRequestReviewHandler extends EventHandler<
   ): Promise<void> {
     try {
       await this.codeReviewRepository.saveCodeReview({
-        ...mapCodeReviewToCreation(payload.review as CodeReviewData),
+        ...CodeReviewMapper.mapCodeReviewToCreation(
+          payload.review as CodeReviewData,
+        ),
         pullRequestId: payload.pull_request.id.toString(),
       });
     } catch (error) {

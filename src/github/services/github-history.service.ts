@@ -5,7 +5,7 @@ import { CodeReviewData } from 'src/github/interfaces/code-review-data';
 import { Octokit } from 'src/github/interfaces/octokit';
 import { PullRequestFilters } from 'src/github/interfaces/pull-request-filters';
 import { RepositoryAttributes } from 'src/github/interfaces/repository-attributes';
-import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
+import { CodeReviewMapper } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { HistoryService } from 'src/github/abstracts/history.abstract';
@@ -207,7 +207,7 @@ export class GitHubHistoryService implements HistoryService {
       const codeReviewsMapped = data.map(
         (data) =>
           <CodeReview>{
-            ...mapCodeReviewToCreation(data as CodeReviewData),
+            ...CodeReviewMapper.mapCodeReviewToCreation(data as CodeReviewData),
             pullRequestId,
           },
       );
