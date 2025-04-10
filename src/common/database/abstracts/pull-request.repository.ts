@@ -6,7 +6,7 @@ import { PullRequestFilters } from 'src/github/interfaces/record-filters';
 import { injectable } from 'inversify';
 import { PullRequestAuthFilters } from 'src/common/interfaces/pull-request-auth-filters';
 import { PullRequestAuthFiltersWithState } from 'src/common/interfaces/pull-request-auth-filters-with-state';
-import { EntityId } from 'src/common/interfaces/entity-ids';
+import { EntityId } from 'src/common/interfaces/entity-id';
 import { PullRequestAverageCompletionTimeData } from 'src/common/interfaces/pull-request-average-completion-time-data';
 import { PullRequestInitialReviewTimeData } from 'src/common/interfaces/pull-request-initial-review-time-data';
 import { PullRequestAverageReviewCountData } from 'src/common/interfaces/pull-request-average-review-count-data';
