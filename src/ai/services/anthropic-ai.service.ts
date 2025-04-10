@@ -9,7 +9,10 @@ export class AnthropicAIService implements AIService {
     apiKey: envConfig.ANTHROPIC_API_KEY,
   });
 
-  async sendMessage({ systemInstructions, messages }: AIMessageConfig) {
+  async sendMessage({
+    systemInstructions,
+    messages,
+  }: AIMessageConfig): Promise<string> {
     const completion = await this.aiClient.messages.create({
       model: this.model,
       max_tokens: 4000,
