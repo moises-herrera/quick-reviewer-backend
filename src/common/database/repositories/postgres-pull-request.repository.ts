@@ -3,12 +3,17 @@ import { StatusCodes } from 'http-status-codes';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { DbClient } from 'src/common/database/db-client';
-import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
-import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFilters } from 'src/github/interfaces/record-filters';
 import { inject, injectable } from 'inversify';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { PullRequestInitialReviewTimeData } from 'src/common/interfaces/pull-request-initial-review-time-data';
+import { PullRequestAuthFiltersWithState } from 'src/common/interfaces/pull-request-auth-filters-with-state';
+import { PullRequestAuthFilters } from 'src/common/interfaces/pull-request-auth-filters';
+import { EntityId } from 'src/common/interfaces/entity-id';
+import { PullRequestAverageCompletionTimeData } from 'src/common/interfaces/pull-request-average-completion-time-data';
+import { PullRequestAverageReviewCountData } from 'src/common/interfaces/pull-request-average-review-count-data';
+import { PullRequestReviewCountData } from 'src/common/interfaces/pull-request-review-count-data';
+import { PullRequestCountByRepositoryData } from 'src/common/interfaces/pull-request-count-by-repository-data';
 
 @injectable()
 export class PostgresPullRequestRepository implements PullRequestRepository {
@@ -126,11 +131,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo): Promise<
-    {
-      id: string;
-    }[]
-  > {
+  }: PullRequestAuthFilters): Promise<EntityId[]> {
     return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -159,12 +160,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo): Promise<
-    {
-      createdAt: Date;
-      closedAt: Date | null;
-    }[]
-  > {
+  }: PullRequestAuthFilters): Promise<PullRequestAverageCompletionTimeData[]> {
     return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -199,14 +195,8 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
-    {
-      createdAt: Date;
-      closedAt: Date | null;
-      reviews: {
-        createdAt: Date;
-      }[];
-    }[]
+  }: PullRequestAuthFiltersWithState): Promise<
+    PullRequestInitialReviewTimeData[]
   > {
     return this.dbClient.pullRequest.findMany({
       where: {
@@ -235,7 +225,6 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
       },
       select: {
         createdAt: true,
-        closedAt: true,
         reviews: {
           select: {
             createdAt: true,
@@ -251,12 +240,8 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
-    {
-      reviews: {
-        id: string;
-      }[];
-    }[]
+  }: PullRequestAuthFiltersWithState): Promise<
+    PullRequestAverageReviewCountData[]
   > {
     return this.dbClient.pullRequest.findMany({
       where: {
@@ -292,20 +277,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     status,
     startDate,
     endDate,
-  }: PullRequestFiltersWithStateType & UserBasicInfo): Promise<
-    {
-      repositoryId: string;
-      repository: {
-        name: string;
-        owner: {
-          name: string;
-        };
-      };
-      reviews: {
-        id: string;
-      }[];
-    }[]
-  > {
+  }: PullRequestAuthFiltersWithState): Promise<PullRequestReviewCountData[]> {
     return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
@@ -350,17 +322,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
     repositories,
     startDate,
     endDate,
-  }: PullRequestFiltersType & UserBasicInfo): Promise<
-    {
-      repositoryId: string;
-      repository: {
-        name: string;
-        owner: {
-          name: string;
-        };
-      };
-    }[]
-  > {
+  }: PullRequestAuthFilters): Promise<PullRequestCountByRepositoryData[]> {
     return this.dbClient.pullRequest.findMany({
       where: {
         repositoryId: {
