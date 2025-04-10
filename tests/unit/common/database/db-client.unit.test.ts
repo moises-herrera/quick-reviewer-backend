@@ -18,6 +18,7 @@ describe('Database Client', () => {
   });
 
   it('should be able to connect to the database', async () => {
+    vi.spyOn(mockLoggerService, 'log').mockImplementation(() => {});
     const spyConnect = vi
       .spyOn(PrismaClient.prototype, '$connect')
       .mockResolvedValueOnce(undefined);
@@ -32,7 +33,9 @@ describe('Database Client', () => {
       .spyOn(PrismaClient.prototype, '$connect')
       .mockRejectedValueOnce(new Error('Connection error'));
 
-    const spyLogException = vi.spyOn(mockLoggerService, 'logException');
+    const spyLogException = vi
+      .spyOn(mockLoggerService, 'logException')
+      .mockImplementation(() => {});
     const spyExit = vi.spyOn(process, 'exit').mockImplementationOnce(() => {
       return undefined as never;
     });

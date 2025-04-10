@@ -81,4 +81,6 @@ export class MockDbClient {
     findFirst: vi.fn(),
     deleteMany: vi.fn(),
   };
+
+  connectToDatabase = vi.fn();
 }
