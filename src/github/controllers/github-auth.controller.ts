@@ -11,7 +11,7 @@ import {
   HttpHandler,
 } from 'src/common/interfaces/http-handler';
 import { inject } from 'inversify';
-import { UserRepository } from 'src/common/database/abstracts/user-repository.interface';
+import { UserRepository } from 'src/common/database/abstracts/user.repository';
 import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
 import {
   GITHUB_ACCESS_TOKEN,

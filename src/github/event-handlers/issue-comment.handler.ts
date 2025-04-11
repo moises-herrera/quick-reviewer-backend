@@ -8,12 +8,12 @@ import { Octokit } from 'src/github/interfaces/octokit';
 import { AIReviewParams } from 'src/github/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from 'src/github/constants/bot';
-import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
+import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
 import { IssueCommentEvent } from 'src/github/interfaces/events';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
-import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
+import { PullRequestMapper } from 'src/github/mappers/pull-request.mapper';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class IssueCommentHandler extends EventHandler<
@@ -99,7 +99,7 @@ export class IssueCommentHandler extends EventHandler<
         pull_number: payload.issue.number,
       });
       pullRequest = await this.pullRequestRepository.savePullRequest(
-        mapPullRequestWithRepository({
+        PullRequestMapper.mapPullRequestWithRepository({
           pullRequest: data,
           repositoryId: payload.repository.id,
         }),
@@ -122,7 +122,7 @@ export class IssueCommentHandler extends EventHandler<
       await this.handleComment(payload, pullRequest);
 
       await this.pullRequestCommentRepository.savePullRequestComment({
-        ...mapPullRequestComment(payload.comment),
+        ...PullRequestCommentMapper.mapPullRequestComment(payload.comment),
         pullRequestId: pullRequest.id,
       } as PullRequestComment);
     } catch (error) {
@@ -146,7 +146,7 @@ export class IssueCommentHandler extends EventHandler<
 
       await this.pullRequestCommentRepository.updatePullRequestComment(
         payload.comment.id.toString(),
-        mapPullRequestComment(payload.comment),
+        PullRequestCommentMapper.mapPullRequestComment(payload.comment),
       );
     } catch (error) {
       this.loggerService.logException(error, {

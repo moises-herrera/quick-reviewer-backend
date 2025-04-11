@@ -28,7 +28,7 @@ import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
-import { UserRepository } from 'src/common/database/abstracts/user-repository.interface';
+import { UserRepository } from 'src/common/database/abstracts/user.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
 import { HistoryService } from 'src/github/abstracts/history.abstract';

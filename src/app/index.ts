@@ -13,36 +13,38 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { container } from 'src/app/config/container-config';
 
-const PORT = envConfig.PORT || 3000;
+export const createApp = () => {
+  const PORT = envConfig.PORT || 3000;
 
-const app = express();
+  const app = express();
 
-app.set('PORT', PORT);
+  app.set('PORT', PORT);
 
-app.use(
-  cors({
-    origin: [envConfig.FRONTEND_URL, envConfig.BACKEND_URL],
-    credentials: true,
-  }),
-);
+  app.use(
+    cors({
+      origin: [envConfig.FRONTEND_URL, envConfig.BACKEND_URL],
+      credentials: true,
+    }),
+  );
 
-app.use(cookieParser());
+  app.use(cookieParser());
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-app.use(gitHubWebhooksMiddleware as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  app.use(gitHubWebhooksMiddleware as any);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(morgan('dev'));
 
-app.use(API_PREFIX, appRouter);
+  app.use(API_PREFIX, appRouter);
 
-app.use(handleNotFoundRoute);
+  app.use(handleNotFoundRoute);
 
-app.use(handleHttpException);
+  app.use(handleHttpException);
 
-const dbClient = container.get(DbClient);
+  const dbClient = container.get(DbClient);
 
-dbClient.connectToDatabase();
+  dbClient.connectToDatabase();
 
-export { app };
+  return app;
+};
