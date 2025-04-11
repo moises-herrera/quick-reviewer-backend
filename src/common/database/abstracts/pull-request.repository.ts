@@ -2,9 +2,16 @@ import { PullRequest } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
-import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { PullRequestFilters } from 'src/github/interfaces/record-filters';
 import { injectable } from 'inversify';
+import { PullRequestAuthFilters } from 'src/common/interfaces/pull-request-auth-filters';
+import { PullRequestAuthFiltersWithState } from 'src/common/interfaces/pull-request-auth-filters-with-state';
+import { EntityId } from 'src/common/interfaces/entity-id';
+import { PullRequestAverageCompletionTimeData } from 'src/common/interfaces/pull-request-average-completion-time-data';
+import { PullRequestInitialReviewTimeData } from 'src/common/interfaces/pull-request-initial-review-time-data';
+import { PullRequestAverageReviewCountData } from 'src/common/interfaces/pull-request-average-review-count-data';
+import { PullRequestReviewCountData } from 'src/common/interfaces/pull-request-review-count-data';
+import { PullRequestCountByRepositoryData } from 'src/common/interfaces/pull-request-count-by-repository-data';
 
 @injectable()
 export abstract class PullRequestRepository {
@@ -21,62 +28,21 @@ export abstract class PullRequestRepository {
     options: PullRequestFilters,
   ): Promise<PaginatedResponse<PullRequest>>;
   abstract findPullRequestsForAverageCreationCount(
-    options: PullRequestFiltersType & UserBasicInfo,
-  ): Promise<
-    {
-      id: string;
-    }[]
-  >;
+    options: PullRequestAuthFilters,
+  ): Promise<EntityId[]>;
   abstract findPullRequestsForAverageCompletionTime(
     options: PullRequestFiltersType & UserBasicInfo,
-  ): Promise<{ createdAt: Date; closedAt: Date | null }[]>;
+  ): Promise<PullRequestAverageCompletionTimeData[]>;
   abstract findPullRequestsForInitialReviewTime(
-    options: PullRequestFiltersWithStateType & UserBasicInfo,
-  ): Promise<
-    {
-      createdAt: Date;
-      closedAt: Date | null;
-      reviews: {
-        createdAt: Date;
-      }[];
-    }[]
-  >;
+    options: PullRequestAuthFiltersWithState,
+  ): Promise<PullRequestInitialReviewTimeData[]>;
   abstract findPullRequestsForAverageReviewCount(
-    options: PullRequestFiltersWithStateType & UserBasicInfo,
-  ): Promise<
-    {
-      reviews: {
-        id: string;
-      }[];
-    }[]
-  >;
+    options: PullRequestAuthFiltersWithState,
+  ): Promise<PullRequestAverageReviewCountData[]>;
   abstract findPullRequestsForReviewCountByRepository(
-    options: PullRequestFiltersWithStateType & UserBasicInfo,
-  ): Promise<
-    {
-      repositoryId: string;
-      repository: {
-        name: string;
-        owner: {
-          name: string;
-        };
-      };
-      reviews: {
-        id: string;
-      }[];
-    }[]
-  >;
+    options: PullRequestAuthFiltersWithState,
+  ): Promise<PullRequestReviewCountData[]>;
   abstract findPullRequestsForCountByRepository(
-    options: PullRequestFiltersType & UserBasicInfo,
-  ): Promise<
-    {
-      repositoryId: string;
-      repository: {
-        name: string;
-        owner: {
-          name: string;
-        };
-      };
-    }[]
-  >;
+    options: PullRequestAuthFilters,
+  ): Promise<PullRequestCountByRepositoryData[]>;
 }

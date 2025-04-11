@@ -1,9 +1,9 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
-import { mapPullRequestWithRepository } from '../mappers/pull-request.mapper';
-import { EventHandler } from '../interfaces/event-handler';
-import { Octokit } from '../interfaces/octokit';
+import { PullRequestMapper } from 'src/github/mappers/pull-request.mapper';
+import { EventHandler } from 'src/github/interfaces/event-handler';
+import { Octokit } from 'src/github/interfaces/octokit';
 import { AIReviewParams } from 'src/github/interfaces/review-params';
-import { PullRequestEvent } from '../interfaces/events';
+import { PullRequestEvent } from 'src/github/interfaces/events';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
@@ -63,7 +63,7 @@ export class PullRequestHandler extends EventHandler<
     repository,
   }: EmitterWebhookEvent<'pull_request.opened'>['payload']): Promise<void> {
     try {
-      const pullRequestMapped = mapPullRequestWithRepository({
+      const pullRequestMapped = PullRequestMapper.mapPullRequestWithRepository({
         pullRequest: pull_request,
         repositoryId: repository.id,
       });
@@ -91,7 +91,7 @@ export class PullRequestHandler extends EventHandler<
     repository,
   }: EmitterWebhookEvent<'pull_request.edited'>['payload']): Promise<void> {
     try {
-      const pullRequestMapped = mapPullRequestWithRepository({
+      const pullRequestMapped = PullRequestMapper.mapPullRequestWithRepository({
         pullRequest: pull_request,
         repositoryId: repository.id,
       });
@@ -155,7 +155,7 @@ export class PullRequestHandler extends EventHandler<
     try {
       const { pull_request, repository } = payload;
 
-      const pullRequestMapped = mapPullRequestWithRepository({
+      const pullRequestMapped = PullRequestMapper.mapPullRequestWithRepository({
         pullRequest: pull_request,
         repositoryId: repository.id,
       });
@@ -191,7 +191,7 @@ export class PullRequestHandler extends EventHandler<
     try {
       const { pull_request, repository } = payload;
 
-      const pullRequestMapped = mapPullRequestWithRepository({
+      const pullRequestMapped = PullRequestMapper.mapPullRequestWithRepository({
         pullRequest: pull_request,
         repositoryId: repository.id,
       });

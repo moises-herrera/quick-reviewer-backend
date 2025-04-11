@@ -11,7 +11,7 @@ import {
 } from 'src/github/interfaces/review-params';
 import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
-import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
+import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
 import { BOT_USER_REFERENCE } from 'src/github/constants/bot';
 import { PromptMessage } from 'src/ai/interfaces/prompt-message';
 import { RestEndpointMethodTypes } from '@octokit/rest';
@@ -116,7 +116,7 @@ export class GitHubAIReviewService {
       if (!lastComment?.id) {
         const { data } =
           await this.octokit.rest.issues.createComment(commentOptions);
-        const comment = mapPullRequestComment(data, {
+        const comment = PullRequestCommentMapper.mapPullRequestComment(data, {
           pullRequestId: pullRequest.id,
           commitId: pullRequest.headSha,
         }) as PullRequestComment;

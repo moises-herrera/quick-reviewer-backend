@@ -1,9 +1,10 @@
 import { User } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import { DbClient } from 'src/common/database/db-client';
+import { UserRepository } from 'src/common/database/abstracts/user.repository';
 
 @injectable()
-export class PostgresUserRepository {
+export class PostgresUserRepository implements UserRepository {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
   async getUserById(id: string): Promise<User | null> {

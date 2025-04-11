@@ -393,7 +393,6 @@ describe('PostgresPullRequestRepository', () => {
         },
         select: {
           createdAt: true,
-          closedAt: true,
           reviews: {
             select: {
               createdAt: true,

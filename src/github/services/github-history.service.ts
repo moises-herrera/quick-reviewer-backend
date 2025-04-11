@@ -5,10 +5,11 @@ import { CodeReviewData } from 'src/github/interfaces/code-review-data';
 import { Octokit } from 'src/github/interfaces/octokit';
 import { PullRequestFilters } from 'src/github/interfaces/pull-request-filters';
 import { RepositoryAttributes } from 'src/github/interfaces/repository-attributes';
-import { mapCodeReviewToCreation } from 'src/github/mappers/code-review.mapper';
+import { CodeReviewMapper } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
 export class GitHubHistoryService implements HistoryService {
@@ -19,6 +20,8 @@ export class GitHubHistoryService implements HistoryService {
     private readonly pullRequestRepository: PullRequestRepository,
     @inject(CodeReviewRepository)
     private readonly codeReviewRepository: CodeReviewRepository,
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
   ) {}
 
   setGitProvider(octokit: Octokit) {
@@ -46,7 +49,7 @@ export class GitHubHistoryService implements HistoryService {
   private async savePullRequestsHistoryByRepository({
     owner,
     name,
-  }: RepositoryAttributes) {
+  }: RepositoryAttributes): Promise<void> {
     const pullRequests = await this.getPullRequestHistory({ owner, name });
 
     await this.pullRequestRepository.savePullRequests(pullRequests);
@@ -96,7 +99,7 @@ export class GitHubHistoryService implements HistoryService {
   private async getPullRequestHistory(
     { owner, name }: RepositoryAttributes,
     filters?: PullRequestFilters,
-  ) {
+  ): Promise<PullRequest[]> {
     if (!this.octokit) {
       throw new Error('Octokit instance is not set.');
     }
@@ -120,54 +123,60 @@ export class GitHubHistoryService implements HistoryService {
       page++;
     }
 
-    const pullRequestsPromises = pullRequestNumbers.map(async (number) => {
-      const {
-        data: {
-          id,
-          node_id: nodeId,
+    if (pullRequestNumbers.length === 0) {
+      return [];
+    }
+
+    const pullRequestsPromises: Promise<PullRequest>[] = pullRequestNumbers.map(
+      async (number) => {
+        const {
+          data: {
+            id,
+            node_id: nodeId,
+            title,
+            state,
+            url,
+            additions,
+            deletions,
+            changed_files: changedFiles,
+            user,
+            created_at: createdAt,
+            updated_at: updatedAt,
+            closed_at: closedAt,
+            merged_at: mergedAt,
+            base: {
+              repo: { id: repositoryId },
+              sha: baseSha,
+            },
+            head: { sha: headSha },
+          },
+        } = await this.octokit!.rest.pulls.get({
+          owner,
+          repo: name,
+          pull_number: number,
+        });
+
+        return {
+          id: id.toString(),
+          nodeId,
+          number,
           title,
           state,
           url,
           additions,
           deletions,
-          changed_files: changedFiles,
-          user,
-          created_at: createdAt,
-          updated_at: updatedAt,
-          closed_at: closedAt,
-          merged_at: mergedAt,
-          base: {
-            repo: { id: repositoryId },
-            sha: baseSha,
-          },
-          head: { sha: headSha },
-        },
-      } = await this.octokit!.rest.pulls.get({
-        owner,
-        repo: name,
-        pull_number: number,
-      });
-
-      return {
-        id: id.toString(),
-        nodeId,
-        number,
-        title,
-        state,
-        url,
-        additions,
-        deletions,
-        changedFiles,
-        author: user.login,
-        createdAt: new Date(createdAt),
-        updatedAt: new Date(updatedAt),
-        closedAt: closedAt ? new Date(closedAt) : null,
-        mergedAt: mergedAt ? new Date(mergedAt) : null,
-        repositoryId: repositoryId.toString(),
-        baseSha,
-        headSha,
-      } as PullRequest;
-    });
+          changedFiles,
+          author: user.login,
+          createdAt: new Date(createdAt),
+          updatedAt: new Date(updatedAt),
+          closedAt: closedAt ? new Date(closedAt) : null,
+          mergedAt: mergedAt ? new Date(mergedAt) : null,
+          repositoryId: repositoryId.toString(),
+          baseSha,
+          headSha,
+        } as PullRequest;
+      },
+    );
 
     return Promise.all(pullRequestsPromises);
   }
@@ -182,21 +191,36 @@ export class GitHubHistoryService implements HistoryService {
       throw new Error('Octokit instance is not set.');
     }
 
-    const { data } = await this.octokit.rest.pulls.listReviews({
-      owner,
-      repo: name,
-      pull_number: pullRequestNumber,
-      per_page: 100,
-      page: 1,
-    });
-    const codeReviewsMapped = data.map(
-      (data) =>
-        <CodeReview>{
-          ...mapCodeReviewToCreation(data as CodeReviewData),
-          pullRequestId,
-        },
-    );
+    try {
+      const { data } = await this.octokit.rest.pulls.listReviews({
+        owner,
+        repo: name,
+        pull_number: pullRequestNumber,
+        per_page: 100,
+        page: 1,
+      });
 
-    return codeReviewsMapped;
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      const codeReviewsMapped = data.map(
+        (data) =>
+          <CodeReview>{
+            ...CodeReviewMapper.mapCodeReviewToCreation(data as CodeReviewData),
+            pullRequestId,
+          },
+      );
+
+      return codeReviewsMapped;
+    } catch (error) {
+      this.loggerService.error(
+        `Error fetching reviews for PR #${pullRequestNumber} in ${owner}/${name}`,
+        {
+          error,
+        },
+      );
+      return [];
+    }
   }
 }
