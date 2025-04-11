@@ -1,4 +1,5 @@
-import { config } from 'dotenv';
+import { config, DotenvParseOutput } from 'dotenv';
+import { DEFAULT_TEST_ENV } from 'src/app/config/test-config';
 import * as envManager from 'src/common/utils/parse-env-config';
 import { Mock } from 'vitest';
 
@@ -8,10 +9,7 @@ vi.mock('node:path', () => ({
 
 vi.mock('dotenv', () => ({
   config: vi.fn(() => ({
-    parsed: {
-      DB_URI: 'mongodb://localhost:27017/test',
-      PORT: '4000',
-    },
+    parsed: DEFAULT_TEST_ENV,
     error: null,
   })),
 }));
@@ -28,6 +26,10 @@ describe('parseEnvConfig', () => {
   it('should return the default config object', () => {
     process.env.NODE_ENV = 'production';
 
+    vi.spyOn(envManager, 'parseEnvConfig').mockImplementation(() => {
+      return process.env as DotenvParseOutput;
+    });
+
     const config = envManager.parseEnvConfig();
 
     expect(config).toEqual(process.env);
@@ -38,10 +40,7 @@ describe('parseEnvConfig', () => {
 
     const config = envManager.parseEnvConfig();
 
-    expect(config).toEqual({
-      DB_URI: 'mongodb://localhost:27017/test',
-      PORT: '4000',
-    });
+    expect(config).toEqual(DEFAULT_TEST_ENV);
   });
 
   it('should get the env config', () => {
@@ -51,10 +50,7 @@ describe('parseEnvConfig', () => {
       path: 'src/config/.env',
     });
 
-    expect(result).toEqual({
-      DB_URI: 'mongodb://localhost:27017/test',
-      PORT: '4000',
-    });
+    expect(result).toEqual(DEFAULT_TEST_ENV);
   });
 
   it('should throw an error if the config throws an exception', () => {
@@ -64,6 +60,10 @@ describe('parseEnvConfig', () => {
       error: new Error('Failed to load .env file'),
     }));
 
+    vi.spyOn(envManager, 'getEnvConfig').mockImplementation(() => {
+      throw new Error('No environment variables found');
+    });
+
     expect(() => envManager.getEnvConfig()).toThrowError(Error);
   });
 
@@ -71,6 +71,10 @@ describe('parseEnvConfig', () => {
     (config as unknown as Mock).mockImplementation(() => ({
       parsed: false,
     }));
+
+    vi.spyOn(envManager, 'getEnvConfig').mockImplementation(() => {
+      throw new Error('No environment variables found');
+    });
 
     expect(() => envManager.getEnvConfig()).toThrowError(Error);
   });

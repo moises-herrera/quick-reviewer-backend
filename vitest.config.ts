@@ -8,6 +8,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          setupFiles: ['./tests/unit/setup.ts'],
           name: 'unit',
           include: ['tests/unit/**/*unit.test.ts'],
         },
