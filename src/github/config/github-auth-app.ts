@@ -1,5 +1,5 @@
 import { OAuthApp } from '@octokit/oauth-app';
-import { envConfig } from 'src/config/env-config';
+import { envConfig } from 'src/app/config/env-config';
 
 export const gitHubAuthApp = new OAuthApp({
   clientType: 'github-app',

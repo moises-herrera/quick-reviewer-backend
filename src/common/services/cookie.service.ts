@@ -1,5 +1,5 @@
 import { CookieOptions, Response } from 'express';
-import { envConfig } from 'src/config/env-config';
+import { envConfig } from 'src/app/config/env-config';
 
 export class CookieService {
   private static readonly defaultCookieSettings: CookieOptions = {

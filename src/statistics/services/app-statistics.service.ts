@@ -1,11 +1,10 @@
 import { injectable, inject } from 'inversify';
-import { PullRequestFiltersType } from '../../common/schemas/pull-request-filters.schema';
-import { Metric } from '../../core/interfaces/metric';
-import { PullRequestFiltersWithStateType } from '../../common/schemas/pull-request-filters-with-state.schema';
-import { UserBasicInfo } from 'src/common/interfaces/user-basic-info';
-import { ChartData } from '../../core/interfaces/chart-data';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
-import { StatisticsService } from 'src/core/services/statistics.service';
+import { Metric } from 'src/statistics/interfaces/metric';
+import { ChartData } from 'src/statistics/interfaces/chart-data';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { StatisticsService } from 'src/statistics/abstracts/statistics.abstract';
+import { PullRequestAuthFilters } from 'src/common/interfaces/pull-request-auth-filters';
+import { PullRequestAuthFiltersWithState } from 'src/common/interfaces/pull-request-auth-filters-with-state';
 
 @injectable()
 export class AppStatisticsService implements StatisticsService {
@@ -24,7 +23,7 @@ export class AppStatisticsService implements StatisticsService {
   ) {}
 
   async getPullRequestAverageCreationCountByRepository(
-    filters: PullRequestFiltersType & UserBasicInfo,
+    filters: PullRequestAuthFilters,
   ): Promise<Metric> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForAverageCreationCount(
@@ -49,7 +48,7 @@ export class AppStatisticsService implements StatisticsService {
   }
 
   async getPullRequestAverageCompletionTime(
-    filters: PullRequestFiltersType & UserBasicInfo,
+    filters: PullRequestAuthFilters,
   ): Promise<Metric> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForAverageCompletionTime(
@@ -83,7 +82,7 @@ export class AppStatisticsService implements StatisticsService {
   }
 
   async getInitialReviewAverageTime(
-    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+    filters: PullRequestAuthFiltersWithState,
   ): Promise<Metric> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForInitialReviewTime(
@@ -124,7 +123,7 @@ export class AppStatisticsService implements StatisticsService {
   }
 
   async getPullRequestAverageReviewCount(
-    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+    filters: PullRequestAuthFiltersWithState,
   ): Promise<Metric> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForAverageReviewCount(
@@ -154,7 +153,7 @@ export class AppStatisticsService implements StatisticsService {
   }
 
   async getPullRequestReviewCountByRepository(
-    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+    filters: PullRequestAuthFiltersWithState,
   ): Promise<ChartData> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForReviewCountByRepository(
@@ -191,7 +190,7 @@ export class AppStatisticsService implements StatisticsService {
   }
 
   async getPullRequestCountByRepository(
-    filters: PullRequestFiltersWithStateType & UserBasicInfo,
+    filters: PullRequestAuthFiltersWithState,
   ): Promise<ChartData> {
     const pullRequests =
       await this.pullRequestRepository.findPullRequestsForCountByRepository(

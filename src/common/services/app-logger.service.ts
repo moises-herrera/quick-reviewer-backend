@@ -1,8 +1,8 @@
 import { injectable } from 'inversify';
 import fs from 'node:fs';
 import path from 'node:path';
-import { envConfig } from 'src/config/env-config';
-import { LoggerService } from 'src/core/services/logger.service';
+import { envConfig } from 'src/app/config/env-config';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import winston from 'winston';
 import 'winston-daily-rotate-file';
 
@@ -67,7 +67,7 @@ export class AppLoggerService implements LoggerService {
   }
 
   log(message: string, meta: Record<string, unknown> = {}): void {
-    this.logger.info(message, meta);
+    this.info(message, meta);
   }
 
   info(message: string, meta: Record<string, unknown> = {}): void {

@@ -8,19 +8,19 @@ import { Octokit } from 'src/github/interfaces/octokit';
 import {
   AIReviewContextParams,
   AIReviewParams,
-} from 'src/core/interfaces/review-params';
+} from 'src/github/interfaces/review-params';
 import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
-import { mapPullRequestComment } from 'src/github/mappers/pull-request-comment.mapper';
+import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
 import { BOT_USER_REFERENCE } from 'src/github/constants/bot';
-import { PromptMessage } from 'src/core/interfaces/ai-message-config';
+import { PromptMessage } from 'src/ai/interfaces/prompt-message';
 import { RestEndpointMethodTypes } from '@octokit/rest';
 import { inject, injectable } from 'inversify';
-import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
-import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
-import { AIService } from 'src/core/services/ai.service';
-import { PullRequestService } from 'src/core/services/pull-request.service';
-import { LoggerService } from 'src/core/services/logger.service';
+import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
+import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
+import { AIService } from 'src/ai/abstracts/ai.service';
+import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
 export class GitHubAIReviewService {
@@ -116,7 +116,7 @@ export class GitHubAIReviewService {
       if (!lastComment?.id) {
         const { data } =
           await this.octokit.rest.issues.createComment(commentOptions);
-        const comment = mapPullRequestComment(data, {
+        const comment = PullRequestCommentMapper.mapPullRequestComment(data, {
           pullRequestId: pullRequest.id,
           commitId: pullRequest.headSha,
         }) as PullRequestComment;

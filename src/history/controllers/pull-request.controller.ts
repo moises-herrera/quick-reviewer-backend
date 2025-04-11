@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { inject } from 'inversify';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 
 export class PullRequestController {
   constructor(

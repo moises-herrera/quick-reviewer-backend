@@ -1,5 +1,5 @@
 import { gitHubAuthApp } from 'src/github/config/github-auth-app';
-import { envConfig } from 'src/config/env-config';
+import { envConfig } from 'src/app/config/env-config';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { CryptoService } from 'src/common/services/crypto.service';
@@ -11,8 +11,8 @@ import {
   HttpHandler,
 } from 'src/common/interfaces/http-handler';
 import { inject } from 'inversify';
-import { UserRepository } from 'src/core/repositories/user-repository.interface';
-import { RegisterUserService } from 'src/core/services/register-user.service';
+import { UserRepository } from 'src/common/database/abstracts/user.repository';
+import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
 import {
   GITHUB_ACCESS_TOKEN,
   GITHUB_REFRESH_TOKEN,

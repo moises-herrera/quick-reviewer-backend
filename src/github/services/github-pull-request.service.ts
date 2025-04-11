@@ -1,8 +1,9 @@
 import { isExtensionSupported } from 'src/common/utils/language-support';
-import { injectable } from 'inversify';
-import { PullRequestFile } from 'src/core/interfaces/pull-request-file';
+import { inject, injectable } from 'inversify';
+import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 import { Octokit } from '@octokit/rest';
-import { PullRequestService } from 'src/core/services/pull-request.service';
+import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
 export class GitHubPullRequestService implements PullRequestService {
@@ -13,6 +14,11 @@ export class GitHubPullRequestService implements PullRequestService {
     'renamed',
     'unchanged',
   ];
+
+  constructor(
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
+  ) {}
 
   setGitProvider(gitProvider: Octokit) {
     this.octokit = gitProvider;
@@ -49,7 +55,7 @@ export class GitHubPullRequestService implements PullRequestService {
           fileContents.set(file.filename, content);
         }
       } catch (error) {
-        console.error('Error fetching file content:', error);
+        this.loggerService.error('Error fetching file content:', { error });
       }
     }
 

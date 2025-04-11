@@ -18,16 +18,16 @@ import {
   PullRequestReviewThreadEvent,
 } from '../interfaces/events';
 import { EventHandler } from '../interfaces/event-handler';
-import { AccountRepository } from 'src/core/repositories/account.repository';
-import { PullRequestRepository } from 'src/core/repositories/pull-request.repository';
-import { ProjectRepository } from 'src/core/repositories/project.repository';
-import { PullRequestCommentRepository } from 'src/core/repositories/pull-request-comment.repository';
-import { CodeReviewCommentRepository } from 'src/core/repositories/code-review-comment.repository';
-import { CodeReviewRepository } from 'src/core/repositories/code-review.repository';
-import { HistoryService } from 'src/core/services/history.service';
-import { AIReviewService } from 'src/core/services/ai-review.service';
-import { TestAccountRepository } from 'src/core/repositories/test-account.repository';
-import { LoggerService } from 'src/core/services/logger.service';
+import { AccountRepository } from 'src/common/database/abstracts/account.repository';
+import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
+import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
+import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
+import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
+import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
+import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 type EventTypeMap = {
   installation: InstallationEvent;

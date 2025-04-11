@@ -3,7 +3,7 @@ import { AccountController } from '../controllers/account.controller';
 import { RepositoryController } from '../controllers/repository.controller';
 import { PullRequestController } from '../controllers/pull-request.controller';
 import { CodeReviewController } from '../controllers/code-review.controller';
-import { container } from 'src/config/container-config';
+import { container } from 'src/app/config/container-config';
 
 /**
  * @swagger

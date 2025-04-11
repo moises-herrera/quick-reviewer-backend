@@ -3,10 +3,10 @@ import { User } from '@prisma/client';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { UserRepository } from 'src/core/repositories/user-repository.interface';
-import { RegisterUserService } from 'src/core/services/register-user.service';
-import { AccountRepository } from 'src/core/repositories/account.repository';
-import { ProjectRepository } from 'src/core/repositories/project.repository';
+import { UserRepository } from 'src/common/database/abstracts/user.repository';
+import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
+import { AccountRepository } from 'src/common/database/abstracts/account.repository';
+import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 
 @injectable()
 export class GitHubRegisterUserService implements RegisterUserService {
@@ -14,7 +14,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
   constructor(
     @inject(UserRepository)
-    private readonly userService: UserRepository,
+    private readonly userRepository: UserRepository,
     @inject(AccountRepository)
     private readonly accountRepository: AccountRepository,
     @inject(ProjectRepository)
@@ -37,7 +37,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
   private async saveUserInfo(user: User): Promise<User> {
     try {
-      return this.userService.saveUser(user);
+      return this.userRepository.saveUser(user);
     } catch (error) {
       throw new HttpException(
         'Error saving user data',
@@ -72,7 +72,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
         accountId: account.id,
       }));
 
-      await this.userService.saveUserAccounts(accountIds);
+      await this.userRepository.saveUserAccounts(accountIds);
     } catch (error) {
       throw new HttpException(
         'Error saving user accounts',
@@ -114,7 +114,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
         repositoryId: repository.id,
       }));
 
-      await this.userService.saveUserRepositories(repositoryIds);
+      await this.userRepository.saveUserRepositories(repositoryIds);
     } catch (error) {
       throw new HttpException(
         'Error saving user repositories',

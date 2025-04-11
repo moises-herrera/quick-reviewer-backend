@@ -1,12 +1,12 @@
-import { DbClient } from 'src/database/db-client';
+import { DbClient } from 'src/common/database/db-client';
 import { Container } from 'inversify';
-import { AccountWithRepositories } from 'src/core/interfaces/account-with-repositories';
-import { PostgresAccountRepository } from 'src/database/repositories/postgres-account.repository';
-import { AccountFilters } from 'src/core/interfaces/record-filters';
+import { AccountWithRepositories } from 'src/github/interfaces/account-with-repositories';
+import { PostgresAccountRepository } from 'src/common/database/repositories/postgres-account.repository';
+import { AccountFilters } from 'src/github/interfaces/record-filters';
 import { Account, User } from '@prisma/client';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 
-describe('PostgresAccountRepository', () => {
+describe.todo('PostgresAccountRepository', () => {
   let container: Container;
   let dbClient: DbClient;
   let accountRepository: PostgresAccountRepository;

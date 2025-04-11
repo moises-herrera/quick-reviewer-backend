@@ -3,7 +3,7 @@ import { historyRouter } from 'src/history/routes/history.router';
 import { gitHubRouter } from 'src/github/routes/github.router';
 import { statisticsRouter } from 'src/statistics/routes/statistics.router';
 import { StatusCodes } from 'http-status-codes';
-import { docsConfig } from 'src/config/docs-config';
+import { docsConfig } from 'src/app/config/docs-config';
 import swaggerUi from 'swagger-ui-express';
 
 const appRouter = Router();

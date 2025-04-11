@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
 import { gitHubOAuthMiddleware } from 'src/github/middlewares/github-oauth.middleware';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
-import { container } from 'src/config/container-config';
+import { container } from 'src/app/config/container-config';
 
 /**
  * @swagger

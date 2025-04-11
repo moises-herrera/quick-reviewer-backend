@@ -1,9 +1,14 @@
 import { Account, AccountType } from '@prisma/client';
-import { AccountData } from '../interfaces/account-data';
+import { AccountData } from 'src/github/interfaces/account-data';
 
-export const mapAccountToCreation = (account: AccountData): Account =>
-  ({
-    id: account.id.toString(),
-    name: account.login,
-    type: account.type as AccountType,
-  }) as Account;
+export class AccountMapper {
+  static mapToCreation(account: AccountData): Account {
+    return {
+      id: account.id.toString(),
+      name: account.login,
+      type: account.type as AccountType,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  }
+}

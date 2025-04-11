@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { HttpException } from '../exceptions/http-exception';
-import { container } from 'src/config/container-config';
-import { LoggerService } from 'src/core/services/logger.service';
+import { HttpException } from 'src/common/exceptions/http-exception';
+import { container } from 'src/app/config/container-config';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
-export const getHttpException = (error: unknown) => {
+export const getHttpException = (error: unknown): HttpException => {
   const httpException =
     error instanceof HttpException
       ? error
