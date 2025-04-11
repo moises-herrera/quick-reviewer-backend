@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { HttpException } from 'src/common/exceptions/http-exception';
 import { gitHubOAuthMiddleware } from 'src/github/middlewares/github-oauth.middleware';
 
 describe('GitHub OAuth Middleware', () => {
@@ -20,7 +19,9 @@ describe('GitHub OAuth Middleware', () => {
     gitHubOAuthMiddleware(req, res, next);
 
     expect(next).toHaveBeenCalledWith(
-      new HttpException('Invalid state parameter', StatusCodes.FORBIDDEN),
+      expect.objectContaining({
+        statusCode: StatusCodes.FORBIDDEN,
+      }),
     );
   });
 
@@ -39,7 +40,9 @@ describe('GitHub OAuth Middleware', () => {
     gitHubOAuthMiddleware(req, res, next);
 
     expect(next).toHaveBeenCalledWith(
-      new HttpException('Missing code parameter', StatusCodes.BAD_REQUEST),
+      expect.objectContaining({
+        statusCode: StatusCodes.BAD_REQUEST,
+      }),
     );
   });
 

@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { gitHubAuthApp } from '../config/github-auth-app';
+import { gitHubAuthApp } from 'src/github/config/github-auth-app';
 import { HttpException } from 'src/common/exceptions/http-exception';
-import { handleHttpException } from 'src/common/middlewares/handle-http-exception.middleware';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
 import { container } from 'src/app/config/container-config';
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
 
 export const gitHubAuthMiddleware = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ) => {
   try {
@@ -59,6 +58,6 @@ export const gitHubAuthMiddleware = async (
 
     next();
   } catch (error) {
-    handleHttpException(error, req, res);
+    next(error);
   }
 };
