@@ -1,8 +1,10 @@
 import { Octokit } from '@octokit/rest';
 import { User } from '@prisma/client';
 import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { envConfig } from 'src/app/config/env-config';
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
+import { AuthRequest } from 'src/common/interfaces/auth-request';
 import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
 import { gitHubAuthApp } from 'src/github/config/github-auth-app';
 import {
@@ -32,6 +34,8 @@ vi.mock('src/github/config/github-auth-app', () => ({
       url: 'http://example.com/auth',
     })),
     createToken: vi.fn(),
+    refreshToken: vi.fn(),
+    checkToken: vi.fn(),
   },
 }));
 
@@ -199,6 +203,224 @@ describe('GitHubAuthController', () => {
         `${envConfig.FRONTEND_URL}/auth/login?error=true`,
       );
       expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
+
+  describe('checkToken', () => {
+    it('should check token and return user data', async () => {
+      const req = {
+        userId: '1',
+      } as AuthRequest;
+      const res = {
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+
+      vi.spyOn(userRepository, 'getUserById').mockResolvedValue({
+        id: '1',
+      } as User);
+
+      await controller.checkToken(req, res, () => {});
+
+      expect(userRepository.getUserById).toHaveBeenCalledWith('1');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        user: { id: '1' },
+      });
+    });
+
+    it('should handle errors', async () => {
+      const req = {
+        userId: '1',
+      } as AuthRequest;
+      const res = {} as Response;
+      const next = vi.fn();
+
+      vi.spyOn(userRepository, 'getUserById').mockRejectedValue(new Error());
+
+      await controller.checkToken(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
+
+  describe('refreshToken', () => {
+    it('should refresh token and return user data', async () => {
+      const req = {
+        cookies: {
+          githubRefreshToken: 'test_refresh_token',
+        },
+      } as unknown as Request;
+      const res = {
+        cookie: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+
+      vi.spyOn(gitHubAuthApp, 'refreshToken').mockResolvedValue({
+        authentication: {
+          token: 'test_token',
+          refreshToken: 'test_token',
+        },
+      } as Awaited<ReturnType<typeof gitHubAuthApp.refreshToken>>);
+
+      vi.spyOn(gitHubAuthApp, 'checkToken').mockResolvedValue({
+        status: StatusCodes.OK,
+        data: {
+          user: {
+            id: '1',
+          },
+        },
+      } as unknown as Awaited<ReturnType<typeof gitHubAuthApp.checkToken>>);
+
+      vi.spyOn(userRepository, 'getUserById').mockResolvedValue({
+        id: '1',
+      } as User);
+
+      await controller.refreshToken(req, res, () => {});
+
+      expect(res.cookie).toHaveBeenCalledWith(
+        GITHUB_ACCESS_TOKEN,
+        'test_token',
+        {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60,
+          sameSite: 'strict',
+          secure: false,
+        },
+      );
+      expect(res.cookie).toHaveBeenCalledWith(
+        GITHUB_REFRESH_TOKEN,
+        'test_token',
+        {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
+          sameSite: 'strict',
+          secure: false,
+        },
+      );
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(res.json).toHaveBeenCalledWith({
+        user: { id: '1' },
+      });
+    });
+
+    it('should return an error if refresh token is not provided', async () => {
+      const req = {
+        cookies: {},
+      } as unknown as Request;
+      const res = {} as Response;
+      const next = vi.fn();
+
+      await controller.refreshToken(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Refresh token not provided',
+          statusCode: StatusCodes.BAD_REQUEST,
+        }),
+      );
+    });
+
+    it('should return an error if checkToken fails', async () => {
+      const req = {
+        cookies: {
+          githubRefreshToken: 'test_refresh_token',
+        },
+      } as unknown as Request;
+      const res = {
+        cookie: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+      const next = vi.fn();
+
+      vi.spyOn(gitHubAuthApp, 'checkToken').mockResolvedValue({
+        status: StatusCodes.BAD_REQUEST,
+        data: {
+          user: null,
+        },
+      } as unknown as Awaited<ReturnType<typeof gitHubAuthApp.checkToken>>);
+
+      await controller.refreshToken(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error getting the user information',
+          statusCode: StatusCodes.BAD_REQUEST,
+        }),
+      );
+    });
+
+    it('should return the default error if checkToken fails', async () => {
+      const req = {
+        cookies: {
+          githubRefreshToken: 'test_refresh_token',
+        },
+      } as unknown as Request;
+      const res = {
+        cookie: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+      const next = vi.fn();
+
+      vi.spyOn(gitHubAuthApp, 'checkToken').mockResolvedValue({
+        data: {
+          user: null,
+        },
+      } as unknown as Awaited<ReturnType<typeof gitHubAuthApp.checkToken>>);
+
+      await controller.refreshToken(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error getting the user information',
+          statusCode: StatusCodes.BAD_REQUEST,
+        }),
+      );
+    });
+
+    it('should return an error if the user is not found', async () => {
+      const req = {
+        cookies: {
+          githubRefreshToken: 'test_refresh_token',
+        },
+      } as unknown as Request;
+      const res = {
+        cookie: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+      const next = vi.fn();
+
+      vi.spyOn(gitHubAuthApp, 'refreshToken').mockResolvedValue({
+        authentication: {
+          token: 'test_token',
+          refreshToken: 'test_token',
+        },
+      } as Awaited<ReturnType<typeof gitHubAuthApp.refreshToken>>);
+
+      vi.spyOn(gitHubAuthApp, 'checkToken').mockResolvedValue({
+        status: StatusCodes.OK,
+        data: {
+          user: {
+            id: '1',
+          },
+        },
+      } as unknown as Awaited<ReturnType<typeof gitHubAuthApp.checkToken>>);
+
+      vi.spyOn(userRepository, 'getUserById').mockResolvedValue(null);
+
+      await controller.refreshToken(req, res, next);
+
+      expect(userRepository.getUserById).toHaveBeenCalledWith('1');
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'The user is not registered',
+          statusCode: StatusCodes.NOT_FOUND,
+        }),
+      );
     });
   });
 });
