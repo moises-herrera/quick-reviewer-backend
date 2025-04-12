@@ -28,9 +28,12 @@ vi.mock('src/common/utils/parse-env-config', () => ({
   getEnvConfig: () => envConfig,
 }));
 
-vi.mock('express', (originalImport) => {
+vi.mock('express', async (originalImport) => {
+  const actual = await originalImport();
+
   return {
-    ...originalImport,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...actual as any,
     Router: vi.fn(() => router),
   };
 });
