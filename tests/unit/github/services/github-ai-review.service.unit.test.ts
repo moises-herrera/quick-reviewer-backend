@@ -1,9 +1,10 @@
-import { PullRequest, PullRequestComment } from '@prisma/client';
+import { CodeReview, PullRequest, PullRequestComment } from '@prisma/client';
 import { AIService } from 'src/ai/abstracts/ai.service';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { BOT_USER_REFERENCE } from 'src/github/constants/bot';
+import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { Octokit } from 'src/github/interfaces/octokit';
 import { GitHubAIReviewService } from 'src/github/services/github-ai-review.service';
 import { MockCodeReviewRepository } from 'tests/mocks/repositories/mock-code-review.repository';
@@ -382,6 +383,259 @@ describe('GitHubAIReviewService', () => {
         expect.any(Error),
         expect.objectContaining({
           message: 'Error generating pull request summary',
+        }),
+      );
+    });
+  });
+
+  describe('generatePullRequestReview', () => {
+    it('should generate a review for a pull request', async () => {
+      const review: AIPullRequestReview = {
+        generalComment: `## Review\n\n 1 comment.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
+        comments: [
+          {
+            path: 'test-file.js',
+            body: 'Test comment',
+            line: 1,
+            position: 1,
+          },
+        ],
+      };
+
+      const spyGetLastCodeReview = vi
+        .spyOn(codeReviewRepository, 'getLastCodeReview')
+        .mockResolvedValue(null);
+      const spyGetFiles = vi
+        .spyOn(octokit.rest.pulls, 'listFiles')
+        .mockResolvedValue({
+          status: 200,
+          data: changedFiles,
+        } as unknown as Awaited<
+          ReturnType<Octokit['rest']['pulls']['listFiles']>
+        >);
+      const spySendMessage = vi
+        .spyOn(aiService, 'sendMessage')
+        .mockResolvedValue(JSON.stringify(review));
+      const spyCreateReview = vi.spyOn(octokit.rest.pulls, 'createReview');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyGetLastCodeReview).toHaveBeenCalledWith({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+      expect(spyGetFiles).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+      });
+      expect(spySendMessage).toHaveBeenCalledWith({
+        systemInstructions: expect.any(String),
+        messages: [
+          {
+            role: 'user',
+            content: expect.any(String),
+          },
+        ],
+      });
+      expect(spyCreateReview).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+        body: review.generalComment,
+        event: 'COMMENT',
+        comments: review.comments,
+      });
+    });
+
+    it('should not generate a review if the pull request has not changed', async () => {
+      const codeReview: CodeReview = {
+        id: '1',
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+        body: `## Review\n\n 1 comment.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
+        status: 'COMMENTED',
+        commitId: pullRequest.headSha,
+        createdAt: new Date(),
+      };
+      const spyGetLastCodeReview = vi
+        .spyOn(codeReviewRepository, 'getLastCodeReview')
+        .mockResolvedValue(codeReview);
+      const spyCreateComment = vi.spyOn(octokit.rest.issues, 'createComment');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyGetLastCodeReview).toHaveBeenCalledWith({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+      expect(spyCreateComment).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: `There are no changes since the last review, so there is no need to add a new review.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`,
+      });
+    });
+
+    it('should not generate a review if the pull request has not changed files', async () => {
+      const spyGetLastCodeReview = vi
+        .spyOn(codeReviewRepository, 'getLastCodeReview')
+        .mockResolvedValue(null);
+      const spyGetFiles = vi
+        .spyOn(octokit.rest.pulls, 'listFiles')
+        .mockResolvedValue({
+          status: 200,
+          data: [],
+        } as unknown as Awaited<
+          ReturnType<Octokit['rest']['pulls']['listFiles']>
+        >);
+      const spySendMessage = vi.spyOn(aiService, 'sendMessage');
+      const spyCreateReview = vi.spyOn(octokit.rest.pulls, 'createReview');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyGetLastCodeReview).toHaveBeenCalledWith({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+      expect(spyGetFiles).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+      });
+      expect(spySendMessage).not.toHaveBeenCalled();
+      expect(spyCreateReview).not.toHaveBeenCalled();
+    });
+
+    it('should return a message when there are no review comments', async () => {
+      const review: AIPullRequestReview = {
+        generalComment: `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
+        comments: [],
+      };
+      const spyGetLastCodeReview = vi
+        .spyOn(codeReviewRepository, 'getLastCodeReview')
+        .mockResolvedValue(null);
+      const spyGetFiles = vi
+        .spyOn(octokit.rest.pulls, 'listFiles')
+        .mockResolvedValue({
+          status: 200,
+          data: changedFiles,
+        } as unknown as Awaited<
+          ReturnType<Octokit['rest']['pulls']['listFiles']>
+        >);
+      const spySendMessage = vi
+        .spyOn(aiService, 'sendMessage')
+        .mockResolvedValue(JSON.stringify(review));
+      const spyCreateReview = vi.spyOn(octokit.rest.pulls, 'createReview');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyGetLastCodeReview).toHaveBeenCalledWith({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+      expect(spyGetFiles).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+      });
+      expect(spySendMessage).toHaveBeenCalledWith({
+        systemInstructions: expect.any(String),
+        messages: [
+          {
+            role: 'user',
+            content: expect.any(String),
+          },
+        ],
+      });
+      expect(spyCreateReview).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+        body: review.generalComment,
+        event: 'COMMENT',
+        comments: [],
+      });
+    });
+
+    it('should log an error if fails when getting the context', async () => {
+      vi.spyOn(codeReviewRepository, 'getLastCodeReview').mockResolvedValue(
+        null,
+      );
+      vi.spyOn(octokit.rest.pulls, 'listFiles').mockImplementation(() => {
+        throw new Error('Failed to get context');
+      });
+      const spyError = vi.spyOn(loggerService, 'logException');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          message: 'Error getting pull request context',
+        }),
+      );
+    });
+
+    it('should log an error if fails when generating the review', async () => {
+      const spyGetLastCodeReview = vi
+        .spyOn(codeReviewRepository, 'getLastCodeReview')
+        .mockResolvedValue(null);
+      const spyGetFiles = vi
+        .spyOn(octokit.rest.pulls, 'listFiles')
+        .mockResolvedValue({
+          status: 200,
+          data: changedFiles,
+        } as unknown as Awaited<
+          ReturnType<Octokit['rest']['pulls']['listFiles']>
+        >);
+      const spySendMessage = vi
+        .spyOn(aiService, 'sendMessage')
+        .mockImplementation(() => {
+          throw new Error('Failed to generate review');
+        });
+      const spyError = vi.spyOn(loggerService, 'logException');
+
+      await service.generatePullRequestReview({
+        repository,
+        pullRequest,
+      });
+
+      expect(spyGetLastCodeReview).toHaveBeenCalledWith({
+        pullRequestId: pullRequest.id,
+        reviewer: BOT_USER_REFERENCE,
+        userType: 'Bot',
+      });
+      expect(spyGetFiles).toHaveBeenCalledWith({
+        owner: repository.owner,
+        repo: repository.name,
+        pull_number: pullRequest.number,
+      });
+      expect(spySendMessage).toHaveBeenCalled();
+      expect(spyError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({
+          message: 'Error generating pull request review',
         }),
       );
     });

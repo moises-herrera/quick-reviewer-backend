@@ -169,7 +169,7 @@ export class GitHubAIReviewService implements AIReviewService {
     // Check if the code review already exists and is for the same commit
     // If it does, we don't need to generate a new one
     if (lastCodeReview && lastCodeReview.commitId === pullRequest.headSha) {
-      const message = `Already reviewed this pull request.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+      const message = `There are no changes since the last review, so there is no need to add a new review.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
       await this.octokit.rest.issues.createComment({
         owner: repository.owner,
@@ -199,9 +199,23 @@ export class GitHubAIReviewService implements AIReviewService {
       return;
     }
 
-    const { generalComment, comments } = await this.reviewPullRequest(context);
+    if (!context.changedFiles.length) {
+      const message = `No changes detected.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+      await this.octokit.rest.issues.createComment({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: message,
+      });
+
+      return;
+    }
 
     try {
+      const { generalComment, comments } =
+        await this.reviewPullRequest(context);
+
       await this.octokit.rest.pulls.createReview({
         owner,
         repo: name,
@@ -212,7 +226,7 @@ export class GitHubAIReviewService implements AIReviewService {
       });
     } catch (error) {
       this.loggerService.logException(error, {
-        message: 'Error creating AI review',
+        message: 'Error generating pull request review',
       });
     }
   }
@@ -368,9 +382,12 @@ export class GitHubAIReviewService implements AIReviewService {
     const { comments } = JSON.parse(completion) as {
       comments: AIPullRequestReview['comments'];
     };
+    const generalComment =
+      `## Review\n\n ${comments.length} comment` +
+      (comments.length > 1 ? 's' : '');
     const response: AIPullRequestReview = {
       generalComment: comments.length
-        ? `## Review\n\n ${comments.length} comments.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
+        ? `${generalComment}.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
         : `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
       comments,
     };
