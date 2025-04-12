@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
-import { accountsRouter } from './accounts.router';
-import { reviewsRouter } from './reviews.router';
+import { accountsRouter } from './accounts.routes';
+import { reviewsRouter } from './reviews.routes';
 
 const historyRouter = Router();
 

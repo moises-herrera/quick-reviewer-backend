@@ -14,13 +14,13 @@ const envConfig = vi.hoisted(() => ({
 }));
 
 const router = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  delete: vi.fn(),
-  patch: vi.fn(),
-  all: vi.fn(),
-  use: vi.fn(),
+  get: vi.fn().mockReturnThis(),
+  post: vi.fn().mockReturnThis(),
+  put: vi.fn().mockReturnThis(),
+  delete: vi.fn().mockReturnThis(),
+  patch: vi.fn().mockReturnThis(),
+  all: vi.fn().mockReturnThis(),
+  use: vi.fn().mockReturnThis(),
 }));
 
 vi.mock('src/common/utils/parse-env-config', () => ({
@@ -31,6 +31,6 @@ vi.mock('src/common/utils/parse-env-config', () => ({
 vi.mock('express', (originalImport) => {
   return {
     ...originalImport,
-    Router: () => router,
+    Router: vi.fn(() => router),
   };
 });

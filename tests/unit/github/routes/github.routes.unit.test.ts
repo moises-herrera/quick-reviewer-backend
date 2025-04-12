@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
 import { gitHubOAuthMiddleware } from 'src/github/middlewares/github-oauth.middleware';
-import { registerRoutes } from 'src/github/routes/github.router';
+import { registerRoutes } from 'src/github/routes/github.routes';
 
 const mockController = vi.hoisted(() => ({
   getAuthorizationUrl: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('src/app/config/container-config', () => ({
   },
 }));
 
-describe('GitHub Router', () => {
+describe('GitHub Routes', () => {
   let router: Router;
 
   beforeEach(() => {
