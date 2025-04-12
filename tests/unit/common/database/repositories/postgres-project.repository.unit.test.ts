@@ -3,7 +3,7 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresProjectRepository } from 'src/common/database/repositories/postgres-project.repository';
-import { MockDbClient } from 'tests/mocks/mock-db-client';
+import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
 
 describe('PostgresProjectRepository', () => {
   let dbClient: DbClient;

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { DbClient } from 'src/common/database/db-client';
-import { MockLoggerService } from 'tests/mocks/mock-logger.service';
+import { MockLoggerService } from 'tests/mocks/services/mock-logger.service';
 
 vi.mock('src/app/config/env-config', () => ({
   envConfig: {

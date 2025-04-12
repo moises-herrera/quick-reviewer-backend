@@ -146,7 +146,9 @@ export class IssueCommentHandler extends EventHandler<
 
       await this.pullRequestCommentRepository.updatePullRequestComment(
         payload.comment.id.toString(),
-        PullRequestCommentMapper.mapPullRequestComment(payload.comment),
+        {
+          body: payload.comment.body,
+        },
       );
     } catch (error) {
       this.loggerService.logException(error, {

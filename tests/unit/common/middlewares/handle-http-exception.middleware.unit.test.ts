@@ -4,7 +4,7 @@ import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { HttpException } from 'src/common/exceptions/http-exception';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
 import * as middleware from 'src/common/middlewares/handle-http-exception.middleware';
-import { MockLoggerService } from 'tests/mocks/mock-logger.service';
+import { MockLoggerService } from 'tests/mocks/services/mock-logger.service';
 
 describe('HandleHttpExceptionMiddleware', () => {
   const mockLoggerService = new MockLoggerService();

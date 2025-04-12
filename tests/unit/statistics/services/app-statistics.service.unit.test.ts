@@ -9,7 +9,7 @@ import { PullRequestReviewCountData } from 'src/common/interfaces/pull-request-r
 import { ChartData } from 'src/statistics/interfaces/chart-data';
 import { Metric } from 'src/statistics/interfaces/metric';
 import { AppStatisticsService } from 'src/statistics/services/app-statistics.service';
-import { MockPullRequestRepository } from 'tests/mocks/mock-pull-request.repository';
+import { MockPullRequestRepository } from 'tests/mocks/repositories/mock-pull-request.repository';
 
 describe('AppStatisticsService', () => {
   let service: AppStatisticsService;

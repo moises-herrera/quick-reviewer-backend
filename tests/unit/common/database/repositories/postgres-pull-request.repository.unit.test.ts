@@ -5,7 +5,7 @@ import { PullRequestFiltersWithStateType } from 'src/common/schemas/pull-request
 import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.schema';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresPullRequestRepository } from 'src/common/database/repositories/postgres-pull-request.repository';
-import { MockDbClient } from 'tests/mocks/mock-db-client';
+import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
 
 describe('PostgresPullRequestRepository', () => {
   let repository: PostgresPullRequestRepository;
