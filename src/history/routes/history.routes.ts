@@ -5,9 +5,15 @@ import { reviewsRouter } from './reviews.routes';
 
 const historyRouter = Router();
 
-historyRouter.use(gitHubAuthMiddleware);
+export const registerRoutes = () => {
+  historyRouter.use(gitHubAuthMiddleware);
 
-historyRouter.use('/accounts', accountsRouter);
-historyRouter.use('/reviews', reviewsRouter);
+  historyRouter.use('/accounts', accountsRouter);
+  historyRouter.use('/reviews', reviewsRouter);
+};
+
+if (process.env.NODE_ENV !== 'test') {
+  registerRoutes();
+}
 
 export { historyRouter };
