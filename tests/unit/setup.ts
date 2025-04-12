@@ -13,7 +13,24 @@ const envConfig = vi.hoisted(() => ({
   ANTHROPIC_API_KEY: 'test_anthropic_key',
 }));
 
+const router = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+  patch: vi.fn(),
+  all: vi.fn(),
+  use: vi.fn(),
+}));
+
 vi.mock('src/common/utils/parse-env-config', () => ({
   parseEnvConfig: () => envConfig,
   getEnvConfig: () => envConfig,
 }));
+
+vi.mock('express', (originalImport) => {
+  return {
+    ...originalImport,
+    Router: () => router,
+  };
+});
