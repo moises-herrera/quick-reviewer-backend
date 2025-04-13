@@ -423,4 +423,38 @@ describe('GitHubAuthController', () => {
       );
     });
   });
+
+  describe('logout', () => {
+    it('should clear cookies', () => {
+      const req = {} as Request;
+      const res = {
+        clearCookie: vi.fn(),
+        status: vi.fn().mockReturnThis(),
+        json: vi.fn(),
+      } as unknown as Response;
+
+      controller.logout(req, res, () => {});
+
+      expect(res.clearCookie).toHaveBeenCalledWith(GITHUB_ACCESS_TOKEN);
+      expect(res.clearCookie).toHaveBeenCalledWith(GITHUB_REFRESH_TOKEN);
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Logged out successfully',
+      });
+    });
+
+    it('should handle errors', () => {
+      const req = {} as Request;
+      const res = {
+        clearCookie: vi.fn().mockImplementation(() => {
+          throw new Error('Test error');
+        }),
+      } as unknown as Response;
+      const next = vi.fn();
+
+      controller.logout(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
+    });
+  });
 });
