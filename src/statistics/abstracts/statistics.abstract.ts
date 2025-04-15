@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { Metric } from 'src/statistics/interfaces/metric';
-import { ChartData } from '../interfaces/chart-data';
+import { ChartData } from 'src/statistics/interfaces/chart-data';
 import { PullRequestAuthFilters } from 'src/common/interfaces/pull-request-auth-filters';
 import { PullRequestAuthFiltersWithState } from 'src/common/interfaces/pull-request-auth-filters-with-state';
 
