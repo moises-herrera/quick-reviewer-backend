@@ -1,25 +1,15 @@
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class MockLoggerService implements LoggerService {
-  debug(message: string, meta: Record<string, unknown> = {}): void {
-    console.debug(message, meta);
-  }
+  debug(message: string, meta: Record<string, unknown> = {}): void {}
 
-  log(message: string, meta: Record<string, unknown> = {}): void {
-    console.info(message, meta);
-  }
+  log(message: string, meta: Record<string, unknown> = {}): void {}
 
-  info(message: string, meta: Record<string, unknown> = {}): void {
-    console.info(message, meta);
-  }
+  info(message: string, meta: Record<string, unknown> = {}): void {}
 
-  warn(message: string, meta: Record<string, unknown> = {}): void {
-    console.warn(message, meta);
-  }
+  warn(message: string, meta: Record<string, unknown> = {}): void {}
 
-  error(message: string, meta: Record<string, unknown> = {}): void {
-    console.error(message, meta);
-  }
+  error(message: string, meta: Record<string, unknown> = {}): void {}
 
   logException(
     error: Error | unknown,

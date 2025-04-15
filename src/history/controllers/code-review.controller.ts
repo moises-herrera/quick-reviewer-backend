@@ -11,11 +11,7 @@ export class CodeReviewController {
     private readonly codeReviewRepository: CodeReviewRepository,
   ) {}
 
-  getCodeReviewsReviews: AuthHttpHandler = async (
-    req,
-    res,
-    next,
-  ): Promise<void> => {
+  getCodeReviews: AuthHttpHandler = async (req, res, next): Promise<void> => {
     try {
       const userId = req.userId as string;
       const { ownerName, repositoryName, pullRequestNumber } = req.params;

@@ -4,9 +4,9 @@ import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { Octokit } from 'src/github/interfaces/octokit';
 import { GitHubHistoryService } from 'src/github/services/github-history.service';
-import { MockCodeReviewRepository } from 'tests/mocks/mock-code-review.repository';
-import { MockLoggerService } from 'tests/mocks/mock-logger.service';
-import { MockPullRequestRepository } from 'tests/mocks/mock-pull-request.repository';
+import { MockCodeReviewRepository } from 'tests/mocks/repositories/mock-code-review.repository';
+import { MockLoggerService } from 'tests/mocks/services/mock-logger.service';
+import { MockPullRequestRepository } from 'tests/mocks/repositories/mock-pull-request.repository';
 
 describe('GitHubHistoryService', () => {
   let service: GitHubHistoryService;

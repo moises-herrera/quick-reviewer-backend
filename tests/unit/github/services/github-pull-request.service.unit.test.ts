@@ -2,7 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 import { GitHubPullRequestService } from 'src/github/services/github-pull-request.service';
-import { MockLoggerService } from 'tests/mocks/mock-logger.service';
+import { MockLoggerService } from 'tests/mocks/services/mock-logger.service';
 
 describe('GitHubPullRequestService', () => {
   let service: GitHubPullRequestService;

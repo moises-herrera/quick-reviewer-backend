@@ -1,7 +1,7 @@
 import { TestAccount } from '@prisma/client';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresTestAccountRepository } from 'src/common/database/repositories/postgres-test-account.repository';
-import { MockDbClient } from 'tests/mocks/mock-db-client';
+import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
 
 describe('PostgresTestAccountRepository', () => {
   let dbClient: DbClient;

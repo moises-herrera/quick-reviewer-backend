@@ -1,5 +1,7 @@
+import { injectable } from 'inversify';
 import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 
+@injectable()
 export abstract class PullRequestService {
   abstract setGitProvider(gitProvider: unknown): void;
   abstract getFilesContent(
