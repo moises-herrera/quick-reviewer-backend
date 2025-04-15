@@ -3,7 +3,7 @@ import { DbClient } from 'src/common/database/db-client';
 import { PostgresCodeReviewRepository } from 'src/common/database/repositories/postgres-code-review.repository';
 import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { ReviewInfo } from 'src/github/interfaces/review-info';
-import { MockDbClient } from 'tests/mocks/mock-db-client';
+import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
 
 describe('PostgresCodeReviewRepository', () => {
   let dbClient: DbClient;

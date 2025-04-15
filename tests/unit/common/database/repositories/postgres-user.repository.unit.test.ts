@@ -1,7 +1,7 @@
 import { User, UserAccount, UserRepository } from '@prisma/client';
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresUserRepository } from 'src/common/database/repositories/postgres-user.repository';
-import { MockDbClient } from 'tests/mocks/mock-db-client';
+import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
 
 describe('PostgresUserRepository', () => {
   let dbClient: DbClient;

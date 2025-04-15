@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { historyRouter } from 'src/history/routes/history.router';
-import { gitHubRouter } from 'src/github/routes/github.router';
-import { statisticsRouter } from 'src/statistics/routes/statistics.router';
+import { historyRouter } from 'src/history/routes/history.routes';
+import { gitHubRouter } from 'src/github/routes/github.routes';
+import { statisticsRouter } from 'src/statistics/routes/statistics.routes';
 import { StatusCodes } from 'http-status-codes';
 import { docsConfig } from 'src/app/config/docs-config';
 import swaggerUi from 'swagger-ui-express';

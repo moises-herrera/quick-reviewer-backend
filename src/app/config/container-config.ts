@@ -15,11 +15,7 @@ import { CodeReviewController } from 'src/history/controllers/code-review.contro
 import { AnthropicAIService } from 'src/ai/services/anthropic-ai.service';
 import { GitHubAIReviewService } from 'src/github/services/github-ai-review.service';
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
-import {
-  EventHandlerFactory,
-  Repositories,
-  Services,
-} from 'src/github/factories/event-handler-factory';
+import { EventHandlerFactory } from 'src/github/factories/event-handler-factory';
 import { GitHubPullRequestService } from 'src/github/services/github-pull-request.service';
 import { AccountController } from 'src/history/controllers/account.controller';
 import { PullRequestController } from 'src/history/controllers/pull-request.controller';
@@ -41,6 +37,7 @@ import { TestAccountRepository } from 'src/common/database/abstracts/test-accoun
 import { PostgresTestAccountRepository } from 'src/common/database/repositories/postgres-test-account.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { AppLoggerService } from 'src/common/services/app-logger.service';
+import { Repositories, Services } from 'src/github/factories/utils';
 
 export const container = new Container();
 

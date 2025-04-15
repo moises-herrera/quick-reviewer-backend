@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import { envConfig } from 'src/app/config/env-config';
 import { gitHubWebhooksMiddleware } from 'src/github/config/webhooks-config';
-import { appRouter } from './app.router';
+import { appRouter } from './app.routes';
 import { DbClient } from 'src/common/database/db-client';
 import {
   handleHttpException,

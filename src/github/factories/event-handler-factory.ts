@@ -1,12 +1,12 @@
 import { injectable, inject } from 'inversify';
-import { InstallationHandler } from '../event-handlers/installation.handler';
-import { InstallationRepositoriesHandler } from '../event-handlers/installation-repositories.handler';
-import { RepositoryHandler } from '../event-handlers/repository.handler';
-import { PullRequestHandler } from '../event-handlers/pull-request.handler';
-import { IssueCommentHandler } from '../event-handlers/issue-comment.handler';
-import { PullRequestReviewHandler } from '../event-handlers/pull-request-review.handler';
-import { PullRequestReviewCommentHandler } from '../event-handlers/pull-request-review-comment.handler';
-import { PullRequestReviewThreadHandler } from '../event-handlers/pull-request-review-thread.handler';
+import { InstallationHandler } from 'src/github/event-handlers/installation.handler';
+import { InstallationRepositoriesHandler } from 'src/github/event-handlers/installation-repositories.handler';
+import { RepositoryHandler } from 'src/github/event-handlers/repository.handler';
+import { PullRequestHandler } from 'src/github/event-handlers/pull-request.handler';
+import { IssueCommentHandler } from 'src/github/event-handlers/issue-comment.handler';
+import { PullRequestReviewHandler } from 'src/github/event-handlers/pull-request-review.handler';
+import { PullRequestReviewCommentHandler } from 'src/github/event-handlers/pull-request-review-comment.handler';
+import { PullRequestReviewThreadHandler } from 'src/github/event-handlers/pull-request-review-thread.handler';
 import {
   InstallationEvent,
   InstallationRepositoriesEvent,
@@ -16,20 +16,11 @@ import {
   PullRequestReviewEvent,
   PullRequestReviewCommentEvent,
   PullRequestReviewThreadEvent,
-} from '../interfaces/events';
-import { EventHandler } from '../interfaces/event-handler';
-import { AccountRepository } from 'src/common/database/abstracts/account.repository';
-import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
-import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
-import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
-import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
-import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
-import { LoggerService } from 'src/common/abstracts/logger.abstract';
+} from 'src/github/interfaces/events';
+import { EventHandler } from 'src/github/interfaces/event-handler';
+import { Repositories, Services } from 'src/github/factories/utils';
 
-type EventTypeMap = {
+export type EventTypeMap = {
   installation: InstallationEvent;
   installation_repositories: InstallationRepositoriesEvent;
   repository: RepositoryEvent;
@@ -39,36 +30,6 @@ type EventTypeMap = {
   pull_request_review_comment: PullRequestReviewCommentEvent;
   pull_request_review_thread: PullRequestReviewThreadEvent;
 };
-
-@injectable()
-export class Repositories {
-  constructor(
-    @inject(AccountRepository)
-    public readonly accountRepository: AccountRepository,
-    @inject(ProjectRepository)
-    public readonly projectRepository: ProjectRepository,
-    @inject(PullRequestRepository)
-    public readonly pullRequestRepository: PullRequestRepository,
-    @inject(PullRequestCommentRepository)
-    public readonly pullRequestCommentRepository: PullRequestCommentRepository,
-    @inject(CodeReviewRepository)
-    public readonly codeReviewRepository: CodeReviewRepository,
-    @inject(CodeReviewCommentRepository)
-    public readonly codeReviewCommentRepository: CodeReviewCommentRepository,
-    @inject(TestAccountRepository)
-    public readonly testAccountRepository: TestAccountRepository,
-  ) {}
-}
-
-@injectable()
-export class Services {
-  constructor(
-    @inject(HistoryService)
-    public readonly historyService: HistoryService,
-    @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
-    @inject(LoggerService) public readonly loggerService: LoggerService,
-  ) {}
-}
 
 @injectable()
 export class EventHandlerFactory {

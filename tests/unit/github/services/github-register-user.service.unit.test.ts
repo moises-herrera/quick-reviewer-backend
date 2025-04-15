@@ -4,9 +4,9 @@ import { AccountRepository } from 'src/common/database/abstracts/account.reposit
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
 import { GitHubRegisterUserService } from 'src/github/services/github-register-user.service';
-import { MockAccountRepository } from 'tests/mocks/mock-account.repository';
-import { MockProjectRepository } from 'tests/mocks/mock-project.repository';
-import { MockUserRepository } from 'tests/mocks/mock-user.repository';
+import { MockAccountRepository } from 'tests/mocks/repositories/mock-account.repository';
+import { MockProjectRepository } from 'tests/mocks/repositories/mock-project.repository';
+import { MockUserRepository } from 'tests/mocks/repositories/mock-user.repository';
 
 describe('GitHubRegisterUserService', () => {
   let service: GitHubRegisterUserService;

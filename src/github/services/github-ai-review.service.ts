@@ -19,11 +19,11 @@ import { inject, injectable } from 'inversify';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
-import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
 
 @injectable()
-export class GitHubAIReviewService {
+export class GitHubAIReviewService implements AIReviewService {
   private octokit: Octokit = {} as Octokit;
 
   private readonly summaryPrompt = fs.readFileSync(
@@ -39,8 +39,6 @@ export class GitHubAIReviewService {
   constructor(
     @inject(AIService)
     private readonly aiService: AIService,
-    @inject(PullRequestService)
-    private readonly pullRequestService: PullRequestService,
     @inject(PullRequestCommentRepository)
     private readonly pullRequestCommentRepository: PullRequestCommentRepository,
     @inject(CodeReviewRepository)
@@ -51,7 +49,6 @@ export class GitHubAIReviewService {
 
   setGitProvider(gitProvider: Octokit): void {
     this.octokit = gitProvider;
-    this.pullRequestService.setGitProvider(gitProvider);
   }
 
   async generatePullRequestSummary({
@@ -98,14 +95,27 @@ export class GitHubAIReviewService {
       return;
     }
 
-    const summary = await this.summarizePullRequest({
-      ...context,
-      additionalContext: lastComment?.body
-        ? `Last pull request summary generated (in the table only modify the summary of latest changed files): ${lastComment.body}`
-        : '',
-    });
+    if (!context.changedFiles.length) {
+      const message = `No changes detected.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+      await this.octokit.rest.issues.createComment({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: message,
+      });
+
+      return;
+    }
 
     try {
+      const summary = await this.summarizePullRequest({
+        ...context,
+        additionalContext: lastComment?.body
+          ? `Last pull request summary generated (in the table only modify the summary of latest changed files): ${lastComment.body}`
+          : '',
+      });
+
       const commentOptions = {
         owner,
         repo: name,
@@ -125,23 +135,23 @@ export class GitHubAIReviewService {
           ...comment,
           type: 'summary',
         });
-      } else {
-        const { data } = await this.octokit.rest.issues.updateComment({
-          ...commentOptions,
-          comment_id: Number(lastComment.id),
-        });
-        await this.pullRequestCommentRepository.updatePullRequestComment(
-          lastComment.id,
-          {
-            body: data.body,
-            updatedAt: new Date(),
-            commitId: pullRequest.headSha,
-          },
-        );
+        return;
       }
+
+      const { data } = await this.octokit.rest.issues.updateComment({
+        ...commentOptions,
+        comment_id: Number(lastComment.id),
+      });
+      await this.pullRequestCommentRepository.updatePullRequestComment(
+        lastComment.id,
+        {
+          body: data.body,
+          commitId: pullRequest.headSha,
+        },
+      );
     } catch (error) {
       this.loggerService.logException(error, {
-        message: 'Error creating AI summary',
+        message: 'Error generating pull request summary',
       });
     }
   }
@@ -159,7 +169,7 @@ export class GitHubAIReviewService {
     // Check if the code review already exists and is for the same commit
     // If it does, we don't need to generate a new one
     if (lastCodeReview && lastCodeReview.commitId === pullRequest.headSha) {
-      const message = `Already reviewed this pull request.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+      const message = `There are no changes since the last review, so there is no need to add a new review.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
 
       await this.octokit.rest.issues.createComment({
         owner: repository.owner,
@@ -189,9 +199,23 @@ export class GitHubAIReviewService {
       return;
     }
 
-    const { generalComment, comments } = await this.reviewPullRequest(context);
+    if (!context.changedFiles.length) {
+      const message = `No changes detected.\n\n---\n\nLast commit reviewed: ${pullRequest.headSha}`;
+
+      await this.octokit.rest.issues.createComment({
+        owner: repository.owner,
+        repo: repository.name,
+        issue_number: pullRequest.number,
+        body: message,
+      });
+
+      return;
+    }
 
     try {
+      const { generalComment, comments } =
+        await this.reviewPullRequest(context);
+
       await this.octokit.rest.pulls.createReview({
         owner,
         repo: name,
@@ -202,7 +226,7 @@ export class GitHubAIReviewService {
       });
     } catch (error) {
       this.loggerService.logException(error, {
-        message: 'Error creating AI review',
+        message: 'Error generating pull request review',
       });
     }
   }
@@ -214,11 +238,9 @@ export class GitHubAIReviewService {
   }: AIReviewContextParams): Promise<PullRequestContext> {
     const { owner, name } = repository;
     const { number: pullNumber, headSha } = pullRequest;
-    let changedFiles:
-      | Awaited<
-          RestEndpointMethodTypes['pulls']['listFiles']['response']['data']
-        >
-      | undefined = undefined;
+    let changedFiles: Awaited<
+      RestEndpointMethodTypes['pulls']['listFiles']['response']['data']
+    > = [];
 
     if (!lastCommitReviewed) {
       const { data } = await this.octokit.rest.pulls.listFiles({
@@ -239,11 +261,7 @@ export class GitHubAIReviewService {
         basehead: `${lastCommitReviewed}...${headSha}`,
       });
 
-      if (!files) {
-        throw new Error('No files found in the pull request');
-      }
-
-      changedFiles = files;
+      changedFiles = files ?? [];
     }
 
     const filteredChangedFiles = changedFiles.filter(({ filename }) =>
@@ -364,9 +382,12 @@ export class GitHubAIReviewService {
     const { comments } = JSON.parse(completion) as {
       comments: AIPullRequestReview['comments'];
     };
+    const generalComment =
+      `## Review\n\n ${comments.length} comment` +
+      (comments.length > 1 ? 's' : '');
     const response: AIPullRequestReview = {
       generalComment: comments.length
-        ? `## Review\n\n ${comments.length} comments.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
+        ? `${generalComment}.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
         : `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
       comments,
     };
