@@ -35,9 +35,6 @@ export class InstallationHandler extends EventHandler<
       case 'deleted':
         await this.handleAppDeletion(this.payload);
         break;
-
-      default:
-        break;
     }
   }
 
