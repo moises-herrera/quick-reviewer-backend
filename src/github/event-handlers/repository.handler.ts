@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { EventHandler } from '../interfaces/event-handler';
+import { EventHandler } from 'src/github/interfaces/event-handler';
 import { Repository } from '@prisma/client';
-import { RepositoryEvent } from '../interfaces/events';
+import { RepositoryEvent } from 'src/github/interfaces/events';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 

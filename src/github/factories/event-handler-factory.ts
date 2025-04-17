@@ -64,6 +64,7 @@ export class EventHandlerFactory {
       new InstallationRepositoriesHandler(
         event,
         this.repositories.projectRepository,
+        this.services.loggerService,
       );
 
     this.handlerCreators['repository'] = (event: RepositoryEvent) =>
