@@ -1,22 +1,19 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
-import { EventHandler } from '../interfaces/event-handler';
+import { EventHandler } from 'src/github/interfaces/event-handler';
 import { Repository } from '@prisma/client';
-import { injectable } from 'inversify';
-import { InstallationRepositoriesEvent } from '../interfaces/events';
+import { InstallationRepositoriesEvent } from 'src/github/interfaces/events';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
-@injectable()
 export class InstallationRepositoriesHandler extends EventHandler<
   InstallationRepositoriesEvent['payload']
 > {
-  private readonly repositoryService: ProjectRepository;
-
   constructor(
     event: InstallationRepositoriesEvent,
-    repositoryService: ProjectRepository,
+    private readonly projectRepository: ProjectRepository,
+    private readonly loggerService: LoggerService,
   ) {
     super(event);
-    this.repositoryService = repositoryService;
   }
 
   async handle() {
@@ -28,9 +25,6 @@ export class InstallationRepositoriesHandler extends EventHandler<
       case 'removed':
         await this.removeRepositories(this.payload);
         break;
-
-      default:
-        break;
     }
   }
 
@@ -38,17 +32,22 @@ export class InstallationRepositoriesHandler extends EventHandler<
     payload: EmitterWebhookEvent<'installation_repositories.added'>['payload'],
   ): Promise<void> {
     if (!payload.repositories_added.length) return;
-    const repositoriesMapped =
-      payload.repositories_added?.map(
-        (data) =>
-          ({
-            id: data.id,
-            name: data.full_name,
-            ownerId: payload.installation.account?.id.toString(),
-          }) as unknown as Repository,
-      ) || [];
+    const repositoriesMapped = payload.repositories_added.map(
+      (data) =>
+        ({
+          id: data.id,
+          name: data.full_name,
+          ownerId: payload.installation.account?.id.toString(),
+        }) as unknown as Repository,
+    );
 
-    await this.repositoryService.saveRepositories(repositoriesMapped);
+    try {
+      await this.projectRepository.saveRepositories(repositoriesMapped);
+    } catch (error) {
+      this.loggerService.logException(error, {
+        message: 'Error saving repositories',
+      });
+    }
   }
 
   private async removeRepositories(
@@ -59,6 +58,12 @@ export class InstallationRepositoriesHandler extends EventHandler<
       id.toString(),
     );
 
-    await this.repositoryService.deleteRepositories(repositoriesIds);
+    try {
+      await this.projectRepository.deleteRepositories(repositoriesIds);
+    } catch (error) {
+      this.loggerService.logException(error, {
+        message: 'Error deleting repositories',
+      });
+    }
   }
 }
