@@ -34,6 +34,17 @@ model Account {
   type AccountType
   repositories Repository[]
   users UserAccount[]
+  settings AccountSettings?
+}
+
+model AccountSettings {
+  id String @unique @id @default(uuid())
+  accountId String @unique
+  autoReviewEnabled Boolean @default(false)
+  requestChangesWorkflowEnabled Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 model Repository {
@@ -45,6 +56,17 @@ model Repository {
   ownerId String
   owner Account @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   users UserRepository[]
+  settings RepositorySettings?
+}
+
+model RepositorySettings {
+  id String @unique @id @default(uuid())
+  repositoryId String @unique
+  autoReviewEnabled Boolean @default(false)
+  requestChangesWorkflowEnabled Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
 }
 
 model PullRequest {
