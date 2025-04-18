@@ -5,6 +5,8 @@ import { statisticsRouter } from 'src/statistics/routes/statistics.routes';
 import { StatusCodes } from 'http-status-codes';
 import { docsConfig } from 'src/app/config/docs-config';
 import swaggerUi from 'swagger-ui-express';
+import { accountSettingsRouter } from 'src/settings/routes/account-settings.routes';
+import { repositorySettingsRouter } from 'src/settings/routes/repository-settings.routes';
 
 const appRouter = Router();
 
@@ -19,5 +21,9 @@ appRouter.use('/github', gitHubRouter);
 appRouter.use('/history', historyRouter);
 
 appRouter.use('/statistics', statisticsRouter);
+
+appRouter.use('/account-settings', accountSettingsRouter);
+
+appRouter.use('/repository-settings', repositorySettingsRouter);
 
 export { appRouter };
