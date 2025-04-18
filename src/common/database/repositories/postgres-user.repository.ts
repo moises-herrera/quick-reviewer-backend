@@ -1,4 +1,8 @@
-import { User } from '@prisma/client';
+import {
+  User,
+  UserAccount,
+  UserRepository as RepositoryWithAccess,
+} from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import { DbClient } from 'src/common/database/db-client';
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
@@ -35,12 +39,7 @@ export class PostgresUserRepository implements UserRepository {
     return user;
   }
 
-  async saveUserAccounts(
-    data: {
-      userId: string;
-      accountId: string;
-    }[],
-  ): Promise<void> {
+  async saveUserAccounts(data: Partial<UserAccount>[]): Promise<void> {
     const existingUserAccounts = await this.dbClient.userAccount.findMany({
       where: {
         userId: data[0].userId,
@@ -55,15 +54,12 @@ export class PostgresUserRepository implements UserRepository {
     );
 
     await this.dbClient.userAccount.createMany({
-      data: filteredData,
+      data: filteredData as UserAccount[],
     });
   }
 
   async saveUserRepositories(
-    data: {
-      userId: string;
-      repositoryId: string;
-    }[],
+    data: Partial<RepositoryWithAccess>[],
   ): Promise<void> {
     const existingRepositories = await this.dbClient.userRepository.findMany({
       where: {
@@ -78,7 +74,7 @@ export class PostgresUserRepository implements UserRepository {
     );
 
     await this.dbClient.userRepository.createMany({
-      data: filteredData,
+      data: filteredData as RepositoryWithAccess[],
     });
   }
 }

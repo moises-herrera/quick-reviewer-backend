@@ -67,10 +67,18 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       if (!existingAccounts.length) return;
 
-      const accountIds = existingAccounts.map((account) => ({
-        userId: user.id,
-        accountId: account.id,
-      }));
+      const accountIds = existingAccounts.map((account) => {
+        const canConfigureBot =
+          accounts.find(
+            ({ organization }) => organization.id.toString() === account.id,
+          )?.role === 'admin';
+
+        return {
+          userId: user.id,
+          accountId: account.id,
+          canConfigureBot,
+        };
+      });
 
       await this.userRepository.saveUserAccounts(accountIds);
     } catch (error) {
@@ -109,10 +117,17 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       if (!existingRepositories.length) return;
 
-      const repositoryIds = existingRepositories.map((repository) => ({
-        userId: user.id,
-        repositoryId: repository.id,
-      }));
+      const repositoryIds = existingRepositories.map((repository) => {
+        const permissions = repositories.find(
+          ({ id }) => id.toString() === repository.id,
+        )?.permissions;
+
+        return {
+          userId: user.id,
+          repositoryId: repository.id,
+          canConfigureBot: permissions?.admin || permissions?.maintain || false,
+        };
+      });
 
       await this.userRepository.saveUserRepositories(repositoryIds);
     } catch (error) {
