@@ -13,4 +13,12 @@ export abstract class UserRepository {
   abstract saveUserRepositories(
     data: Partial<RepositoryWithAccess>[],
   ): Promise<void>;
+  abstract getUserAccount(
+    userId: string,
+    accountId: string,
+  ): Promise<UserAccount | null>;
+  abstract getUserRepository(
+    userId: string,
+    repositoryId: string,
+  ): Promise<RepositoryWithAccess | null>;
 }

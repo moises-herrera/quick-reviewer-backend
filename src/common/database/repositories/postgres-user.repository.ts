@@ -77,4 +77,28 @@ export class PostgresUserRepository implements UserRepository {
       data: filteredData as RepositoryWithAccess[],
     });
   }
+
+  getUserAccount(
+    userId: string,
+    accountId: string,
+  ): Promise<UserAccount | null> {
+    return this.dbClient.userAccount.findFirst({
+      where: {
+        userId,
+        accountId,
+      },
+    });
+  }
+
+  getUserRepository(
+    userId: string,
+    repositoryId: string,
+  ): Promise<RepositoryWithAccess | null> {
+    return this.dbClient.userRepository.findFirst({
+      where: {
+        userId,
+        repositoryId,
+      },
+    });
+  }
 }
