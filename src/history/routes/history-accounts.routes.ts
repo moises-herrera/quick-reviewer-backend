@@ -5,14 +5,7 @@ import { PullRequestController } from 'src/history/controllers/pull-request.cont
 import { CodeReviewController } from 'src/history/controllers/code-review.controller';
 import { container } from 'src/app/config/container-config';
 
-/**
- * @swagger
- * tags:
- *   name: Accounts
- *   description: Endpoints for managing GitHub accounts
- */
-
-const accountsRouter = Router();
+const historyAccountsRouter = Router();
 
 export const registerRoutes = () => {
   const accountController = container.get(AccountController);
@@ -26,7 +19,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get all accounts
    *     description: Retrieves all GitHub accounts (users and organizations) accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -54,7 +47,7 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get('/', accountController.getAllAccounts);
+  historyAccountsRouter.get('/', accountController.getAllAccounts);
 
   /**
    * @swagger
@@ -62,7 +55,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get organizations
    *     description: Retrieves GitHub organizations accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -90,7 +83,7 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get('/organizations', accountController.getOrganizations);
+  historyAccountsRouter.get('/organizations', accountController.getOrganizations);
 
   /**
    * @swagger
@@ -98,7 +91,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get users
    *     description: Retrieves GitHub users accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -126,7 +119,7 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get('/users', accountController.getUsers);
+  historyAccountsRouter.get('/users', accountController.getUsers);
 
   /**
    * @swagger
@@ -141,7 +134,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get repositories for account
    *     description: Retrieves all repositories for a specific account (organization or user)
-   *     tags: [Repository]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -183,17 +176,10 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories',
     repositoryController.getRepositories,
   );
-
-  /**
-   * @swagger
-   * tags:
-   *   name: PullRequests
-   *   description: Endpoints for managing pull requests
-   */
 
   /**
    * @swagger
@@ -201,7 +187,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get pull requests
    *     description: Retrieves pull requests for a specific repository
-   *     tags: [PullRequests]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -243,17 +229,11 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests',
     pullRequestController.getPullRequests,
   );
 
-  /**
-   * @swagger
-   * tags:
-   *   name: CodeReviews
-   *   description: Endpoints for managing code reviews
-   */
 
   /**
    * @swagger
@@ -261,7 +241,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get code reviews for a pull request
    *     description: Retrieves code reviews for a specific pull request
-   *     tags: [CodeReviews]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -309,7 +289,7 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
     codeReviewController.getCodeReviews,
   );
@@ -319,4 +299,4 @@ if (process.env.NODE_ENV !== 'test') {
   registerRoutes();
 }
 
-export { accountsRouter };
+export { historyAccountsRouter };

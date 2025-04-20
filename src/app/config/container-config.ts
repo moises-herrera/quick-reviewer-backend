@@ -38,8 +38,8 @@ import { PostgresTestAccountRepository } from 'src/common/database/repositories/
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { AppLoggerService } from 'src/common/services/app-logger.service';
 import { Repositories, Services } from 'src/github/factories/utils';
-import { AccountSettingsController } from 'src/settings/controllers/account-settings.controller';
-import { RepositorySettingsController } from 'src/settings/controllers/repository-settings.controller';
+import { AccountSettingsController } from 'src/accounts/controllers/account-settings.controller';
+import { RepositorySettingsController } from 'src/repositories/controllers/repository-settings.controller';
 import { AccountSettingsRepository } from 'src/common/database/abstracts/account-settings.repository';
 import { PostgresAccountSettingsRepository } from 'src/common/database/repositories/postgres-account-settings.repository';
 import { ProjectSettingsRepository } from 'src/common/database/abstracts/project-settings.repository';

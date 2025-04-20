@@ -4,7 +4,7 @@ import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { PullRequestFiltersWithStateSchema } from 'src/common/schemas/pull-request-filters-with-state.schema';
 import { container } from 'src/app/config/container-config';
 
-const reviewsRouter = Router();
+const historyReviewsRouter = Router();
 
 export const registerRoutes = () => {
   const codeReviewController = container.get(CodeReviewController);
@@ -15,7 +15,7 @@ export const registerRoutes = () => {
    *   post:
    *     summary: Get detailed code review information
    *     description: Retrieves detailed information about code reviews based on filters
-   *     tags: [CodeReviews]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -51,7 +51,7 @@ export const registerRoutes = () => {
    *       500:
    *         description: Server error
    */
-  reviewsRouter.post(
+  historyReviewsRouter.post(
     '/',
     validateBody(PullRequestFiltersWithStateSchema),
     codeReviewController.getCodeReviewsDetailedInfo,
@@ -62,4 +62,4 @@ if (process.env.NODE_ENV !== 'test') {
   registerRoutes();
 }
 
-export { reviewsRouter };
+export { historyReviewsRouter };

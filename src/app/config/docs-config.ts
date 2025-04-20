@@ -276,6 +276,13 @@ const swaggerOptions = {
             title: { type: 'string' },
           },
         },
+        BotSettings: {
+          type: 'object',
+          properties: {
+            autoReviewEnabled: { type: 'boolean' },
+            requestChangesWorkflowEnabled: { type: 'boolean' },
+          },
+        },
       },
     },
   },

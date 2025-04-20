@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerRoutes } from 'src/history/routes/reviews.routes';
+import { registerRoutes } from 'src/history/routes/history-reviews.routes';
 
 const mockCodeReviewController = vi.hoisted(() => ({
   getCodeReviewsDetailedInfo: vi.fn(),

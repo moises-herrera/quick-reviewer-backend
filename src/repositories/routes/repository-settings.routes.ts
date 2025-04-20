@@ -1,15 +1,14 @@
 import { Router } from 'express';
-import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
-import { repositorySettingsPermissionsMiddleware } from 'src/settings/middlewares/repository-settings-permissions.middleware';
+import { repositorySettingsPermissionsMiddleware } from 'src/repositories/middlewares/repository-settings-permissions.middleware';
 import { container } from 'src/app/config/container-config';
-import { RepositorySettingsController } from 'src/settings/controllers/repository-settings.controller';
+import { RepositorySettingsController } from 'src/repositories/controllers/repository-settings.controller';
 import { validateBody } from 'src/common/middlewares/validate-data.middleware';
 import { BotSettingsSchema } from 'src/common/schemas/bot-settings.schema';
 
 /**
  * @swagger
  * tags:
- *   name: Repository Settings
+ *   name: Repository
  *   description: API for managing repository settings
  */
 const repositorySettingsRouter = Router();
@@ -17,16 +16,15 @@ const repositorySettingsRouter = Router();
 const registerRoutes = () => {
   const controller = container.get(RepositorySettingsController);
 
-  // repositorySettingsRouter.use(gitHubAuthMiddleware);
   repositorySettingsRouter.use(repositorySettingsPermissionsMiddleware);
 
   /**
    * @swagger
-   * /api/settings/repository-settings/{repositoryId}:
+   * /api/repositories/{repositoryId}/settings:
    *   get:
    *    summary: Get the settings of a repository
    *    description: Retrieves the settings for a specific repository
-   *    tags: [Repository Settings]
+   *    tags: [Repository]
    *    security:
    *      - githubAuth: []
    *    parameters:
@@ -51,11 +49,11 @@ const registerRoutes = () => {
 
   /**
    * @swagger
-   * /api/settings/repository-settings/{repositoryId}:
+   * /api/repositories/{repositoryId}/settings:
    *   put:
    *     summary: Update repository settings
    *     description: Updates the settings for a specific repository
-   *     tags: [Repository Settings]
+   *     tags: [Repository]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -87,11 +85,11 @@ const registerRoutes = () => {
 
   /**
    * @swagger
-   * /api/settings/repository-settings/{repositoryId}:
+   * /api/repositories/{repositoryId}/settings:
    *   delete:
    *     summary: Delete repository settings
    *     description: Deletes the settings for a specific repository
-   *     tags: [Repository Settings]
+   *     tags: [Repository]
    *     security:
    *       - githubAuth: []
    *     parameters:
