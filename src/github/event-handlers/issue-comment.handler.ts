@@ -15,6 +15,7 @@ import { PullRequestRepository } from 'src/common/database/abstracts/pull-reques
 import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 import { PullRequestMapper } from 'src/github/mappers/pull-request.mapper';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { BotSettingsService } from 'src/common/abstracts/bot-settings.abstract';
 
 export class IssueCommentHandler extends EventHandler<
   IssueCommentEvent['payload']
@@ -25,6 +26,7 @@ export class IssueCommentHandler extends EventHandler<
     private readonly pullRequestCommentRepository: PullRequestCommentRepository,
     private readonly aiReviewService: AIReviewService,
     private readonly loggerService: LoggerService,
+    private readonly botSettingsService: BotSettingsService,
   ) {
     super(event);
 
@@ -68,7 +70,7 @@ export class IssueCommentHandler extends EventHandler<
       return;
     }
 
-    const defaultParams: AIReviewParams = {
+    const reviewParams: AIReviewParams = {
       pullRequest,
       repository: {
         name: payload.repository.name,
@@ -77,9 +79,17 @@ export class IssueCommentHandler extends EventHandler<
     };
 
     if (payload.comment.body === SUMMARIZE_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestSummary(defaultParams);
+      await this.aiReviewService.generatePullRequestSummary(reviewParams);
     } else if (payload.comment.body === REVIEW_PULL_REQUEST_COMMAND) {
-      await this.aiReviewService.generatePullRequestReview(defaultParams);
+      const settings = await this.botSettingsService.getSettings(
+        payload.repository.owner.id.toString(),
+        payload.repository.id.toString(),
+      );
+
+      await this.aiReviewService.generatePullRequestReview({
+        ...reviewParams,
+        settings,
+      });
     }
   }
 

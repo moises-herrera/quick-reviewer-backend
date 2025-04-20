@@ -90,6 +90,7 @@ export class EventHandlerFactory {
         this.repositories.pullRequestCommentRepository,
         this.services.aiReviewService,
         this.services.loggerService,
+        this.services.botSettingsService,
       );
 
     this.handlerCreators['pull_request_review'] = (

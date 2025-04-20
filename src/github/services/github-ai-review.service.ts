@@ -214,10 +214,12 @@ export class GitHubAIReviewService implements AIReviewService {
     }
 
     try {
-      const { generalComment, comments } =
+      const { generalComment, comments, approved } =
         await this.reviewPullRequest(context);
       const reviewType = settings?.requestChangesWorkflowEnabled
-        ? 'REQUEST_CHANGES'
+        ? approved || !comments.length
+          ? 'APPROVE'
+          : 'REQUEST_CHANGES'
         : 'COMMENT';
 
       await this.octokit.rest.pulls.createReview({
@@ -383,8 +385,9 @@ export class GitHubAIReviewService implements AIReviewService {
       systemInstructions: this.reviewPrompt,
       messages: [{ role: 'user', content: prompt }],
     });
-    const { comments } = JSON.parse(completion) as {
+    const { comments, approved } = JSON.parse(completion) as {
       comments: AIPullRequestReview['comments'];
+      approved?: boolean;
     };
     const generalComment =
       `## Review\n\n ${comments.length} comment` +
@@ -394,6 +397,7 @@ export class GitHubAIReviewService implements AIReviewService {
         ? `${generalComment}.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
         : `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
       comments,
+      approved,
     };
 
     return response;
