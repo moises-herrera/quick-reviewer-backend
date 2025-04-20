@@ -7,6 +7,7 @@ export interface AccountFilters extends PaginationOptions {
 export interface RepositoryFilters extends PaginationOptions {
   userId: string;
   ownerName?: string;
+  includeSettings?: boolean;
 }
 
 export interface PullRequestFilters extends PaginationOptions {

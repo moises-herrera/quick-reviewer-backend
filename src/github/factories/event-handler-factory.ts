@@ -80,6 +80,7 @@ export class EventHandlerFactory {
         this.repositories.pullRequestRepository,
         this.services.aiReviewService,
         this.services.loggerService,
+        this.services.botSettingsService,
       );
 
     this.handlerCreators['issue_comment'] = (event: IssueCommentEvent) =>

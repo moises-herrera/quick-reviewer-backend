@@ -1,16 +1,18 @@
 import { z } from 'zod';
-import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 
-const PaginationOptionsSchema = z.object({
+const RepositoryOptionsSchema = z.object({
   page: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),
   search: z.string().optional(),
+  includeSettings: z.boolean().optional(),
 });
 
-export const parsePaginationOptions = (
+type RepositoryOptions = Required<z.infer<typeof RepositoryOptionsSchema>>;
+
+export const parseRepositoryOptions = (
   options: Record<string, unknown>,
-): PaginationOptions => {
-  const parsedOptions = PaginationOptionsSchema.parse(options);
+): RepositoryOptions => {
+  const parsedOptions = RepositoryOptionsSchema.parse(options);
 
   return {
     page:
@@ -22,5 +24,6 @@ export const parsePaginationOptions = (
         ? parsedOptions.limit || 10
         : 10,
     search: parsedOptions.search || '',
+    includeSettings: parsedOptions.includeSettings || false,
   };
 };

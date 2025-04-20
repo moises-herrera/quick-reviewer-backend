@@ -2,7 +2,7 @@ import { isExtensionSupported } from 'src/common/utils/language-support';
 import { inject, injectable } from 'inversify';
 import { PullRequestFile } from 'src/github/interfaces/pull-request-file';
 import { Octokit } from '@octokit/rest';
-import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
+import { PullRequestService } from 'src/common/abstracts/pull-request.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()

@@ -5,10 +5,11 @@ import { ProjectRepository } from 'src/common/database/abstracts/project.reposit
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { CodeReviewCommentRepository } from 'src/common/database/abstracts/code-review-comment.repository';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { BotSettingsService } from 'src/common/abstracts/bot-settings.abstract';
 
 @injectable()
 export class Repositories {
@@ -35,7 +36,11 @@ export class Services {
   constructor(
     @inject(HistoryService)
     public readonly historyService: HistoryService,
-    @inject(AIReviewService) public readonly aiReviewService: AIReviewService,
-    @inject(LoggerService) public readonly loggerService: LoggerService,
+    @inject(AIReviewService)
+    public readonly aiReviewService: AIReviewService,
+    @inject(LoggerService)
+    public readonly loggerService: LoggerService,
+    @inject(BotSettingsService)
+    public readonly botSettingsService: BotSettingsService,
   ) {}
 }

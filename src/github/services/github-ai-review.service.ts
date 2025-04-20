@@ -8,7 +8,7 @@ import { Octokit } from 'src/github/interfaces/octokit';
 import {
   AIReviewContextParams,
   AIReviewParams,
-} from 'src/github/interfaces/review-params';
+} from 'src/common/interfaces/review-params';
 import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
@@ -20,7 +20,7 @@ import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 
 @injectable()
 export class GitHubAIReviewService implements AIReviewService {
@@ -159,6 +159,7 @@ export class GitHubAIReviewService implements AIReviewService {
   async generatePullRequestReview({
     repository,
     pullRequest,
+    settings,
   }: AIReviewParams): Promise<void> {
     const lastCodeReview = await this.codeReviewRepository.getLastCodeReview({
       pullRequestId: pullRequest.id,
@@ -215,13 +216,16 @@ export class GitHubAIReviewService implements AIReviewService {
     try {
       const { generalComment, comments } =
         await this.reviewPullRequest(context);
+      const reviewType = settings?.requestChangesWorkflowEnabled
+        ? 'REQUEST_CHANGES'
+        : 'COMMENT';
 
       await this.octokit.rest.pulls.createReview({
         owner,
         repo: name,
         pull_number: pullNumber,
         body: generalComment,
-        event: 'COMMENT',
+        event: reviewType,
         comments,
       });
     } catch (error) {

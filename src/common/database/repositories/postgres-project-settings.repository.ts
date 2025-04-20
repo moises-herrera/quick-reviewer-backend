@@ -10,14 +10,14 @@ export class PostgresProjectSettingsRepository
 {
   constructor(@inject(DbClient) private readonly dbClient: DbClient) {}
 
-  async getSettings(accountId: string): Promise<RepositorySettings[]> {
-    return this.dbClient.repositorySettings.findMany({
+  async getSettings(projectId: string): Promise<RepositorySettings | null> {
+    const settings = await this.dbClient.repositorySettings.findUnique({
       where: {
-        repository: {
-          ownerId: accountId,
-        },
+        repositoryId: projectId,
       },
     });
+
+    return settings;
   }
 
   async setSettings(projectId: string, settings: BotSettings): Promise<void> {

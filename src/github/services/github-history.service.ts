@@ -8,7 +8,7 @@ import { RepositoryAttributes } from 'src/github/interfaces/repository-attribute
 import { CodeReviewMapper } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()

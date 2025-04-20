@@ -5,14 +5,14 @@ import {
   SUMMARIZE_PULL_REQUEST_COMMAND,
 } from 'src/github/constants/commands';
 import { Octokit } from 'src/github/interfaces/octokit';
-import { AIReviewParams } from 'src/github/interfaces/review-params';
+import { AIReviewParams } from 'src/common/interfaces/review-params';
 import { PullRequest, PullRequestComment } from '@prisma/client';
 import { BOT_USER_REFERENCE, BOT_USERNAME } from 'src/github/constants/bot';
 import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
 import { IssueCommentEvent } from 'src/github/interfaces/events';
 import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull-request-comment.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 import { PullRequestMapper } from 'src/github/mappers/pull-request.mapper';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 

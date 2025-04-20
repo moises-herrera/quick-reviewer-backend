@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { envConfig } from 'src/app/config/env-config';
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
 import { AuthRequest } from 'src/common/interfaces/auth-request';
-import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
+import { RegisterUserService } from 'src/common/abstracts/register-user.abstract';
 import { gitHubAuthApp } from 'src/github/config/github-auth-app';
 import {
   GITHUB_ACCESS_TOKEN,

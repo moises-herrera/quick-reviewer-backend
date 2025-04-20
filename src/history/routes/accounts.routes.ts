@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { AccountController } from '../controllers/account.controller';
-import { RepositoryController } from '../controllers/repository.controller';
-import { PullRequestController } from '../controllers/pull-request.controller';
-import { CodeReviewController } from '../controllers/code-review.controller';
+import { AccountController } from 'src/history/controllers/account.controller';
+import { RepositoryController } from 'src/history/controllers/repository.controller';
+import { PullRequestController } from 'src/history/controllers/pull-request.controller';
+import { CodeReviewController } from 'src/history/controllers/code-review.controller';
 import { container } from 'src/app/config/container-config';
 
 /**
@@ -163,6 +163,12 @@ export const registerRoutes = () => {
    *           type: integer
    *           default: 10
    *         description: Number of items per page
+   *       - in: query
+   *         name: includeSettings
+   *         schema:
+   *           type: boolean
+   *           default: false
+   *         description: Include settings in the response
    *     responses:
    *       200:
    *         description: List of repositories with pagination info

@@ -2,7 +2,7 @@ import { TestAccount } from '@prisma/client';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { AccountRepository } from 'src/common/database/abstracts/account.repository';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
 import { InstallationHandler } from 'src/github/event-handlers/installation.handler';
 import { InstallationEvent } from 'src/github/interfaces/events';
 import { AccountMapper } from 'src/github/mappers/account.mapper';
