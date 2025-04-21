@@ -18,9 +18,9 @@ export const repositorySettingsPermissionsMiddleware: AuthHttpHandler = async (
     repositoryId,
   );
 
-  if (!repository) {
+  if (!repository || !repository.canConfigureBot) {
     res.status(StatusCodes.FORBIDDEN).json({
-      message: 'You do not have permission to access this repository',
+      message: 'You do not have permission to manage this repository',
     });
     return;
   }

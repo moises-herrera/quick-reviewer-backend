@@ -4,7 +4,7 @@ const RepositoryOptionsSchema = z.object({
   page: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),
   search: z.string().optional(),
-  includeSettings: z.boolean().optional(),
+  includeSettings: z.coerce.boolean().optional(),
 });
 
 type RepositoryOptions = Required<z.infer<typeof RepositoryOptionsSchema>>;

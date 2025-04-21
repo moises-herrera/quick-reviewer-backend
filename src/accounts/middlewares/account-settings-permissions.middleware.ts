@@ -17,10 +17,10 @@ export const accountSettingsPermissionsMiddleware: AuthHttpHandler = async (
     accountId,
   );
 
-  if (!account) {
+  if (!account || !account.canConfigureBot) {
     res
       .status(StatusCodes.FORBIDDEN)
-      .json({ message: 'You do not have permission to access this account' });
+      .json({ message: 'You do not have permission to manage this account' });
     return;
   }
 

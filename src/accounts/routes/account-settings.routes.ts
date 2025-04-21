@@ -74,6 +74,33 @@ const registerRoutes = () => {
     validateBody(BotSettingsSchema),
     controller.updateAccountSettings,
   );
+
+  /**
+   * @swagger
+   * /api/accounts/{accountId}/settings/sync-repositories:
+   *   get:
+   *     summary: Sync repository settings with account settings
+   *     description: Synchronizes repository settings with the specified account settings
+   *     tags: [Accounts]
+   *     security:
+   *       - githubAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: accountId
+   *         required: true
+   *         description: The ID of the account to synchronize settings for
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Successful response
+   *       500:
+   *         description: Internal server error
+   */
+  accountSettingsRouter.delete(
+    '/:accountId/settings/sync-repositories',
+    controller.syncRepositorySettings,
+  );
 };
 
 registerRoutes();

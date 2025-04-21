@@ -43,7 +43,7 @@ const registerRoutes = () => {
    *        description: Internal server error
    */
   repositorySettingsRouter.get(
-    '/:repositoryId',
+    '/:repositoryId/settings',
     controller.getRepositorySettings,
   );
 
@@ -78,7 +78,7 @@ const registerRoutes = () => {
    *         description: Internal server error
    */
   repositorySettingsRouter.put(
-    '/:repositoryId',
+    '/:repositoryId/settings',
     validateBody(BotSettingsSchema),
     controller.updateRepositorySettings,
   );
@@ -108,7 +108,7 @@ const registerRoutes = () => {
    *         description: Internal server error
    */
   repositorySettingsRouter.delete(
-    '/:repositoryId',
+    '/:repositoryId/settings',
     controller.deleteRepositorySettings,
   );
 };

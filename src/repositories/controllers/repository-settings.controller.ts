@@ -24,7 +24,10 @@ export class RepositorySettingsController {
         );
       }
 
-      res.status(StatusCodes.OK).json(settings);
+      res.status(StatusCodes.OK).json({
+        autoReviewEnabled: settings.autoReviewEnabled,
+        requestChangesWorkflowEnabled: settings.requestChangesWorkflowEnabled,
+      });
     } catch (error) {
       next(error);
     }
