@@ -37,10 +37,22 @@ const registerRoutes = () => {
    *    responses:
    *      200:
    *        description: Successful response with repository settings
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/BotSettings'
    *      404:
    *        description: Repository settings not found
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/StandardResponse'
    *      500:
    *        description: Internal server error
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/StandardResponse'
    */
   repositorySettingsRouter.get(
     '/:repositoryId/settings',
@@ -72,10 +84,22 @@ const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Successful response with updated settings
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       400:
    *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   repositorySettingsRouter.put(
     '/:repositoryId/settings',
@@ -102,10 +126,22 @@ const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Successful response with deletion confirmation
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Repository settings not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   repositorySettingsRouter.delete(
     '/:repositoryId/settings',

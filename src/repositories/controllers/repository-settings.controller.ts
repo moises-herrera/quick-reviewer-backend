@@ -24,10 +24,12 @@ export class RepositorySettingsController {
         );
       }
 
-      res.status(StatusCodes.OK).json({
+      const botSettings: BotSettings = {
         autoReviewEnabled: settings.autoReviewEnabled,
         requestChangesWorkflowEnabled: settings.requestChangesWorkflowEnabled,
-      });
+      };
+
+      res.status(StatusCodes.OK).json(botSettings);
     } catch (error) {
       next(error);
     }

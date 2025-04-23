@@ -31,8 +31,16 @@ const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Successful response
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/BotSettings'
    *       500:
    *         description: Internal server error
+   *         content:
+   *           application/json:
+   *            schema:
+   *             $ref: '#/components/schemas/StandardResponse'
    */
   accountSettingsRouter.get(
     '/:accountId/settings',
@@ -64,10 +72,22 @@ const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Successful response
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       400:
    *         description: Bad request
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Account not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   accountSettingsRouter.put(
     '/:accountId/settings',
@@ -78,7 +98,7 @@ const registerRoutes = () => {
   /**
    * @swagger
    * /api/accounts/{accountId}/settings/sync-repositories:
-   *   get:
+   *   delete:
    *     summary: Sync repository settings with account settings
    *     description: Synchronizes repository settings with the specified account settings
    *     tags: [Accounts]
@@ -94,8 +114,16 @@ const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Successful response
+   *         content:
+   *            application/json:
+   *              schema:
+   *                $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Internal server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   accountSettingsRouter.delete(
     '/:accountId/settings/sync-repositories',

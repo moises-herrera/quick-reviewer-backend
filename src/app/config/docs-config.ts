@@ -24,6 +24,12 @@ const swaggerOptions = {
         },
       },
       schemas: {
+        StandardResponse: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+          },
+        },
         AccountType: {
           type: 'string',
           enum: ['User', 'Organization', 'Bot'],
@@ -31,7 +37,7 @@ const swaggerOptions = {
         User: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
+            id: { type: 'string' },
             name: { type: 'string', nullable: true },
             username: { type: 'string' },
             email: { type: 'string', nullable: true },
@@ -42,7 +48,7 @@ const swaggerOptions = {
         Account: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
+            id: { type: 'string' },
             name: { type: 'string' },
             type: { $ref: '#/components/schemas/AccountType' },
             createdAt: { type: 'string', format: 'date-time' },
@@ -52,9 +58,9 @@ const swaggerOptions = {
         Repository: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
+            id: { type: 'string' },
             name: { type: 'string' },
-            ownerId: { type: 'number' },
+            ownerId: { type: 'string' },
             owner: { $ref: '#/components/schemas/Account' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
@@ -63,7 +69,7 @@ const swaggerOptions = {
         PullRequest: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
+            id: { type: 'string' },
             nodeId: { type: 'string' },
             number: { type: 'integer' },
             title: { type: 'string' },
@@ -78,7 +84,7 @@ const swaggerOptions = {
             additions: { type: 'integer' },
             deletions: { type: 'integer' },
             changedFiles: { type: 'integer' },
-            repositoryId: { type: 'number' },
+            repositoryId: { type: 'string' },
             headSha: { type: 'string' },
             baseSha: { type: 'string' },
             repository: { $ref: '#/components/schemas/Repository' },
@@ -87,8 +93,8 @@ const swaggerOptions = {
         PullRequestComment: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
-            pullRequestId: { type: 'number' },
+            id: { type: 'string' },
+            pullRequestId: { type: 'string' },
             body: { type: 'string' },
             user: { type: 'string' },
             userType: { $ref: '#/components/schemas/AccountType' },
@@ -101,8 +107,8 @@ const swaggerOptions = {
         CodeReview: {
           type: 'object',
           properties: {
-            id: { type: 'number' },
-            pullRequestId: { type: 'number' },
+            id: { type: 'string' },
+            pullRequestId: { type: 'string' },
             reviewer: { type: 'string' },
             body: { type: 'string', nullable: true },
             status: { type: 'string' },
@@ -112,7 +118,7 @@ const swaggerOptions = {
             pullRequest: { $ref: '#/components/schemas/PullRequest' },
           },
         },
-        AccountsResponse: {
+        PaginatedAccountsResponse: {
           type: 'object',
           properties: {
             data: {
@@ -181,7 +187,7 @@ const swaggerOptions = {
           type: 'object',
           properties: {
             id: {
-              type: 'number',
+              type: 'string',
             },
             createdAt: {
               type: 'string',
@@ -197,7 +203,7 @@ const swaggerOptions = {
               type: 'object',
               properties: {
                 id: {
-                  type: 'number',
+                  type: 'string',
                 },
                 number: {
                   type: 'number',
@@ -213,7 +219,7 @@ const swaggerOptions = {
                   type: 'object',
                   properties: {
                     id: {
-                      type: 'number',
+                      type: 'string',
                     },
                     name: {
                       type: 'string',
@@ -222,7 +228,7 @@ const swaggerOptions = {
                       type: 'object',
                       properties: {
                         id: {
-                          type: 'number',
+                          type: 'string',
                         },
                         name: {
                           type: 'string',

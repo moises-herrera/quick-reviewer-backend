@@ -44,8 +44,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get('/', accountController.getAllAccounts);
 
@@ -80,8 +88,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get('/organizations', accountController.getOrganizations);
 
@@ -116,8 +132,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get('/users', accountController.getUsers);
 
@@ -171,10 +195,22 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedRepositoriesResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Owner not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get(
     '/:ownerName/repositories',
@@ -224,10 +260,22 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedPullRequestsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Repository not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests',
@@ -284,10 +332,22 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedCodeReviewsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Pull request not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
