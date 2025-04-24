@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerRoutes } from 'src/history/routes/accounts.routes';
+import { registerRoutes } from 'src/history/routes/history-accounts.routes';
 
 const accountController = vi.hoisted(() => ({
   getAllAccounts: vi.fn(),

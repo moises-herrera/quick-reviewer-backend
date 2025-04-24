@@ -6,6 +6,7 @@ import { PaginatedResponse } from 'src/common/interfaces/paginated-response';
 import { RepositoryFilters } from 'src/github/interfaces/record-filters';
 import { DbClient } from 'src/common/database/db-client';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
+import { RepositoryInfo } from 'src/github/interfaces/repository-info';
 
 @injectable()
 export class PostgresProjectRepository implements ProjectRepository {
@@ -25,7 +26,7 @@ export class PostgresProjectRepository implements ProjectRepository {
 
   async getPaginatedRepositories(
     options: RepositoryFilters,
-  ): Promise<PaginatedResponse<Repository>> {
+  ): Promise<PaginatedResponse<RepositoryInfo>> {
     const existingAccount = await this.dbClient.account.findFirst({
       where: {
         name: options.ownerName,
@@ -41,9 +42,7 @@ export class PostgresProjectRepository implements ProjectRepository {
       throw new HttpException('Account not found', StatusCodes.NOT_FOUND);
     }
 
-    const skipRecords =
-      options.page > 1 ? options.limit * (options.page - 1) : 0;
-    const repositories = await this.dbClient.repository.findMany({
+    const whereClause = {
       where: {
         name: {
           contains: options.search,
@@ -55,30 +54,37 @@ export class PostgresProjectRepository implements ProjectRepository {
         },
         ownerId: existingAccount.id,
       },
+    } as const;
+    const selectClause = {
+      id: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      ownerId: true,
+      settings: options.includeSettings
+        ? {
+            select: {
+              autoReviewEnabled: true,
+              requestChangesWorkflowEnabled: true,
+            },
+          }
+        : undefined,
+    } as const;
+    const skipRecords =
+      options.page > 1 ? options.limit * (options.page - 1) : 0;
+    const repositories = await this.dbClient.repository.findMany({
+      ...whereClause,
       take: options.limit,
       skip: skipRecords,
       orderBy: {
         createdAt: 'desc',
       },
+      select: selectClause,
     });
 
-    const total = await this.dbClient.repository.count({
-      where: {
-        name: {
-          contains: options.search,
-        },
-        users: {
-          some: {
-            userId: options.userId,
-          },
-        },
-        owner: {
-          name: options.ownerName,
-        },
-      },
-    });
+    const total = await this.dbClient.repository.count(whereClause);
 
-    const response: PaginatedResponse<Repository> = {
+    const response: PaginatedResponse<RepositoryInfo> = {
       data: repositories,
       total,
       page: options.page,

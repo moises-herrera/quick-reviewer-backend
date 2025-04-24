@@ -84,6 +84,10 @@ export const registerRoutes = () => {
    *                   $ref: '#/components/schemas/User'
    *       401:
    *         description: User is not authenticated
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   gitHubRouter.get(
     '/auth/check-token',
@@ -110,8 +114,16 @@ export const registerRoutes = () => {
    *                   $ref: '#/components/schemas/User'
    *       400:
    *         description: Refresh token not provided or invalid
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: User not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   gitHubRouter.post('/auth/refresh-token', controller.refreshToken);
 
@@ -125,6 +137,10 @@ export const registerRoutes = () => {
    *     responses:
    *       200:
    *         description: Logged out successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   gitHubRouter.post('/auth/logout', controller.logout);
 };

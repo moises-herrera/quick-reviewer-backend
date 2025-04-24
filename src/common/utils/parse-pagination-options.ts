@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PaginationOptions } from '../interfaces/pagination-options';
+import { PaginationOptions } from 'src/common/interfaces/pagination-options';
 
 const PaginationOptionsSchema = z.object({
   page: z.coerce.number().optional(),

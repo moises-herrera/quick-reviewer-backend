@@ -14,6 +14,7 @@ import { PullRequestAverageCompletionTimeData } from 'src/common/interfaces/pull
 import { PullRequestAverageReviewCountData } from 'src/common/interfaces/pull-request-average-review-count-data';
 import { PullRequestReviewCountData } from 'src/common/interfaces/pull-request-review-count-data';
 import { PullRequestCountByRepositoryData } from 'src/common/interfaces/pull-request-count-by-repository-data';
+import { addDays } from 'src/common/utils/date-helper';
 
 @injectable()
 export class PostgresPullRequestRepository implements PullRequestRepository {
@@ -146,7 +147,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         },
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
       },
       select: {
@@ -176,7 +177,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         state: 'closed',
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
         mergedAt: {
           not: null,
@@ -213,7 +214,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         state: status,
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
         reviews: {
           some: {
@@ -258,7 +259,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         state: status,
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
       },
       select: {
@@ -293,7 +294,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         state: status,
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
       },
       select: {
@@ -337,7 +338,7 @@ export class PostgresPullRequestRepository implements PullRequestRepository {
         },
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate),
+          lte: addDays(new Date(endDate), 1),
         },
       },
       select: {

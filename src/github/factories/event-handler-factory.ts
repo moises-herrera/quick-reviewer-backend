@@ -64,6 +64,7 @@ export class EventHandlerFactory {
       new InstallationRepositoriesHandler(
         event,
         this.repositories.projectRepository,
+        this.services.loggerService,
       );
 
     this.handlerCreators['repository'] = (event: RepositoryEvent) =>
@@ -79,6 +80,7 @@ export class EventHandlerFactory {
         this.repositories.pullRequestRepository,
         this.services.aiReviewService,
         this.services.loggerService,
+        this.services.botSettingsService,
       );
 
     this.handlerCreators['issue_comment'] = (event: IssueCommentEvent) =>
@@ -88,6 +90,7 @@ export class EventHandlerFactory {
         this.repositories.pullRequestCommentRepository,
         this.services.aiReviewService,
         this.services.loggerService,
+        this.services.botSettingsService,
       );
 
     this.handlerCreators['pull_request_review'] = (

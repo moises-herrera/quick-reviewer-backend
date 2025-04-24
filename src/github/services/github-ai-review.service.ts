@@ -8,7 +8,7 @@ import { Octokit } from 'src/github/interfaces/octokit';
 import {
   AIReviewContextParams,
   AIReviewParams,
-} from 'src/github/interfaces/review-params';
+} from 'src/common/interfaces/review-params';
 import { AIPullRequestReview } from 'src/github/interfaces/ai-pull-request-review';
 import { PullRequestComment } from '@prisma/client';
 import { PullRequestCommentMapper } from 'src/github/mappers/pull-request-comment.mapper';
@@ -20,7 +20,7 @@ import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 
 @injectable()
 export class GitHubAIReviewService implements AIReviewService {
@@ -109,11 +109,18 @@ export class GitHubAIReviewService implements AIReviewService {
     }
 
     try {
+      let additionalContext = '';
+
+      if (lastComment?.body) {
+        additionalContext =
+          `This is the last pull request summary generated. Preserve the table order and the existing change summary of each file that was not modified. ` +
+          `Only add or modify the general summary if it is necessary, considering that new information can be added or removed to the current summary. ` +
+          `In the table, only add or modify the latest changed files that are provided: ${lastComment.body}`;
+      }
+
       const summary = await this.summarizePullRequest({
         ...context,
-        additionalContext: lastComment?.body
-          ? `Last pull request summary generated (in the table only modify the summary of latest changed files): ${lastComment.body}`
-          : '',
+        additionalContext,
       });
 
       const commentOptions = {
@@ -159,6 +166,7 @@ export class GitHubAIReviewService implements AIReviewService {
   async generatePullRequestReview({
     repository,
     pullRequest,
+    settings,
   }: AIReviewParams): Promise<void> {
     const lastCodeReview = await this.codeReviewRepository.getLastCodeReview({
       pullRequestId: pullRequest.id,
@@ -213,15 +221,20 @@ export class GitHubAIReviewService implements AIReviewService {
     }
 
     try {
-      const { generalComment, comments } =
+      const { generalComment, comments, approved } =
         await this.reviewPullRequest(context);
+      const reviewType = settings?.requestChangesWorkflowEnabled
+        ? approved || !comments.length
+          ? 'APPROVE'
+          : 'REQUEST_CHANGES'
+        : 'COMMENT';
 
       await this.octokit.rest.pulls.createReview({
         owner,
         repo: name,
         pull_number: pullNumber,
         body: generalComment,
-        event: 'COMMENT',
+        event: reviewType,
         comments,
       });
     } catch (error) {
@@ -379,8 +392,9 @@ export class GitHubAIReviewService implements AIReviewService {
       systemInstructions: this.reviewPrompt,
       messages: [{ role: 'user', content: prompt }],
     });
-    const { comments } = JSON.parse(completion) as {
+    const { comments, approved } = JSON.parse(completion) as {
       comments: AIPullRequestReview['comments'];
+      approved?: boolean;
     };
     const generalComment =
       `## Review\n\n ${comments.length} comment` +
@@ -390,6 +404,7 @@ export class GitHubAIReviewService implements AIReviewService {
         ? `${generalComment}.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`
         : `## Review\n\n No relevant changes detected.\n\n---\n\nCommit reviewed: ${pullRequest.headSha}`,
       comments,
+      approved,
     };
 
     return response;

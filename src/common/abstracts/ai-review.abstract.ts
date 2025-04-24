@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { AIReviewParams } from 'src/github/interfaces/review-params';
+import { AIReviewParams } from 'src/common/interfaces/review-params';
 
 @injectable()
 export abstract class AIReviewService {

@@ -90,9 +90,9 @@ describe('GitHubRegisterUserService', () => {
       );
       expect(spyGetAccountsByIds).toHaveBeenCalledWith([user.id, '123', '456']);
       expect(spySaveUserAccounts).toHaveBeenCalledWith([
-        { userId: user.id, accountId: user.id },
-        { userId: user.id, accountId: '123' },
-        { userId: user.id, accountId: '456' },
+        { userId: user.id, accountId: user.id, canConfigureBot: false },
+        { userId: user.id, accountId: '123', canConfigureBot: false },
+        { userId: user.id, accountId: '456', canConfigureBot: false },
       ]);
     });
 
@@ -138,8 +138,8 @@ describe('GitHubRegisterUserService', () => {
       });
       expect(spyGetRepositoriesByIds).toHaveBeenCalledWith(['789', '452']);
       expect(spySaveUserRepositories).toHaveBeenCalledWith([
-        { userId: user.id, repositoryId: '789' },
-        { userId: user.id, repositoryId: '452' },
+        { userId: user.id, repositoryId: '789', canConfigureBot: false },
+        { userId: user.id, repositoryId: '452', canConfigureBot: false },
       ]);
     });
 

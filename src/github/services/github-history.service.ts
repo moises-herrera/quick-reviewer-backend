@@ -8,7 +8,7 @@ import { RepositoryAttributes } from 'src/github/interfaces/repository-attribute
 import { CodeReviewMapper } from 'src/github/mappers/code-review.mapper';
 import { CodeReviewRepository } from 'src/common/database/abstracts/code-review.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 @injectable()
@@ -83,8 +83,13 @@ export class GitHubHistoryService implements HistoryService {
       throw new Error('Octokit instance is not set.');
     }
 
-    const defaultStartDate = '2024-01-01';
-    const defaultEndDate = '2024-12-31';
+    const currentDate = new Date();
+    const defaultStartDate = new Date(
+      currentDate.setFullYear(currentDate.getFullYear() - 1),
+    )
+      .toISOString()
+      .split('T')[0];
+    const defaultEndDate = currentDate.toISOString().split('T')[0];
     const result = await this.octokit.rest.search.issuesAndPullRequests({
       q: `repo:${owner}/${name} is:pr is:merged created:${filters?.startDate || defaultStartDate}..${filters?.endDate || defaultEndDate}`,
       per_page: filters?.perPage || 100,

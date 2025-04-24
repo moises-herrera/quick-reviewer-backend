@@ -1,8 +1,8 @@
 import { inject } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
-import { parsePaginationOptions } from 'src/common/utils/parse-pagination-options';
 import { AuthHttpHandler } from 'src/common/interfaces/http-handler';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
+import { parseRepositoryOptions } from 'src/common/utils/parse-repository-options';
 
 export class RepositoryController {
   constructor(
@@ -14,7 +14,7 @@ export class RepositoryController {
     try {
       const userId = req.userId as string;
       const ownerName = req.params.ownerName;
-      const paginationOptions = parsePaginationOptions(req.query);
+      const paginationOptions = parseRepositoryOptions(req.query);
       const response = await this.projectRepository.getPaginatedRepositories({
         ...paginationOptions,
         userId,

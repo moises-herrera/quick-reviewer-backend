@@ -211,7 +211,10 @@ describe('GitHubAIReviewService', () => {
         messages: [
           {
             role: 'user',
-            content: `Last pull request summary generated (in the table only modify the summary of latest changed files): ${comment.body}`,
+            content:
+              `This is the last pull request summary generated. Preserve the table order and the existing change summary of each file that was not modified. ` +
+              `Only add or modify the general summary if it is necessary, considering that new information can be added or removed to the current summary. ` +
+              `In the table, only add or modify the latest changed files that are provided: ${comment.body}`,
           },
           {
             role: 'user',
