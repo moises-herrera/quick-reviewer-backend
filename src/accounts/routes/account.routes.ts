@@ -10,7 +10,7 @@ import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middlew
  */
 const accountsRouter = Router();
 
-const registerRoutes = () => {
+export const registerRoutes = () => {
   accountsRouter.use(gitHubAuthMiddleware);
   accountsRouter.use(accountSettingsRouter);
 };
