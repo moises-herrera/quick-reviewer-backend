@@ -15,12 +15,14 @@ const swaggerOptions = {
         url: envConfig.BACKEND_URL,
       },
     ],
+    security: [{ githubAuth: [] }],
     components: {
       securitySchemes: {
         githubAuth: {
           type: 'apiKey',
           in: 'cookie',
           name: GITHUB_ACCESS_TOKEN,
+          description: 'GitHub access token for authentication',
         },
       },
       schemas: {
