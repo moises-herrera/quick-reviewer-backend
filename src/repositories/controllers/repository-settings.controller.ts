@@ -13,9 +13,9 @@ export class RepositorySettingsController {
 
   getRepositorySettings: AuthHttpHandler = async (req, res, next) => {
     try {
-      const { accountId } = req.params;
+      const { repositoryId } = req.params;
       const settings =
-        await this.projectSettingsRepository.getSettings(accountId);
+        await this.projectSettingsRepository.getSettings(repositoryId);
 
       if (!settings) {
         throw new HttpException(

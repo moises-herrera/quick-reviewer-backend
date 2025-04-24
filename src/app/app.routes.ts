@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { docsConfig } from 'src/app/config/docs-config';
 import swaggerUi from 'swagger-ui-express';
 import { accountsRouter } from 'src/accounts/routes/account.routes';
-import { repositoriesRouter } from 'src/repositories/routes/repositories.routes';
+import { repositoriesRouter } from 'src/repositories/routes/repository.routes';
 
 const appRouter = Router();
 
