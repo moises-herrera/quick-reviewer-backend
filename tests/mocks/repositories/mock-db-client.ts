@@ -82,5 +82,17 @@ export class MockDbClient {
     deleteMany: vi.fn(),
   };
 
+  accountSettings = {
+    findFirst: vi.fn(),
+    upsert: vi.fn(),
+  };
+
+  repositorySettings = {
+    findUnique: vi.fn(),
+    upsert: vi.fn(),
+    delete: vi.fn(),
+    deleteMany: vi.fn(),
+  }
+
   connectToDatabase = vi.fn();
 }

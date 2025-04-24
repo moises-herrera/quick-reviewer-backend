@@ -36,7 +36,7 @@ export class PostgresProjectSettingsRepository
   }
 
   async deleteSettings(projectId: string): Promise<void> {
-    await this.dbClient.repositorySettings.deleteMany({
+    await this.dbClient.repositorySettings.delete({
       where: {
         repositoryId: projectId,
       },
