@@ -1,6 +1,7 @@
 export interface AIPullRequestReview {
   generalComment: string;
   comments: AIPullRequestFileComment[];
+  approved?: boolean;
 }
 
 export interface AIPullRequestFileComment {
@@ -8,4 +9,5 @@ export interface AIPullRequestFileComment {
   body: string;
   line?: number;
   position?: number;
+  side?: 'RIGHT' | 'LEFT';
 }

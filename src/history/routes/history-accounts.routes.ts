@@ -1,18 +1,11 @@
 import { Router } from 'express';
-import { AccountController } from '../controllers/account.controller';
-import { RepositoryController } from '../controllers/repository.controller';
-import { PullRequestController } from '../controllers/pull-request.controller';
-import { CodeReviewController } from '../controllers/code-review.controller';
+import { AccountController } from 'src/history/controllers/account.controller';
+import { RepositoryController } from 'src/history/controllers/repository.controller';
+import { PullRequestController } from 'src/history/controllers/pull-request.controller';
+import { CodeReviewController } from 'src/history/controllers/code-review.controller';
 import { container } from 'src/app/config/container-config';
 
-/**
- * @swagger
- * tags:
- *   name: Accounts
- *   description: Endpoints for managing GitHub accounts
- */
-
-const accountsRouter = Router();
+const historyAccountsRouter = Router();
 
 export const registerRoutes = () => {
   const accountController = container.get(AccountController);
@@ -26,7 +19,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get all accounts
    *     description: Retrieves all GitHub accounts (users and organizations) accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -51,10 +44,18 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get('/', accountController.getAllAccounts);
+  historyAccountsRouter.get('/', accountController.getAllAccounts);
 
   /**
    * @swagger
@@ -62,7 +63,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get organizations
    *     description: Retrieves GitHub organizations accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -87,10 +88,18 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get('/organizations', accountController.getOrganizations);
+  historyAccountsRouter.get('/organizations', accountController.getOrganizations);
 
   /**
    * @swagger
@@ -98,7 +107,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get users
    *     description: Retrieves GitHub users accessible to the authenticated user
-   *     tags: [Accounts]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -123,10 +132,18 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedAccountsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get('/users', accountController.getUsers);
+  historyAccountsRouter.get('/users', accountController.getUsers);
 
   /**
    * @swagger
@@ -141,7 +158,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get repositories for account
    *     description: Retrieves all repositories for a specific account (organization or user)
-   *     tags: [Repository]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -163,6 +180,12 @@ export const registerRoutes = () => {
    *           type: integer
    *           default: 10
    *         description: Number of items per page
+   *       - in: query
+   *         name: includeSettings
+   *         schema:
+   *           type: boolean
+   *           default: false
+   *         description: Include settings in the response
    *     responses:
    *       200:
    *         description: List of repositories with pagination info
@@ -172,22 +195,27 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedRepositoriesResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Owner not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories',
     repositoryController.getRepositories,
   );
-
-  /**
-   * @swagger
-   * tags:
-   *   name: PullRequests
-   *   description: Endpoints for managing pull requests
-   */
 
   /**
    * @swagger
@@ -195,7 +223,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get pull requests
    *     description: Retrieves pull requests for a specific repository
-   *     tags: [PullRequests]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -232,22 +260,28 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedPullRequestsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Repository not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests',
     pullRequestController.getPullRequests,
   );
 
-  /**
-   * @swagger
-   * tags:
-   *   name: CodeReviews
-   *   description: Endpoints for managing code reviews
-   */
 
   /**
    * @swagger
@@ -255,7 +289,7 @@ export const registerRoutes = () => {
    *   get:
    *     summary: Get code reviews for a pull request
    *     description: Retrieves code reviews for a specific pull request
-   *     tags: [CodeReviews]
+   *     tags: [History]
    *     security:
    *       - githubAuth: []
    *     parameters:
@@ -298,12 +332,24 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/PaginatedCodeReviewsResponse'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       404:
    *         description: Pull request not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
-  accountsRouter.get(
+  historyAccountsRouter.get(
     '/:ownerName/repositories/:repositoryName/pull-requests/:pullRequestNumber/reviews',
     codeReviewController.getCodeReviews,
   );
@@ -313,4 +359,4 @@ if (process.env.NODE_ENV !== 'test') {
   registerRoutes();
 }
 
-export { accountsRouter };
+export { historyAccountsRouter };

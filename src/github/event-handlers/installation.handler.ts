@@ -5,7 +5,7 @@ import { EventHandler } from 'src/github/interfaces/event-handler';
 import { AccountData } from 'src/github/interfaces/account-data';
 import { InstallationEvent } from 'src/github/interfaces/events';
 import { AccountRepository } from 'src/common/database/abstracts/account.repository';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
@@ -34,9 +34,6 @@ export class InstallationHandler extends EventHandler<
 
       case 'deleted':
         await this.handleAppDeletion(this.payload);
-        break;
-
-      default:
         break;
     }
   }

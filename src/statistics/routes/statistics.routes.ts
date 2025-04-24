@@ -46,8 +46,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/Metric'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/average-creation-count-by-repository',
@@ -79,8 +87,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/Metric'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/average-completion-time',
@@ -112,8 +128,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/Metric'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/initial-review-average-time',
@@ -145,8 +169,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/Metric'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/average-review-count',
@@ -180,8 +212,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/ChartData'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/count-by-repository',
@@ -213,8 +253,16 @@ export const registerRoutes = () => {
    *               $ref: '#/components/schemas/ChartData'
    *       401:
    *         description: Unauthorized
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/StandardResponse'
    */
   statisticsRouter.post(
     '/pull-requests/review-count-by-repository',

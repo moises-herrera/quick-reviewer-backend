@@ -122,6 +122,14 @@ describe('PostgresProjectRepository', () => {
         orderBy: {
           createdAt: 'desc',
         },
+        select: {
+          createdAt: true,
+          id: true,
+          name: true,
+          ownerId: true,
+          settings: undefined,
+          updatedAt: true,
+        },
       });
       expect(dbClient.repository.count).toHaveBeenCalledWith({
         where: {
@@ -133,9 +141,7 @@ describe('PostgresProjectRepository', () => {
               userId: options.userId,
             },
           },
-          owner: {
-            name: options.ownerName,
-          },
+          ownerId: 'owner1',
         },
       });
 

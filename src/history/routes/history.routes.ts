@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import { gitHubAuthMiddleware } from 'src/github/middlewares/github-auth.middleware';
-import { accountsRouter } from './accounts.routes';
-import { reviewsRouter } from './reviews.routes';
+import { historyAccountsRouter } from './history-accounts.routes';
+import { historyReviewsRouter } from './history-reviews.routes';
 
 const historyRouter = Router();
 
 export const registerRoutes = () => {
   historyRouter.use(gitHubAuthMiddleware);
 
-  historyRouter.use('/accounts', accountsRouter);
-  historyRouter.use('/reviews', reviewsRouter);
+  historyRouter.use('/accounts', historyAccountsRouter);
+  historyRouter.use('/reviews', historyReviewsRouter);
 };
 
 if (process.env.NODE_ENV !== 'test') {

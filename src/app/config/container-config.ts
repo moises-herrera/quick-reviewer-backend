@@ -27,17 +27,25 @@ import { PullRequestCommentRepository } from 'src/common/database/abstracts/pull
 import { UserRepository } from 'src/common/database/abstracts/user.repository';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
 import { AIService } from 'src/ai/abstracts/ai.service';
-import { HistoryService } from 'src/github/abstracts/history.abstract';
-import { RegisterUserService } from 'src/github/abstracts/register-user.abstract';
+import { HistoryService } from 'src/common/abstracts/history.abstract';
+import { RegisterUserService } from 'src/common/abstracts/register-user.abstract';
 import { StatisticsService } from 'src/statistics/abstracts/statistics.abstract';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
-import { PullRequestService } from 'src/github/abstracts/pull-request.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
+import { PullRequestService } from 'src/common/abstracts/pull-request.abstract';
 import { DbClient } from 'src/common/database/db-client';
 import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
 import { PostgresTestAccountRepository } from 'src/common/database/repositories/postgres-test-account.repository';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { AppLoggerService } from 'src/common/services/app-logger.service';
 import { Repositories, Services } from 'src/github/factories/utils';
+import { AccountSettingsController } from 'src/accounts/controllers/account-settings.controller';
+import { RepositorySettingsController } from 'src/repositories/controllers/repository-settings.controller';
+import { AccountSettingsRepository } from 'src/common/database/abstracts/account-settings.repository';
+import { PostgresAccountSettingsRepository } from 'src/common/database/repositories/postgres-account-settings.repository';
+import { ProjectSettingsRepository } from 'src/common/database/abstracts/project-settings.repository';
+import { PostgresProjectSettingsRepository } from 'src/common/database/repositories/postgres-project-settings.repository';
+import { BotSettingsService } from 'src/common/abstracts/bot-settings.abstract';
+import { AppBotSettingsService } from 'src/common/services/app-bot-settings.service';
 
 export const container = new Container();
 
@@ -69,6 +77,12 @@ container
 container
   .bind<CodeReviewRepository>(CodeReviewRepository)
   .to(PostgresCodeReviewRepository);
+container
+  .bind<AccountSettingsRepository>(AccountSettingsRepository)
+  .to(PostgresAccountSettingsRepository);
+container
+  .bind<ProjectSettingsRepository>(ProjectSettingsRepository)
+  .to(PostgresProjectSettingsRepository);
 container.bind<UserRepository>(UserRepository).to(PostgresUserRepository);
 
 // Services
@@ -82,6 +96,9 @@ container.bind<AIReviewService>(AIReviewService).to(GitHubAIReviewService);
 container
   .bind<PullRequestService>(PullRequestService)
   .to(GitHubPullRequestService);
+container
+  .bind<BotSettingsService>(BotSettingsService)
+  .to(AppBotSettingsService);
 
 // Controllers
 container
@@ -100,6 +117,12 @@ container
 container
   .bind<StatisticsController>(StatisticsController)
   .to(StatisticsController);
+container
+  .bind<AccountSettingsController>(AccountSettingsController)
+  .to(AccountSettingsController);
+container
+  .bind<RepositorySettingsController>(RepositorySettingsController)
+  .to(RepositorySettingsController);
 
 // Factories
 container.bind<Repositories>(Repositories).to(Repositories);

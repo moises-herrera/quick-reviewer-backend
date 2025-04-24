@@ -35,6 +35,7 @@ describe('RepositoryController', () => {
         search: '',
         page: 1,
         limit: 10,
+        includeSettings: false,
       });
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK);
     });

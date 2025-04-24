@@ -2,11 +2,15 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types';
 import { PullRequestMapper } from 'src/github/mappers/pull-request.mapper';
 import { EventHandler } from 'src/github/interfaces/event-handler';
 import { Octokit } from 'src/github/interfaces/octokit';
-import { AIReviewParams } from 'src/github/interfaces/review-params';
+import {
+  AIReviewParams,
+  ReviewPullRequestDetailed,
+} from 'src/common/interfaces/review-params';
 import { PullRequestEvent } from 'src/github/interfaces/events';
 import { PullRequestRepository } from 'src/common/database/abstracts/pull-request.repository';
-import { AIReviewService } from 'src/github/abstracts/ai-review.abstract';
+import { AIReviewService } from 'src/common/abstracts/ai-review.abstract';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { BotSettingsService } from 'src/common/abstracts/bot-settings.abstract';
 
 export class PullRequestHandler extends EventHandler<
   PullRequestEvent['payload']
@@ -16,6 +20,7 @@ export class PullRequestHandler extends EventHandler<
     private readonly pullRequestRepository: PullRequestRepository,
     private readonly aiReviewService: AIReviewService,
     private readonly loggerService: LoggerService,
+    private readonly botSettingsService: BotSettingsService,
   ) {
     super(event);
 
@@ -53,9 +58,24 @@ export class PullRequestHandler extends EventHandler<
     }
   }
 
-  private async reviewPullRequest(config: AIReviewParams): Promise<void> {
-    await this.aiReviewService.generatePullRequestSummary(config);
-    await this.aiReviewService.generatePullRequestReview(config);
+  private async reviewPullRequest(
+    config: ReviewPullRequestDetailed,
+  ): Promise<void> {
+    const { repository } = config;
+    const settings = await this.botSettingsService.getSettings(
+      repository.ownerId,
+      repository.id,
+    );
+
+    if (!settings.autoReviewEnabled) return;
+
+    const reviewParams: AIReviewParams = {
+      ...config,
+      settings,
+    };
+
+    await this.aiReviewService.generatePullRequestSummary(reviewParams);
+    await this.aiReviewService.generatePullRequestReview(reviewParams);
   }
 
   private async handlePullRequestCreation({
@@ -74,6 +94,8 @@ export class PullRequestHandler extends EventHandler<
         await this.reviewPullRequest({
           pullRequest: pullRequestMapped,
           repository: {
+            id: repository.id.toString(),
+            ownerId: repository.owner.id.toString(),
             name: repository.name,
             owner: repository.owner.login,
           },
@@ -173,6 +195,8 @@ export class PullRequestHandler extends EventHandler<
         await this.reviewPullRequest({
           pullRequest: pullRequestMapped,
           repository: {
+            id: repository.id.toString(),
+            ownerId: repository.owner.id.toString(),
             name: repository.name,
             owner: repository.owner.login,
           },
@@ -199,13 +223,15 @@ export class PullRequestHandler extends EventHandler<
       await this.reviewPullRequest({
         pullRequest: pullRequestMapped,
         repository: {
+          id: repository.id.toString(),
+          ownerId: repository.owner.id.toString(),
           name: repository.name,
           owner: repository.owner.login,
         },
       });
     } catch (error) {
       this.loggerService.logException(error, {
-        message: 'Error marking pull request as ready for review',
+        message: 'Error reviewing pull request marked as ready for review',
       });
     }
   }
