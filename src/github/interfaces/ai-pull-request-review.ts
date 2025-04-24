@@ -9,5 +9,5 @@ export interface AIPullRequestFileComment {
   body: string;
   line?: number;
   position?: number;
-  side: 'RIGHT' | 'LEFT';
+  side?: 'RIGHT' | 'LEFT';
 }

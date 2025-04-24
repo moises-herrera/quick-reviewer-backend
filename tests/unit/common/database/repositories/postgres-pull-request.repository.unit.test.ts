@@ -6,6 +6,7 @@ import { PullRequestFiltersType } from 'src/common/schemas/pull-request-filters.
 import { DbClient } from 'src/common/database/db-client';
 import { PostgresPullRequestRepository } from 'src/common/database/repositories/postgres-pull-request.repository';
 import { MockDbClient } from 'tests/mocks/repositories/mock-db-client';
+import { addDays } from 'src/common/utils/date-helper';
 
 describe('PostgresPullRequestRepository', () => {
   let repository: PostgresPullRequestRepository;
@@ -276,7 +277,7 @@ describe('PostgresPullRequestRepository', () => {
           },
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
         },
         select: {
@@ -324,7 +325,7 @@ describe('PostgresPullRequestRepository', () => {
           state: 'closed',
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
           mergedAt: {
             not: null,
@@ -381,7 +382,7 @@ describe('PostgresPullRequestRepository', () => {
           state: filters.status,
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
           reviews: {
             some: {
@@ -443,7 +444,7 @@ describe('PostgresPullRequestRepository', () => {
           state: filters.status,
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
         },
         select: {
@@ -499,7 +500,7 @@ describe('PostgresPullRequestRepository', () => {
           state: filters.status,
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
         },
         select: {
@@ -564,7 +565,7 @@ describe('PostgresPullRequestRepository', () => {
           },
           createdAt: {
             gte: new Date(filters.startDate),
-            lte: new Date(filters.endDate),
+            lte: addDays(filters.endDate, 1),
           },
         },
         select: {
