@@ -7,7 +7,7 @@ import { BotSettingsSchema } from 'src/common/schemas/bot-settings.schema';
 
 const accountSettingsRouter = Router();
 
-const registerRoutes = () => {
+export const registerRoutes = () => {
   const controller = container.get(AccountSettingsController);
 
   accountSettingsRouter.use(accountSettingsPermissionsMiddleware);
