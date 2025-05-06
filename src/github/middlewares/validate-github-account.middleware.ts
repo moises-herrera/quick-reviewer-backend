@@ -28,9 +28,9 @@ export const validateGitHubAccountMiddleware = async (
     const payload = req.body;
     let accountName: string | null = null;
 
-    if (payload.installation && payload.installation.account) {
+    if (payload.installation && payload.installation.account.login) {
       accountName = payload.installation.account.login;
-    } else if (payload.repository && payload.repository.owner) {
+    } else if (payload.repository && payload.repository.owner.login) {
       accountName = payload.repository.owner.login;
     }
 
@@ -39,7 +39,9 @@ export const validateGitHubAccountMiddleware = async (
         'The account could not be identified:',
         req.headers['x-github-event'],
       );
-      return res.status(StatusCodes.FORBIDDEN).send('Account not identified');
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: 'Account not identified',
+      });
     }
 
     const isAuthorized = await isAccountAuthorized(accountName);
@@ -48,16 +50,16 @@ export const validateGitHubAccountMiddleware = async (
       console.warn(
         `The account has not permissions to use this app: ${accountName}`,
       );
-      return res
-        .status(StatusCodes.FORBIDDEN)
-        .send('The account does not have permissions to use this app');
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: 'The account does not have permissions to use this app',
+      });
     }
 
     next();
   } catch (error) {
     console.error('Error when validating account:', error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send('Error when validating account');
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: 'Error when validating account',
+    });
   }
 };
