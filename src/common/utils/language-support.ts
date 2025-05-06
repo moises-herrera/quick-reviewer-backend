@@ -8,6 +8,7 @@ const languagesExtensionsDictionary = {
   json: 'json',
   yml: 'yaml',
   yaml: 'yaml',
+  php: 'php',
 } as const;
 
 const notSupportedExtensions: string[] = [
@@ -45,6 +46,7 @@ const notSupportedSuffixes: string[] = [
   '-lock.json',
   '-lock.yaml',
   '-lock.yml',
+  '.lock',
 ];
 
 type LanguageExtensionsDictionary = typeof languagesExtensionsDictionary;
@@ -63,7 +65,7 @@ export const isExtensionSupported = (filename: string): boolean => {
     notSupportedExtensions.some((extension) =>
       filename.endsWith(`.${extension}`),
     ) ||
-    notSupportedSuffixes.some((suffix) => filename.endsWith(`${suffix}`))
+    notSupportedSuffixes.some((suffix) => filename.endsWith(suffix))
   ) {
     return false;
   }

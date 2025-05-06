@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import morgan from 'morgan';
 import { envConfig } from 'src/app/config/env-config';
 import { gitHubWebhooksMiddleware } from 'src/github/config/webhooks-config';
@@ -12,6 +12,7 @@ import { API_PREFIX } from 'src/common/constants/api';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { container } from 'src/app/config/container-config';
+import { validateGitHubAccountMiddleware } from 'src/github/middlewares/validate-github-account.middleware';
 
 export const createApp = () => {
   const PORT = envConfig.PORT || 3000;
@@ -29,10 +30,17 @@ export const createApp = () => {
 
   app.use(cookieParser());
 
+  app.use(express.json({
+    verify: (req, _res, buf) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).rawBody = buf;
+    }
+  }));
+
+  app.use(validateGitHubAccountMiddleware as RequestHandler);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   app.use(gitHubWebhooksMiddleware as any);
 
-  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan('dev'));
 
