@@ -67,7 +67,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       if (!existingAccounts.length) return;
 
-      const accountIds = existingAccounts.map((account) => {
+      const accountsData = existingAccounts.map((account) => {
         const canConfigureBot =
           accounts.find(
             ({ organization }) => organization.id.toString() === account.id,
@@ -80,7 +80,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
         };
       });
 
-      await this.userRepository.saveUserAccounts(accountIds);
+      await this.userRepository.saveUserAccounts(accountsData);
     } catch (error) {
       throw new HttpException(
         'Error saving user accounts',
@@ -117,7 +117,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       if (!existingRepositories.length) return;
 
-      const repositoryIds = existingRepositories.map((repository) => {
+      const repositoriesData = existingRepositories.map((repository) => {
         const permissions = repositories.find(
           ({ id }) => id.toString() === repository.id,
         )?.permissions;
@@ -129,7 +129,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
         };
       });
 
-      await this.userRepository.saveUserRepositories(repositoryIds);
+      await this.userRepository.saveUserRepositories(repositoriesData);
     } catch (error) {
       throw new HttpException(
         'Error saving user repositories',

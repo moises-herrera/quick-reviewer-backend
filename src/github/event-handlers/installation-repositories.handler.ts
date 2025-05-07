@@ -32,16 +32,28 @@ export class InstallationRepositoriesHandler extends EventHandler<
     payload: EmitterWebhookEvent<'installation_repositories.added'>['payload'],
   ): Promise<void> {
     if (!payload.repositories_added.length) return;
-    const repositoriesMapped = payload.repositories_added.map(
-      (data) =>
-        ({
-          id: data.id.toString(),
-          name: data.name,
-          ownerId: payload.installation.account?.id.toString(),
-        }) as Repository,
-    );
 
     try {
+      const existingRepositories =
+        await this.projectRepository.getRepositoriesByIds(
+          payload.repositories_added.map(({ id }) => id.toString()),
+        );
+      const repositoriesToSave = payload.repositories_added.filter(
+        ({ id }) =>
+          !existingRepositories.some(
+            (repository) => repository.id === id.toString(),
+          ),
+      );
+
+      const repositoriesMapped = repositoriesToSave.map(
+        (data) =>
+          ({
+            id: data.id.toString(),
+            name: data.name,
+            ownerId: payload.installation.account?.id.toString(),
+          }) as Repository,
+      );
+
       await this.projectRepository.saveRepositories(repositoriesMapped);
     } catch (error) {
       this.loggerService.logException(error, {
@@ -54,11 +66,20 @@ export class InstallationRepositoriesHandler extends EventHandler<
     payload: EmitterWebhookEvent<'installation_repositories.removed'>['payload'],
   ): Promise<void> {
     if (!payload.repositories_removed.length) return;
-    const repositoriesIds = payload.repositories_removed.map(({ id }) =>
-      id.toString(),
-    );
 
     try {
+      const existingRepositories =
+        await this.projectRepository.getRepositoriesByIds(
+          payload.repositories_removed.map(({ id }) => id.toString()),
+        );
+      const repositoriesIds = payload.repositories_removed
+        .filter(({ id }) =>
+          existingRepositories.some(
+            (repository) => repository.id === id.toString(),
+          ),
+        )
+        .map(({ id }) => id.toString());
+
       await this.projectRepository.deleteRepositories(repositoriesIds);
     } catch (error) {
       this.loggerService.logException(error, {

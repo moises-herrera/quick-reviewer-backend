@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { container } from 'src/app/config/container-config';
@@ -36,14 +37,22 @@ export const validateGitHubAccountMiddleware = async (
 
     switch (eventType) {
       case 'installation':
+        const installationPayload =
+          req.body as EventTypeMap[typeof eventType]['payload'];
         accountName =
-          (req.body as EventTypeMap[typeof eventType]['payload']).installation
-            .account?.name || null;
+          installationPayload.installation.account?.name ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (installationPayload.installation.account as any).login ||
+          null;
         break;
       case 'installation_repositories':
+        const installationRepositoriesPayload =
+          req.body as EventTypeMap[typeof eventType]['payload'];
         accountName =
-          (req.body as EventTypeMap[typeof eventType]['payload']).installation
-            .account?.name || null;
+          installationRepositoriesPayload.installation.account?.name ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (installationRepositoriesPayload.installation.account as any).login ||
+          null;
         break;
       case 'repository':
         accountName = (req.body as EventTypeMap[typeof eventType]['payload'])
@@ -71,7 +80,7 @@ export const validateGitHubAccountMiddleware = async (
         break;
     }
 
-    console.log(accountName);
+    console.log({ eventType, accountName });
 
     if (!accountName) {
       loggerService.error('The account could not be identified', {
@@ -98,12 +107,9 @@ export const validateGitHubAccountMiddleware = async (
 
     next();
   } catch (error) {
-    loggerService.logException(
-      error,
-      {
-        message: 'Error when validating account',
-      },
-    );
+    loggerService.logException(error, {
+      message: 'Error when validating account',
+    });
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: 'Error when validating account',
     });
