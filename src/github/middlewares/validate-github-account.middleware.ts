@@ -80,8 +80,6 @@ export const validateGitHubAccountMiddleware = async (
         break;
     }
 
-    console.log({ eventType, accountName });
-
     if (!accountName) {
       loggerService.error('The account could not be identified', {
         eventType,
