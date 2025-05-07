@@ -35,10 +35,10 @@ export class InstallationRepositoriesHandler extends EventHandler<
     const repositoriesMapped = payload.repositories_added.map(
       (data) =>
         ({
-          id: data.id,
-          name: data.full_name,
+          id: data.id.toString(),
+          name: data.name,
           ownerId: payload.installation.account?.id.toString(),
-        }) as unknown as Repository,
+        }) as Repository,
     );
 
     try {
