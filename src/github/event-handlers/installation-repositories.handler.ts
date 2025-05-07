@@ -68,19 +68,14 @@ export class InstallationRepositoriesHandler extends EventHandler<
     if (!payload.repositories_removed.length) return;
 
     try {
+      const repositoriesIds = payload.repositories_removed.map(({ id }) =>
+        id.toString(),
+      );
       const existingRepositories =
-        await this.projectRepository.getRepositoriesByIds(
-          payload.repositories_removed.map(({ id }) => id.toString()),
-        );
-      const repositoriesIds = payload.repositories_removed
-        .filter(({ id }) =>
-          existingRepositories.some(
-            (repository) => repository.id === id.toString(),
-          ),
-        )
-        .map(({ id }) => id.toString());
+        await this.projectRepository.getRepositoriesByIds(repositoriesIds);
+      const repositoriesToDelete = existingRepositories.map(({ id }) => id);
 
-      await this.projectRepository.deleteRepositories(repositoriesIds);
+      await this.projectRepository.deleteRepositories(repositoriesToDelete);
     } catch (error) {
       this.loggerService.logException(error, {
         message: 'Error deleting repositories',

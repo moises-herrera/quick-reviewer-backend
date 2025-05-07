@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { envConfig } from 'src/app/config/env-config';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { TestAccountRepository } from 'src/common/database/abstracts/test-account.repository';
 import { validateGitHubAccountMiddleware } from 'src/github/middlewares/validate-github-account.middleware';
 
 const testAccountRepository = vi.hoisted(() => ({
@@ -9,7 +11,21 @@ const testAccountRepository = vi.hoisted(() => ({
 
 vi.mock('src/app/config/container-config', () => ({
   container: {
-    get: () => testAccountRepository,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    get: (token: Function) => {
+      if (token.name === TestAccountRepository.name) {
+        return testAccountRepository;
+      }
+
+      if (token.name === LoggerService.name) {
+        return {
+          logException: vi.fn(),
+          error: vi.fn(),
+        };
+      }
+
+      return vi.fn();
+    },
   },
 }));
 
@@ -22,15 +38,15 @@ describe('ValidateGithubAccountMiddleware', () => {
   } as unknown as Request;
   const authorizedRequest = {
     path: envConfig.GITHUB_WEBHOOK_PATH,
+    headers: {
+      'x-github-event': 'installation',
+    },
     body: {
       installation: {
         account: {
           login: 'test-account',
         },
       },
-    },
-    headers: {
-      'x-github-event': 'some-event',
     },
   } as unknown as Request;
   const validAccount = 'test-account';
@@ -53,11 +69,12 @@ describe('ValidateGithubAccountMiddleware', () => {
   });
 
   it('should return 403 if the account name does not exist in the body', async () => {
-    await validateGitHubAccountMiddleware(
-      { ...authorizedRequest, body: {} } as Request,
-      res,
-      next,
-    );
+    const req = {
+      path: envConfig.GITHUB_WEBHOOK_PATH,
+      headers: {},
+      body: {},
+    } as unknown as Request;
+    await validateGitHubAccountMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(StatusCodes.FORBIDDEN);
     expect(res.json).toHaveBeenCalledWith({
       message: 'Account not identified',
