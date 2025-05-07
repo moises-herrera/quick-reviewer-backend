@@ -89,9 +89,9 @@ export class GitHubHistoryService implements HistoryService {
     )
       .toISOString()
       .split('T')[0];
-    const defaultEndDate = currentDate.toISOString().split('T')[0];
+    const defaultEndDate = new Date().toISOString().split('T')[0];
     const result = await this.octokit.rest.search.issuesAndPullRequests({
-      q: `repo:${owner}/${name} is:pr is:merged created:${filters?.startDate || defaultStartDate}..${filters?.endDate || defaultEndDate}`,
+      q: `repo:${owner}/${name} is:pr created:${filters?.startDate || defaultStartDate}..${filters?.endDate || defaultEndDate}`,
       per_page: filters?.perPage || 100,
       page: filters?.page || 1,
       sort: 'created',

@@ -1,3 +1,4 @@
+import { Repository } from '@prisma/client';
 import { LoggerService } from 'src/common/abstracts/logger.abstract';
 import { ProjectRepository } from 'src/common/database/abstracts/project.repository';
 import { InstallationRepositoriesHandler } from 'src/github/event-handlers/installation-repositories.handler';
@@ -50,8 +51,8 @@ describe('InstallationRepositoriesHandler', () => {
 
         expect(projectRepository.saveRepositories).toHaveBeenCalledWith([
           {
-            id: 1,
-            name: 'test/test-repo',
+            id: '1',
+            name: 'test-repo',
             ownerId: '123',
           },
         ]);
@@ -82,6 +83,17 @@ describe('InstallationRepositoriesHandler', () => {
 
     describe('when action is "removed"', () => {
       it('should delete the removed repositories', async () => {
+        vi.spyOn(
+          projectRepository,
+          'getRepositoriesByIds',
+        ).mockResolvedValueOnce([
+          {
+            id: '2',
+            name: 'test-repo-2',
+            ownerId: '123',
+          } as unknown as Repository,
+        ]);
+
         event.payload.action = 'removed';
         event.payload.repositories_removed = [
           {

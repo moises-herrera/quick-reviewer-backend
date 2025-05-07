@@ -38,8 +38,7 @@ export const createApp = () => {
   }));
 
   app.use(validateGitHubAccountMiddleware as RequestHandler);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use(gitHubWebhooksMiddleware as any);
+  app.use(gitHubWebhooksMiddleware as unknown as RequestHandler);
 
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan('dev'));
