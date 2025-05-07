@@ -15,6 +15,8 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 
 FROM base AS build
 WORKDIR /app
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 COPY --from=dev-deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm db:init && pnpm build && pnpm post-build

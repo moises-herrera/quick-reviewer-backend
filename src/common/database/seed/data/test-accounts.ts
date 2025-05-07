@@ -19,4 +19,10 @@ export const testAccounts: TestAccount[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
+  {
+    id: '4',
+    name: 'BeBetterDevelopers',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 ];
