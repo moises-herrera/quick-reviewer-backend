@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { repositorySettingsPermissionsMiddleware } from 'src/repositories/middlewares/repository-settings-permissions.middleware';
 import { registerRoutes } from 'src/repositories/routes/repository-settings.routes';
 
 const mockController = vi.hoisted(() => ({
@@ -26,6 +27,7 @@ describe('RepositorySettings Routes', () => {
 
     expect(router.get).toHaveBeenCalledWith(
       '/:repositoryId/settings',
+      repositorySettingsPermissionsMiddleware,
       mockController.getRepositorySettings,
     );
   });
@@ -35,6 +37,7 @@ describe('RepositorySettings Routes', () => {
 
     expect(router.put).toHaveBeenCalledWith(
       '/:repositoryId/settings',
+      repositorySettingsPermissionsMiddleware,
       expect.any(Function),
       mockController.updateRepositorySettings,
     );
@@ -45,6 +48,7 @@ describe('RepositorySettings Routes', () => {
 
     expect(router.delete).toHaveBeenCalledWith(
       '/:repositoryId/settings',
+      repositorySettingsPermissionsMiddleware,
       mockController.deleteRepositorySettings,
     );
   });

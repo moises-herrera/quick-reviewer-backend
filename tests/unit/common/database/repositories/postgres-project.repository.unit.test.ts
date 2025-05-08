@@ -130,6 +130,9 @@ describe('PostgresProjectRepository', () => {
           settings: undefined,
           updatedAt: true,
           users: {
+            where: {
+              userId: options.userId,
+            },
             select: {
               canConfigureBot: true,
             },
