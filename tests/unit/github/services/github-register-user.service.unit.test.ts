@@ -95,7 +95,7 @@ describe('GitHubRegisterUserService', () => {
       );
       expect(spyGetAccountsByIds).toHaveBeenCalledWith([user.id, '123', '456']);
       expect(spySaveUserAccounts).toHaveBeenCalledWith([
-        { userId: user.id, accountId: user.id, canConfigureBot: false },
+        { userId: user.id, accountId: user.id, canConfigureBot: true },
         { userId: user.id, accountId: '123', canConfigureBot: false },
         { userId: user.id, accountId: '456', canConfigureBot: false },
       ]);

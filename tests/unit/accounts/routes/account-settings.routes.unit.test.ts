@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { accountSettingsPermissionsMiddleware } from 'src/accounts/middlewares/account-settings-permissions.middleware';
 import { registerRoutes } from 'src/accounts/routes/account-settings.routes';
 
 const mockController = vi.hoisted(() => ({
@@ -26,6 +27,7 @@ describe('AccountSettings Routes', () => {
 
     expect(router.get).toHaveBeenCalledWith(
       '/:accountId/settings',
+      accountSettingsPermissionsMiddleware,
       mockController.getAccountSettings,
     );
   });
@@ -35,6 +37,7 @@ describe('AccountSettings Routes', () => {
 
     expect(router.put).toHaveBeenCalledWith(
       '/:accountId/settings',
+      accountSettingsPermissionsMiddleware,
       expect.any(Function),
       mockController.updateAccountSettings,
     );
@@ -45,6 +48,7 @@ describe('AccountSettings Routes', () => {
 
     expect(router.delete).toHaveBeenCalledWith(
       '/:accountId/settings/sync-repositories',
+      accountSettingsPermissionsMiddleware,
       mockController.syncRepositorySettings,
     );
   });

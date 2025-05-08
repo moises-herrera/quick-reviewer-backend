@@ -16,8 +16,6 @@ const repositorySettingsRouter = Router();
 export const registerRoutes = () => {
   const controller = container.get(RepositorySettingsController);
 
-  repositorySettingsRouter.use(repositorySettingsPermissionsMiddleware);
-
   /**
    * @swagger
    * /api/repositories/{repositoryId}/settings:
@@ -56,6 +54,7 @@ export const registerRoutes = () => {
    */
   repositorySettingsRouter.get(
     '/:repositoryId/settings',
+    repositorySettingsPermissionsMiddleware,
     controller.getRepositorySettings,
   );
 
@@ -103,6 +102,7 @@ export const registerRoutes = () => {
    */
   repositorySettingsRouter.put(
     '/:repositoryId/settings',
+    repositorySettingsPermissionsMiddleware,
     validateBody(BotSettingsSchema),
     controller.updateRepositorySettings,
   );
@@ -145,6 +145,7 @@ export const registerRoutes = () => {
    */
   repositorySettingsRouter.delete(
     '/:repositoryId/settings',
+    repositorySettingsPermissionsMiddleware,
     controller.deleteRepositorySettings,
   );
 };

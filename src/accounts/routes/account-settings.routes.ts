@@ -10,8 +10,6 @@ const accountSettingsRouter = Router();
 export const registerRoutes = () => {
   const controller = container.get(AccountSettingsController);
 
-  accountSettingsRouter.use(accountSettingsPermissionsMiddleware);
-
   /**
    * @swagger
    * /api/accounts/{accountId}/settings:
@@ -44,6 +42,7 @@ export const registerRoutes = () => {
    */
   accountSettingsRouter.get(
     '/:accountId/settings',
+    accountSettingsPermissionsMiddleware,
     controller.getAccountSettings,
   );
 
@@ -91,6 +90,7 @@ export const registerRoutes = () => {
    */
   accountSettingsRouter.put(
     '/:accountId/settings',
+    accountSettingsPermissionsMiddleware,
     validateBody(BotSettingsSchema),
     controller.updateAccountSettings,
   );
@@ -127,6 +127,7 @@ export const registerRoutes = () => {
    */
   accountSettingsRouter.delete(
     '/:accountId/settings/sync-repositories',
+    accountSettingsPermissionsMiddleware,
     controller.syncRepositorySettings,
   );
 };

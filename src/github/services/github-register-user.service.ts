@@ -71,7 +71,7 @@ export class GitHubRegisterUserService implements RegisterUserService {
         const canConfigureBot =
           accounts.find(
             ({ organization }) => organization.id.toString() === account.id,
-          )?.role === 'admin';
+          )?.role === 'admin' || user.id === account.id;
 
         return {
           userId: user.id,
