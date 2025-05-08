@@ -18,6 +18,7 @@ import {
   GITHUB_REFRESH_TOKEN,
   OAUTH_STATE,
 } from 'src/github/constants/auth';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
 
 export class GitHubAuthController {
   constructor(
@@ -25,6 +26,8 @@ export class GitHubAuthController {
     private readonly userRepository: UserRepository,
     @inject(RegisterUserService)
     private readonly registerUserService: RegisterUserService,
+    @inject(LoggerService)
+    private readonly loggerService: LoggerService,
   ) {}
 
   getAuthorizationUrl: HttpHandler = async (_req, res, next): Promise<void> => {
@@ -44,10 +47,12 @@ export class GitHubAuthController {
     }
   };
 
-  getAccessToken: HttpHandler = async (req, res, next): Promise<void> => {
-    try {
-      res.clearCookie(OAUTH_STATE);
+  getAccessToken: HttpHandler = async (req, res): Promise<void> => {
+    res.clearCookie(OAUTH_STATE);
+    res.clearCookie(GITHUB_ACCESS_TOKEN);
+    res.clearCookie(GITHUB_REFRESH_TOKEN);
 
+    try {
       const { code } = req.query;
       let authentication:
         | Awaited<
@@ -101,9 +106,13 @@ export class GitHubAuthController {
       );
 
       res.redirect(`${envConfig.FRONTEND_URL}/dashboard`);
+      return;
     } catch (error) {
+      this.loggerService.logException(error, {
+        message: 'Error getting access token',
+      });
       res.redirect(`${envConfig.FRONTEND_URL}/auth/login?error=true`);
-      next(error);
+      return;
     }
   };
 
