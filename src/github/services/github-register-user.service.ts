@@ -110,25 +110,6 @@ export class GitHubRegisterUserService implements RegisterUserService {
 
       if (!repositories.length) return;
 
-      const accountIds = repositories.map(({ owner }) => owner.id.toString());
-      const existingAccounts =
-        await this.accountRepository.getAccountsByIds(accountIds);
-      const newAccountIds = accountIds.filter(
-        (id) => !existingAccounts.some((account) => account.id === id),
-      );
-
-      if (newAccountIds.length) {
-        const accountsData = newAccountIds.map((accountId) => {
-          return {
-            userId: user.id,
-            accountId,
-            canConfigureBot: false,
-          };
-        });
-
-        await this.userRepository.saveUserAccounts(accountsData);
-      }
-
       const existingRepositories =
         await this.projectRepository.getRepositoriesByIds(
           repositories.map(({ id }) => id.toString()),
