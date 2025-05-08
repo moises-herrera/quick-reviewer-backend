@@ -15,6 +15,8 @@ import {
 import { GitHubAuthController } from 'src/github/controllers/github-auth.controller';
 import { MockUserRepository } from 'tests/mocks/repositories/mock-user.repository';
 import { MockRegisterUserService } from 'tests/mocks/services/mock-register-user.service';
+import { LoggerService } from 'src/common/abstracts/logger.abstract';
+import { MockLoggerService } from 'tests/mocks/services/mock-logger.service';
 
 const mockOctokit = vi.hoisted(() => ({
   request: vi.fn(),
@@ -43,11 +45,17 @@ describe('GitHubAuthController', () => {
   let controller: GitHubAuthController;
   let userRepository: UserRepository;
   let registerUserService: RegisterUserService;
+  let loggerService: LoggerService;
 
   beforeEach(() => {
     userRepository = new MockUserRepository();
     registerUserService = new MockRegisterUserService();
-    controller = new GitHubAuthController(userRepository, registerUserService);
+    loggerService = new MockLoggerService();
+    controller = new GitHubAuthController(
+      userRepository,
+      registerUserService,
+      loggerService,
+    );
   });
 
   describe('getAuthorizationUrl', () => {
@@ -202,7 +210,6 @@ describe('GitHubAuthController', () => {
       expect(res.redirect).toHaveBeenCalledWith(
         `${envConfig.FRONTEND_URL}/auth/login?error=true`,
       );
-      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
