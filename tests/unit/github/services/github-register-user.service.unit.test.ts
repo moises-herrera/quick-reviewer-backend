@@ -22,7 +22,10 @@ describe('GitHubRegisterUserService', () => {
       }
       if (url === 'GET /user/repos') {
         return Promise.resolve({
-          data: [{ id: 789 }, { id: 452 }],
+          data: [
+            { id: 789, owner: { id: 3 } },
+            { id: 452, owner: { id: 4 } },
+          ],
         });
       }
       return Promise.resolve({ data: [] });
@@ -39,6 +42,8 @@ describe('GitHubRegisterUserService', () => {
   };
 
   beforeEach(() => {
+    vi.clearAllMocks();
+
     userRepository = new MockUserRepository();
     accountRepository = new MockAccountRepository();
     projectRepository = new MockProjectRepository();
