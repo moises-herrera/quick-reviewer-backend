@@ -129,6 +129,11 @@ describe('PostgresProjectRepository', () => {
           ownerId: true,
           settings: undefined,
           updatedAt: true,
+          users: {
+            select: {
+              canConfigureBot: true,
+            },
+          },
         },
       });
       expect(dbClient.repository.count).toHaveBeenCalledWith({

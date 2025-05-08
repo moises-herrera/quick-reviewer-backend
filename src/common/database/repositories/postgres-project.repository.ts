@@ -69,6 +69,14 @@ export class PostgresProjectRepository implements ProjectRepository {
             },
           }
         : undefined,
+      users: {
+        where: {
+          userId: options.userId,
+        },
+        select: {
+          canConfigureBot: true,
+        },
+      },
     } as const;
     const skipRecords =
       options.page > 1 ? options.limit * (options.page - 1) : 0;
