@@ -238,8 +238,11 @@ export class GitHubAIReviewService implements AIReviewService {
         comments,
       });
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const errors = (error as any).response?.data.errors;
       this.loggerService.logException(error, {
         message: 'Error generating pull request review',
+        errors,
       });
     }
   }
@@ -295,56 +298,28 @@ export class GitHubAIReviewService implements AIReviewService {
     fileContents,
   }: PullRequestContext): string {
     const prompt = `
-      # Pull request context
-      - Title: ${pullRequest.title}
-      - Description: ${pullRequest.body || 'No description provided'}
+    # Pull request context
+    - Title: ${pullRequest.title}
+    - Description: ${pullRequest.body || 'No description provided'}
+    # Changed files
+    ${changedFiles
+      .filter(({ patch }) => !!patch?.length)
+      .map(({ filename, patch }) => {
+        let fileDiff = `path: ${filename}\n${patch}`;
 
-      # Changed files
-      ${changedFiles
-        .map(({ filename, patch }) => {
-          let fileDiff = `
-          ## ${filename}
-          ### Diff
-          \`\`\`diff
-          ${patch}
+        if (fileContents?.has(filename)) {
+          fileDiff += `
+          ### File content
+          \`\`\`${getLanguageFromFilename(filename)}
+          ${fileContents.get(filename)}
           \`\`\`
           `;
+        }
 
-          if (fileContents) {
-            fileDiff += `
-            ### File content
-            \`\`\`${getLanguageFromFilename(filename)}
-            ${fileContents.get(filename)}
-            \`\`\`
-            `;
-          }
-
-          return fileDiff;
-        })
-        .join('\n')}
-      `;
-
-    return prompt;
-  }
-
-  private buildReviewPrompt({
-    pullRequest,
-    changedFiles,
-  }: PullRequestContext): string {
-    const prompt = `
-      ${this.buildContextPrompt({
-        pullRequest,
-        changedFiles,
-      })}
-
-      # Instructions for the review
-
-      Please review this pull request considering:
-      1. Code quality and readability
-      2. Possible bugs or security issues
-      3. Compliance with best practices
-      4. Suggestions for optimizations or improvements
-      `;
+        return fileDiff;
+      })
+      .join('\n')}
+    `;
 
     return prompt;
   }
@@ -383,7 +358,7 @@ export class GitHubAIReviewService implements AIReviewService {
     pullRequest,
     changedFiles,
   }: PullRequestContext): Promise<AIPullRequestReview> {
-    const prompt = this.buildReviewPrompt({
+    const prompt = this.buildContextPrompt({
       pullRequest,
       changedFiles,
     });
